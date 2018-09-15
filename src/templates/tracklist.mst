@@ -1,0 +1,12 @@
+<div class="show-tracklist">
+    <h3>Tracklist</h3>
+    <ul>
+        {{#tracklist}}
+        <li>
+            <span>{{trackNumber}}</span>
+            <span style="color:#4fa6d3;">{{songName}}</span>
+            <span style="color:#9bb2c8;">by</span> <span>{{artistName}}</span>
+        </li>
+        {{/tracklist}}
+    </ul>
+</div>
