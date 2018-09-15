@@ -1,0 +1,48 @@
+{
+  "name": "mixcloud-with-tracklist",
+  "version": "1.0.0",
+  "description": "Display tracklists on Mixcloud",
+  "author": "Trep Dev",
+  "repository": {
+    "type": "git",
+    "url": ".git"
+  },
+  "homepage": "",
+  "license": "MPL-2.0",
+  "keywords": [
+    "mixcloud",
+    "tracklist"
+  ],
+  "scripts": {
+    "browserifyContent": "browserify -t stringify ./src/content.js -o ./build/mwtContent.js",
+    "browserifyBackground": "browserify ./src/background.js -o ./build/mwtBackground.js",
+    "copySources": "cpx \"src/+(settings|templates|icons)/*.{js,html,mst,png}\" build",
+    "copyManifest": "cpx \"manifest.json\" build",
+    "browserify": "npm run browserifyContent && npm run browserifyBackground",
+    "build": "npm run copySources && npm run copyManifest && npm run browserify"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "stringify",
+        {
+          "appliesTo": {
+            "includeExtensions": [
+              ".mst"
+            ]
+          },
+          "minify": true
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "mustache": "2.3.0"
+  },
+  "devDependencies": {
+    "browserify": "16.2.2",
+    "stringify": "5.2.0",
+    "cpx": "1.5.0",
+    "standard": "11.0.1"
+  }
+}
