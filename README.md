@@ -19,7 +19,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 ---
 
 ## Extension options
-By default tracklist is shown. Option is available to hide it by default.
+By default tracklist is shown. You can change it in option panel.
 
 ## Limitations:
 Mixcloud returns tracklist's datas only if you're logged.
