@@ -5,9 +5,9 @@
   "author": "Trep Dev",
   "repository": {
     "type": "git",
-    "url": ".git"
+    "url": "https://github.com/trepDev/mixcloud-with-tracklist.git"
   },
-  "homepage": "",
+  "homepage": "https://github.com/trepDev/mixcloud-with-tracklist",
   "license": "MPL-2.0",
   "keywords": [
     "mixcloud",
