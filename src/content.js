@@ -11,18 +11,18 @@ let graphQLFetcher = require('./graphqlFetcher')
 let tracklistDisplayer = require('./tracklistDisplay')
 
 let currentPath = document.location.pathname
-let tracklistDisplayed = false
+let tracklistActivated = false
 
 let mutationObserver = new MutationObserver(function (mutations) {
   // If user is logged
   if (!document.getElementsByClassName('user-actions guest')[0]) {
     if (document.location.pathname !== currentPath) {
       currentPath = document.location.pathname
-      tracklistDisplayed = false
+      tracklistActivated = false
     }
     let sectionNode = document.getElementsByClassName('show-about-section')
-    if (sectionNode.length !== 0 && !tracklistDisplayed) {
-      tracklistDisplayed = true
+    if (sectionNode.length !== 0 && !tracklistActivated && !document.getElementById('toogleTracklist')) {
+      tracklistActivated = true
       activateTracklist(currentPath)
     }
   }
@@ -39,6 +39,7 @@ mutationObserver.observe(document.querySelector('section.cf'), {
  */
 function activateTracklist (path) {
   chrome.storage.local.get(['defaultTracklist'], settings => {
+    console.log('retrieve settings')
     chrome.runtime.sendMessage(
       {path: decodeURIComponent(path)},
       (tracklist) => {
