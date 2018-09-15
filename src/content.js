@@ -39,7 +39,6 @@ mutationObserver.observe(document.querySelector('section.cf'), {
  */
 function activateTracklist (path) {
   chrome.storage.local.get(['defaultTracklist'], settings => {
-    console.log('retrieve settings')
     chrome.runtime.sendMessage(
       {path: decodeURIComponent(path)},
       (tracklist) => {
