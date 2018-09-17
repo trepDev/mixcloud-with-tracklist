@@ -22,7 +22,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 By default tracklist is shown. You can change it in option panel.
 
 ## Limitations:
-- Mixcloud returns tracklist's datas only if you're logged.
+- Mixcloud returns tracklist's datas only if you're logged. Could happened that Mixcloud don't returns tracklist at all for few minutes. In that case, wait a little, and reload the page.
 - Don't work on mobile website. Have to work on it.
 
 ## Thanks
