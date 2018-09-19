@@ -7,9 +7,10 @@ Extension supports current Mixcloud website (React/graphQL).
 Extension build with Mozilla's WebExtensions API.
 Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit (like Vivaldi).
 
- - [Firefox Extension][firefox-install] : Don't work on mobile website. Have to work on it.
- - Google Chrome Extension : very soon (1/2 days)
- - IE: not tested
+ - [Firefox Extension][firefox-install] : .
+ - [Google Chrome Extension][chrome-install]
+ - IE: not tested.
+ - Mobile website: Have to work on it.
 
  
 ---
@@ -26,9 +27,10 @@ By default tracklist is shown. You can change it in option panel.
 - Don't work on mobile website. Have to work on it.
 
 ## Thanks
+ - [Jean-Christophe Henry](http://www.oddsquid.com/) for icon's design.
  - [Andrew Lawson](https://github.com/adlawson) for his previous Mixcloud Tracklist Extension (didn't fork it because Extension is full rewrited)
 
 
 
 [firefox-install]: https://addons.mozilla.org/en-US/firefox/addon/mixcloud-with-tracklist/
-[chrome-install]: TODO
+[chrome-install]: https://chrome.google.com/webstore/detail/mixcloud-with-tracklist/jgghogcekaldifaiifpnbfnpmmpiengb?hl=en-US&gl=FR
