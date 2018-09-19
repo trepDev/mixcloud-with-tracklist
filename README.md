@@ -7,7 +7,7 @@ Extension supports current Mixcloud website (React/graphQL).
 Extension build with Mozilla's WebExtensions API.
 Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit (like Vivaldi).
 
- - [Firefox Extension][firefox-install] : .
+ - [Firefox Extension][firefox-install]
  - [Google Chrome Extension][chrome-install]
  - IE: not tested.
  - Mobile website: Have to work on it.
