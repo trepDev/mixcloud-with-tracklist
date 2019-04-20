@@ -1,6 +1,6 @@
 {
   "name": "mixcloud-with-tracklist",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Display tracklists on Mixcloud",
   "author": "Trep Dev",
   "repository": {
@@ -40,7 +40,7 @@
     "mustache": "2.3.0"
   },
   "devDependencies": {
-    "browserify": "16.2.2",
+    "browserify": "16.2.3",
     "stringify": "5.2.0",
     "cpx": "1.5.0",
     "standard": "11.0.1"
