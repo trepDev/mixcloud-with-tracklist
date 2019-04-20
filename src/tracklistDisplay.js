@@ -56,7 +56,7 @@ function initializeTracklist (datas, show) {
 
 function initializeButton (tracklistHandler, show) {
   let actionAsNodes = document.getElementsByClassName('actions')[0]
-  let optionAsNode = actionAsNodes.childNodes[4]
+  let optionAsNode = actionAsNodes.childNodes[2]
   let buttonAsNode = htmlToNode(mustache.render(buttonTemplate, {showHideLabel: show ? 'Hide Tracklist' : 'Show Tracklist'}))
   if (show) {
     buttonAsNode.classList.add('btn-toggled')
