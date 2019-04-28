@@ -29,13 +29,19 @@ function start (datas, show) {
 
 function initializeTracklist (datas, show) {
   let tracklistAsNode = htmlToNode(mustache.render(tracklistTemplate, datas))
+  let selectTracklistAsNode = document.getElementsByClassName('tracklist-wrap')[0]
   let sectionNodes = document.getElementsByClassName('show-about-section')[0]
   let trackByAsNode = document.getElementsByClassName('show-tracklist')[0]
   let chartAsNode = document.getElementsByClassName('chart-placement')[0]
   let tagsAsNode = document.getElementsByClassName('show-tags')[0]
 
   let tracklistHandler
-  if (trackByAsNode) {
+  if (selectTracklistAsNode) {
+    let tracklistDivAsNode = selectTracklistAsNode.parentNode
+    let tracklistParentAsNode = tracklistDivAsNode.parentNode
+    // tracklist replace 'tracklist exclusive (pay) profile' section
+    tracklistHandler = replace(tracklistParentAsNode, tracklistAsNode, tracklistDivAsNode)
+  } else if (trackByAsNode) {
     // tracklist replace 'track By' section
     tracklistHandler = replace(sectionNodes, tracklistAsNode, trackByAsNode)
   } else if (tagsAsNode) {
@@ -56,7 +62,7 @@ function initializeTracklist (datas, show) {
 
 function initializeButton (tracklistHandler, show) {
   let actionAsNodes = document.getElementsByClassName('actions')[0]
-  let optionAsNode = actionAsNodes.childNodes[2]
+  let optionAsNode = actionAsNodes.childNodes[actionAsNodes.childNodes.length - 1]
   let buttonAsNode = htmlToNode(mustache.render(buttonTemplate, {showHideLabel: show ? 'Hide Tracklist' : 'Show Tracklist'}))
   if (show) {
     buttonAsNode.classList.add('btn-toggled')
