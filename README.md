@@ -1,7 +1,8 @@
 # Mixcloud (with) Tracklist (Web-Extension)
 
-Displays tracklists on Mixcloud Website.
-Extension supports current Mixcloud website (React/graphQL).
+- Displays tracklists (with track's Number/Time on Mixcloud Website).
+- You can play directly any track by clicking on track number/time
+- Extension supports current Mixcloud website (React/graphQL).
 
 ## Compatibility 
 Extension build with Mozilla's WebExtensions API.
@@ -10,21 +11,28 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
  - [Firefox Extension][firefox-install]
  - [Google Chrome Extension][chrome-install]
  - IE: not tested.
- - Mobile website: Have to work on it.
+ - Mobile website: Have to work on it (maybe one day?).
 
  
 ---
-
-![Screenshot](readme_files/screenshot.png)
+## Instructions
+![Screenshot_timestamp](readme_files/screenshot_timestamp.png)
+---
+![Screenshot_tracknumber](readme_files/screenshot_tracknumber.png)
 
 ---
 
 ## Extension options
-By default tracklist is shown. You can change it in option panel.
+By default Track's Time is shown. You can change it in option panel to display Track's Number by default.
 
 ## Limitations:
+### General Limitations
 - Mixcloud returns tracklist's datas only if you're logged. Could happened that Mixcloud don't returns tracklist at all for few minutes. In that case, wait a little, and reload the page.
-- Don't work on mobile website. Have to work on it.
+- Don't work on mobile website. Have to work on it (maybe one day?).
+### Select Track Playing Limitations
+- Select track playing in media player works only for track with timestamp available.
+- Select a track doesn't add mix in media player. It should be already in it.
+
 
 ## Thanks
  - [Jean-Christophe Henry](http://www.oddsquid.com/) for icon's design.
