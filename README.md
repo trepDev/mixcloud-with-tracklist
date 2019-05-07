@@ -17,8 +17,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 ---
 ## Instructions
 ![Screenshot_timestamp](readme_files/screenshot_timestamp.png)
----
-![Screenshot_tracknumber](readme_files/screenshot_tracknumber.png)
+
 
 ---
 
