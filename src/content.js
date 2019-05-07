@@ -6,7 +6,7 @@
 /* global chrome */
 /* global MutationObserver */
 
-let graphQLFetcher = require('./graphqlFetcher')
+let graphQLFetcher = require('./utils/graphqlFetcher')
 // svg from https://github.com/adlawson/mixcloud-tracklist
 let tracklistDisplayer = require('./tracklistDisplay')
 
@@ -16,6 +16,7 @@ let tracklistActivated = false
 let mutationObserver = new MutationObserver(function (mutations) {
   // If user is logged
   if (!document.getElementsByClassName('user-actions guest')[0]) {
+    // Condition to avoid activate tracklist at each node mutation
     if (document.location.pathname !== currentPath) {
       currentPath = document.location.pathname
       tracklistActivated = false
@@ -38,16 +39,15 @@ mutationObserver.observe(document.querySelector('section.cf'), {
  * @param path : current path.
  */
 function activateTracklist (path) {
-  chrome.storage.local.get(['defaultTracklist'], settings => {
-    chrome.runtime.sendMessage(
-      {path: decodeURIComponent(path)},
-      (tracklist) => {
-        tracklistDisplayer.start(tracklist, settings.defaultTracklist)
-      }
-    )
-  })
+  chrome.runtime.sendMessage(
+    {path: decodeURIComponent(path)},
+    (datas) => {
+      tracklistDisplayer.start(datas)
+    }
+  )
 }
 
+// Listen Background asking to make request retrieving tracklist. Result (tracklist) is send to background (wich store it in store)
 chrome.runtime.onMessage.addListener(
   (graphQLRequest, sender, sendResponse) => {
     graphQLFetcher.fetch(graphQLRequest.variables, graphQLRequest.query).then(result => sendResponse(result)).catch(() => sendResponse(null))
