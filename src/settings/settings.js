@@ -7,16 +7,22 @@
 
 function initialize () {
   chrome.storage.local.get(null, content => {
-    handleTracklistOption(content.defaultTracklist)
+    handleTracklistOption(content.settings)
   })
-  function handleTracklistOption (defaultTracklist) {
+  function handleTracklistOption (settings) {
     const radioShow = document.getElementById('show')
     const radioHide = document.getElementById('hide')
 
-    radioShow.checked = defaultTracklist
-    radioShow.addEventListener('click', () => chrome.storage.local.set({'defaultTracklist': true}))
-    radioHide.checked = !defaultTracklist
-    radioHide.addEventListener('click', () => chrome.storage.local.set({'defaultTracklist': false}))
+    radioShow.checked = settings.trackNumber
+    radioShow.addEventListener('click', () => {
+      settings.trackNumber = true
+      chrome.storage.local.set({'settings': settings})
+    })
+    radioHide.checked = !settings.trackNumber
+    radioHide.addEventListener('click', () => {
+      settings.trackNumber = false
+      chrome.storage.local.set({'settings': settings})
+    })
   }
 }
 

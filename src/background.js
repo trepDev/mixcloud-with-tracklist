@@ -7,19 +7,24 @@ let store = require('./store')
 /* global chrome */
 /* global TextDecoder */
 
-// Set app setting: defaultTracklist is for showing or hidding tracklist by default
+// Set app setting: trackNumber is for showing track's number or timestamp by default
 chrome.runtime.onInstalled.addListener(details => {
+  console.log(details)
+  const settings = {
+    trackNumber: true
+  }
   if (details.reason === 'install') {
-    chrome.storage.local.get(null, content => {
-      if (content.defaultTracklist === undefined) {
-        chrome.storage.local.set({'defaultTracklist': true})
-      }
-    })
+    chrome.storage.local.set({'settings': settings})
+  } else if (details.reason === 'update') {
+    chrome.storage.local.remove('defaultTracklist')
+    chrome.storage.local.set({'settings': settings})
   }
 })
 
 /**
- * Spy graphQL request to get variables/query and make my own request.
+ * Unfortunately, I can't use https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/filterResponseData to directly get the tracklist's datas.
+ * It totally broke mixcloud website behaviour.
+ * So, I have to spy graphQL request to get variables/query and make my own request.
  */
 chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
   {urls: ['https://www.mixcloud.com/graphql']}, ['requestBody']
@@ -32,6 +37,12 @@ function graphQLListener (spiedRequest) {
   let payload = JSON.parse(decoder.decode(byteArray))
   // Request for tracklist & not my own request & tracklist not already store >> notify content script to request
   if (payload.query.includes('TrackSection') && payload.id !== 'MwT' && !store.getCloudcastById(payload.variables.id_0)) {
+    // If request doesn't have startSeconds parameter, add it
+    if (payload.query.search(/TrackSection {(.*)(startSeconds)(.*)}/) === -1) {
+      let newQuery = payload.query.replace(/TrackSection {([a-zA-Z]+)+(,[a-zA-Z]*)*/, '$&' + ',startSeconds')
+      payload.query = newQuery
+    }
+
     chrome.tabs.query({url: '*://*.mixcloud.com/*'}, (tabs) => requestCloudcast(tabs, payload.variables, payload.query))
   }
 }
@@ -100,6 +111,23 @@ function getTracklist (path, counter, resolve, reject) {
       getTracklist(path, counter + 1, resolve, reject)
     }, 500)
   } else {
-    return resolve({tracklist: store.getTracklist(path)})
+    getSettings().then((settings) => {
+      return resolve({tracklist: store.getTracklist(path), settings: settings})
+    })
+  }
+
+  function getSettings () {
+    return new Promise((resolve) => {
+      let settings = store.getSettings()
+      if (settings) {
+        resolve(settings)
+      } else {
+        chrome.storage.local.get(null, content => {
+          settings = content.settings
+          store.setSettings(content.settings)
+          resolve(settings)
+        })
+      }
+    })
   }
 }
