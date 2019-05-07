@@ -44,7 +44,7 @@ function getTracklist (path) {
   const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
   let tracklist = sections.map((section, index) => {
     let track = {
-      trackNumber: index + 1,
+      trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
       timestamp: section.startSeconds,
       time: setTime(section.startSeconds, keepHours),
       artistName: section.artistName === undefined ? 'unknow' : section.artistName,
