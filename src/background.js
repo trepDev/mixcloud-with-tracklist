@@ -11,7 +11,7 @@ let store = require('./store')
 chrome.runtime.onInstalled.addListener(details => {
   console.log(details)
   const settings = {
-    trackNumber: true
+    showTracklist: true
   }
   if (details.reason === 'install') {
     chrome.storage.local.set({'settings': settings})
@@ -38,8 +38,8 @@ function graphQLListener (spiedRequest) {
   // Request for tracklist & not my own request & tracklist not already store >> notify content script to request
   if (payload.query.includes('TrackSection') && payload.id !== 'MwT' && !store.getCloudcastById(payload.variables.id_0)) {
     // If request doesn't have startSeconds parameter, add it
-    if (payload.query.search(/TrackSection {(.*)(startSeconds)(.*)}/) === -1) {
-      let newQuery = payload.query.replace(/TrackSection {([a-zA-Z]+)+(,[a-zA-Z]*)*/, '$&' + ',startSeconds')
+    if (payload.query.search(/ChapterSection {(.*)(startSeconds)(.*)}/) === -1) {
+      let newQuery = payload.query.replace(/ChapterSection {([a-zA-Z]+)+(,[a-zA-Z]*)*/, '$&' + ',startSeconds')
       payload.query = newQuery
     }
 
@@ -68,18 +68,23 @@ function requestCloudcast (tabs, requestVariables, query) {
 }
 
 function storeCloudcast (datas) {
-  let cloudcastDatas = null
+  let dataToStore = null
   if (!!datas && datas.hasOwnProperty('xhrResponse') && !!datas.xhrResponse &&
     datas.xhrResponse.hasOwnProperty('data') && datas.xhrResponse.data.hasOwnProperty('cloudcast')) {
-    cloudcastDatas = {
-      id: datas.xhrResponse.data.cloudcast.id,
-      path: '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/',
-      cloudcast: datas.xhrResponse.data.cloudcast
+    const currentPath = '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/'
+    dataToStore = {
+      currentPath: currentPath,
+        cloudcastDatas : {
+          id: datas.xhrResponse.data.cloudcast.id,
+          path: '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/',
+          cloudcast: datas.xhrResponse.data.cloudcast
+      }
     }
+
   }
   // If no tracklist, no need to save data
-  if (cloudcastDatas && !!cloudcastDatas.cloudcast.sections.length) {
-    store.setData(cloudcastDatas)
+  if (dataToStore.cloudcastDatas && !!dataToStore.cloudcastDatas.cloudcast.sections.length) {
+    store.setData(dataToStore)
   }
 }
 

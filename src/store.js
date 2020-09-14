@@ -13,6 +13,7 @@
  * }
  */
 let store = {
+  currentPath: null,
   datas: [],
   settings: null
 }
@@ -26,7 +27,8 @@ function getCloudcastByPath (path) {
 }
 
 function setData (data) {
-  store.datas.push(data)
+  store.currentPath = data.currentPath
+  store.datas.push(data.cloudcastDatas)
 }
 
 function setSettings (settings) {
@@ -38,6 +40,10 @@ function getSettings () {
 }
 
 function getTracklist (path) {
+  //no path mean popupTracklist asking for datas. Return based on currentPath
+  if(!path){
+    path = store.datas.currentPath
+  }
   let data = store.datas.find((data) => data.path === path)
   let sections = data.cloudcast.sections
   // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)

@@ -14,35 +14,21 @@
     "tracklist"
   ],
   "scripts": {
-    "browserifyContent": "browserify -t stringify ./src/content.js -o ./build/mwtContent.js",
-    "browserifyBackground": "browserify ./src/background.js -o ./build/mwtBackground.js",
-    "copySources": "cpx \"src/+(settings|templates|icons)/*.{js,html,mst,png}\" build",
-    "copyManifest": "cpx \"manifest.json\" build",
-    "browserify": "npm run browserifyContent && npm run browserifyBackground",
-    "build": "npm run copySources && npm run copyManifest && npm run browserify"
+    "buildWebpack": "webpack"
   },
-  "browserify": {
-    "transform": [
-      [
-        "stringify",
-        {
-          "appliesTo": {
-            "includeExtensions": [
-              ".mst"
-            ]
-          },
-          "minify": true
-        }
-      ]
-    ]
-  },
-  "dependencies": {
-    "mustache": "2.3.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "browserify": "16.2.3",
     "stringify": "5.2.0",
     "cpx": "1.5.0",
-    "standard": "11.0.1"
+    "standard": "11.0.1",
+    "vue": "2.6.10",
+    "vue-loader": "15.7.0",
+    "vue-style-loader": "4.1.2",
+    "css-loader": "2.1.1",
+    "vue-template-compiler": "2.6.10",
+    "webpack": "4.30.0",
+    "webpack-cli": "3.3.2",
+    "copy-webpack-plugin": "5.0.3"
   }
 }

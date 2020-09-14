@@ -10,6 +10,7 @@
     "96": "./icons/icon96.png",
     "128": "./icons/icon128.png"
   },
+  "content_security_policy":"script-src 'self' 'unsafe-eval'; object-src 'self'",
   "applications": {
     "gecko": {
       "strict_min_version": "58.0"
@@ -24,18 +25,21 @@
   ],
 
   "background": {
-    "scripts": ["mwtBackground.js"]
+    "scripts": ["./background_scripts/index.js"]
   },
 
   "content_scripts": [
     {
       "matches": ["*://*.mixcloud.com/*"],
       "run_at" : "document_end",
-      "js": ["mwtContent.js"]
+      "js": ["./content_script/index.js"]
     }
   ],
-
   "options_ui": {
-    "page": "./settings/settings.html"
+    "page": "popup_script/popup.html"
   }
+
+  //"options_ui": {
+    //"page": "./settings/settings.html"
+  //}
 }
