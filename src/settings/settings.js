@@ -13,14 +13,14 @@ function initialize () {
     const radioShow = document.getElementById('show')
     const radioHide = document.getElementById('hide')
 
-    radioShow.checked = true
+    radioShow.checked = settings.showTracklist
     radioShow.addEventListener('click', () => {
-      settings.trackNumber = true
+      settings.showTracklist = true
       chrome.storage.local.set({'settings': settings})
     })
-    radioHide.checked = false
+    radioHide.checked = !settings.showTracklist
     radioHide.addEventListener('click', () => {
-      settings.trackNumber = false
+      settings.showTracklist = false
       chrome.storage.local.set({'settings': settings})
     })
   }

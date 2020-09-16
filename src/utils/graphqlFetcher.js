@@ -35,7 +35,6 @@ function fetch (variables, query) {
 
     xhr.onload = function () {
       resolve({
-        cloudcastId: variables.id_0,
         xhrResponse: xhr.response
       })
     }

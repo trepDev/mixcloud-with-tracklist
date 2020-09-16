@@ -49,8 +49,28 @@ function activateTracklist (path) {
 
 // Listen Background asking to make request retrieving tracklist. Result (tracklist) is send to background (wich store it in store)
 chrome.runtime.onMessage.addListener(
-  (graphQLRequest, sender, sendResponse) => {
-    graphQLFetcher.fetch(graphQLRequest.variables, graphQLRequest.query).then(result => sendResponse(result)).catch(() => sendResponse(null))
-    return true
+  (message, sender, sendResponse) => {
+    if (message.action === 'requestTracklist') {
+      return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
+    } else if (message.action === 'updateTracklist') {
+      return handleUpdateTracklist(message.tracklist, message.cloudcastPath, sender, sendResponse)
+    }
   }
 )
+
+function handleRequestTracklist (variables, query, sender, sendResponse) {
+  graphQLFetcher.fetch(variables, query).then(result => sendResponse(result)).catch(() => sendResponse(null))
+  return true
+}
+
+function handleUpdateTracklist (tracklist, cloudcastPath, sender, sendResponse) {
+  let responseMessage
+  if (document.location.pathname === cloudcastPath) {
+    tracklistDisplayer.updateTemplateTracklist(tracklist)
+    responseMessage = 'Tracklist Template updated'
+  } else {
+    responseMessage = 'Tracklist Template not updated. Paths are different'
+  }
+  sendResponse(responseMessage)
+  return true
+}

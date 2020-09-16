@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Mixcloud (with) Tracklist",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Display tracklists on Mixcloud",
   "icons": {
     "16": "./icons/icon16.png",
@@ -35,11 +35,8 @@
       "js": ["./content_script/index.js"]
     }
   ],
-  "options_ui": {
-    "page": "popup_script/popup.html"
-  }
 
-  //"options_ui": {
-    //"page": "./settings/settings.html"
-  //}
+  "options_ui": {
+    "page": "./settings/settings.html"
+  }
 }

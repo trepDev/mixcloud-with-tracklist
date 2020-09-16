@@ -9,11 +9,10 @@
  * {
  *  id : cloudcast id
  *  path : mix path
- *  tracklist : tracklist to display
+ *  cloudcast : cloudcast data
  * }
  */
 let store = {
-  currentPath: null,
   datas: [],
   settings: null
 }
@@ -26,9 +25,18 @@ function getCloudcastByPath (path) {
   return store.datas.find((data) => data.path === path)
 }
 
+function hasTimestamps (id) {
+  const data = getCloudcastById(id)
+  return data ? data.cloudcast.sections.find((section) => section.startSeconds !== null && section.startSeconds !== undefined) !== undefined : false
+}
+
 function setData (data) {
-  store.currentPath = data.currentPath
   store.datas.push(data.cloudcastDatas)
+}
+
+function replaceCloudcast (newData) {
+  const indexToReplace = store.datas.findIndex((data) => data.id === newData.id)
+  store.datas.splice(indexToReplace, 1, newData)
 }
 
 function setSettings (settings) {
@@ -40,10 +48,6 @@ function getSettings () {
 }
 
 function getTracklist (path) {
-  //no path mean popupTracklist asking for datas. Return based on currentPath
-  if(!path){
-    path = store.datas.currentPath
-  }
   let data = store.datas.find((data) => data.path === path)
   let sections = data.cloudcast.sections
   // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
@@ -88,8 +92,10 @@ function timetoHHMMSS (time, keepHours) {
 module.exports = {
   getCloudcastById,
   getCloudcastByPath,
+  hasTimestamps,
   setData,
   getTracklist,
   setSettings,
-  getSettings
+  getSettings,
+  replaceCloudcast
 }

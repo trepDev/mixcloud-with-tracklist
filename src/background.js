@@ -7,17 +7,17 @@ let store = require('./store')
 /* global chrome */
 /* global TextDecoder */
 
-// Set app setting: trackNumber is for showing track's number or timestamp by default
+// Set app setting: showTracklist by default
 chrome.runtime.onInstalled.addListener(details => {
   console.log(details)
   const settings = {
     showTracklist: true
   }
   if (details.reason === 'install') {
-    chrome.storage.local.set({'settings': settings})
+    chrome.storage.local.set({ 'settings': settings })
   } else if (details.reason === 'update') {
-    chrome.storage.local.remove('defaultTracklist')
-    chrome.storage.local.set({'settings': settings})
+    chrome.storage.local.clear()
+    chrome.storage.local.set({ 'settings': settings })
   }
 })
 
@@ -27,33 +27,35 @@ chrome.runtime.onInstalled.addListener(details => {
  * So, I have to spy graphQL request to get variables/query and make my own request.
  */
 chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
-  {urls: ['https://www.mixcloud.com/graphql']}, ['requestBody']
+  { urls: ['https://www.mixcloud.com/graphql'] }, ['requestBody']
 )
 
 function graphQLListener (spiedRequest) {
   let byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
-
   let decoder = new TextDecoder('utf-8')
   let payload = JSON.parse(decoder.decode(byteArray))
-  // Request for tracklist & not my own request & tracklist not already store >> notify content script to request
-  if (payload.query.includes('TrackSection') && payload.id !== 'MwT' && !store.getCloudcastById(payload.variables.id_0)) {
-    // If request doesn't have startSeconds parameter, add it
-    if (payload.query.search(/ChapterSection {(.*)(startSeconds)(.*)}/) === -1) {
-      let newQuery = payload.query.replace(/ChapterSection {([a-zA-Z]+)+(,[a-zA-Z]*)*/, '$&' + ',startSeconds')
-      payload.query = newQuery
-    }
-
-    chrome.tabs.query({url: '*://*.mixcloud.com/*'}, (tabs) => requestCloudcast(tabs, payload.variables, payload.query))
+  // Request for tracklist & not my own request & tracklist not already store >> call content script for request cloudcast
+  if (payload.query.includes('TrackSection') && payload.id !== 'MwT' && !store.getCloudcastById(payload.variables.id_0) && !store.getCloudcastById(payload.variables.cloudcastId)) {
+    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))
+    // Request for tracklist with timestamps & no ads request (this one include also startSeconds)
+    // & not my own request & already store this cloudcast & cloudcast stored has not timestamps
+    // >> call content script for request cloudcast then notify front to upgrade tracklist template
+  } else if (payload.query.includes('startSeconds') && !payload.query.includes('fetchAudioAdsInfoQuery') &&
+    payload.id !== 'MwT' && (!!store.getCloudcastById(payload.variables.id_0) || !!store.getCloudcastById(payload.variables.cloudcastId)) &&
+    !store.hasTimestamps(payload.variables.id_0)) {
+    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, true))
   }
 }
 
 /**
- * send request notification (to content script) & store tracklist
+ * send request notification (to content script) & store tracklist.
+ * If this tracklist is an updated old one. Notify contentScript for potential tracklist template update
  * @param tabs
  * @param requestVariables
  * @param query
+ * @param notifyTracklistUpdated : if true, call contentScript to update Tracklsit template (after getting new tracklist data)
  */
-function requestCloudcast (tabs, requestVariables, query) {
+function requestCloudcast (tabs, requestVariables, query, notifyTracklistUpdated) {
   for (var tab of tabs) {
     chrome.tabs.sendMessage(
       tab.id,
@@ -62,29 +64,59 @@ function requestCloudcast (tabs, requestVariables, query) {
         variables: requestVariables,
         query: query
       },
-      storeCloudcast
+      (response) => {
+        const dataStored = storeCloudcast(response)
+        if (notifyTracklistUpdated) {
+          const tracklist = new Promise((resolve, reject) => {
+            return getTracklist(dataStored.cloudcastDatas.path, 1, resolve, reject)
+          })
+          tracklist.then((data) => notifyUpdatedPlaylist(data.tracklist, dataStored.cloudcastDatas.path))
+        }
+      }
     )
   }
+}
+
+/**
+ * Call contentScript to update tracklist template
+ * @param tracklist: trackist data
+ */
+function notifyUpdatedPlaylist (tracklist, cloudcastPath) {
+  chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+    for (const tab of tabs) {
+      chrome.tabs.sendMessage(
+        tab.id,
+        {
+          action: 'updateTracklist',
+          tracklist: tracklist,
+          cloudcastPath: cloudcastPath
+        },
+        console.log('pouet')
+      )
+    }
+  })
 }
 
 function storeCloudcast (datas) {
   let dataToStore = null
   if (!!datas && datas.hasOwnProperty('xhrResponse') && !!datas.xhrResponse &&
     datas.xhrResponse.hasOwnProperty('data') && datas.xhrResponse.data.hasOwnProperty('cloudcast')) {
-    const currentPath = '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/'
     dataToStore = {
-      currentPath: currentPath,
-        cloudcastDatas : {
-          id: datas.xhrResponse.data.cloudcast.id,
-          path: '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/',
-          cloudcast: datas.xhrResponse.data.cloudcast
+      cloudcastDatas: {
+        id: datas.xhrResponse.data.cloudcast.id,
+        path: '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/',
+        cloudcast: datas.xhrResponse.data.cloudcast
       }
     }
-
   }
   // If no tracklist, no need to save data
   if (dataToStore.cloudcastDatas && !!dataToStore.cloudcastDatas.cloudcast.sections.length) {
-    store.setData(dataToStore)
+    if (!store.hasTimestamps(dataToStore.cloudcastDatas.id)) {
+      store.replaceCloudcast(dataToStore.cloudcastDatas)
+    } else {
+      store.setData(dataToStore)
+    }
+    return dataToStore
   }
 }
 
@@ -92,7 +124,7 @@ function storeCloudcast (datas) {
 chrome.runtime.onMessage.addListener(mixPageListener)
 
 function mixPageListener (request, send, sendResponse) {
-  let tracklist = new Promise((resolve, reject) => {
+  const tracklist = new Promise((resolve, reject) => {
     return getTracklist(request.path, 1, resolve, reject)
   })
   tracklist.then((data) => sendResponse(data))
@@ -109,7 +141,7 @@ function mixPageListener (request, send, sendResponse) {
  */
 function getTracklist (path, counter, resolve, reject) {
   if (counter > 10) {
-    return resolve({tracklist: []})
+    return resolve({ tracklist: [] })
   }
   if (!store.getCloudcastByPath(path)) {
     setTimeout(function () {
@@ -117,10 +149,9 @@ function getTracklist (path, counter, resolve, reject) {
     }, 500)
   } else {
     getSettings().then((settings) => {
-      return resolve({tracklist: store.getTracklist(path), settings: settings})
+      return resolve({ tracklist: store.getTracklist(path), settings: settings })
     })
   }
-
   function getSettings () {
     return new Promise((resolve) => {
       let settings = store.getSettings()

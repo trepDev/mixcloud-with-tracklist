@@ -7,6 +7,13 @@ import Tracklist from './templates/tracklist'
 import UnavailableTracklistButton from './templates/UnavailableTracklistButton'
 
 let domUtil = require('./utils/domUtil')
+const ComponentClass = Vue.extend(Tracklist)
+const templateData = {}
+const tracklistVue = new ComponentClass({
+  data () {
+    return templateData
+  }
+})
 
 'use strict'
 // svg from https://github.com/adlawson/mixcloud-tracklist
@@ -31,11 +38,12 @@ function start (datas) {
   }
 }
 
+function updateTemplateTracklist (tracklist) {
+  templateData.tracklist = tracklist
+}
+
 function initializeTracklist (datas) {
-  let ComponentClass = Vue.extend(Tracklist)
-  let tracklistVue = new ComponentClass({
-    data: datas
-  })
+  updateTemplateTracklist(datas.tracklist)
   tracklistVue.$mount()
 
   let selectTracklistAsNode = document.getElementsByClassName('tracklist-wrap')[0]
@@ -63,8 +71,9 @@ function initializeTracklist (datas) {
     // no idea where put tracklist, so place in first position inside section node
     tracklistHandler = domUtil.insertBefore(sectionNodes, tracklistVue.$el, sectionNodes.childNodes[0])
   }
-
-  tracklistHandler.show()
+  if (datas.settings.showTracklist) {
+    tracklistHandler.show()
+  }
 
   return tracklistHandler
 }
@@ -74,7 +83,7 @@ function initializeTracklistButton (tracklistHandler, datas) {
   let optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
   let ComponentClass = Vue.extend(TracklistButton)
   let buttonVue = new ComponentClass({
-    data: datas
+    data: { settings: datas.settings }
   })
   buttonVue.$mount()
   domUtil.insertBefore(actionAsNode, buttonVue.$el, optionAsNode).show()
@@ -108,5 +117,6 @@ function switchDisplayTracklist (button, show, hide, datas) {
 }
 
 export {
-  start
+  start,
+  updateTemplateTracklist
 }
