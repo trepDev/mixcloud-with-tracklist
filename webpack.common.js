@@ -4,14 +4,13 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  mode: 'development',
   node: {
     global: false
   },
   entry: {
     background_scripts: './src/background.js',
     content_script: './src/content.js',
-    popup_script: './src/tracklistPopup/popup.js'
+    settings_script: './src/settings/settings.js'
   },
   output: {
     path: path.resolve(__dirname, 'addon'),
@@ -43,9 +42,9 @@ module.exports = {
     new VueLoaderPlugin(),
     new CopyWebpackPlugin([
       // {from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html'},
-      {from: 'manifest.json', to: 'manifest.json'},
-      {from: __dirname + '/src/icons', to: 'icons'},
-      {from: __dirname + '/src/' + 'tracklistPopup/popup.html', to: 'popup_script/popup.html'},
+      { from: 'manifest.json', to: 'manifest.json' },
+      { from: __dirname + '/src/icons', to: 'icons' },
+      { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' }
     ])
   ]
 

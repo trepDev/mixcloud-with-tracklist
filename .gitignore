@@ -1,2 +1,3 @@
-build/
+addon/
 node_modules/
+.idea/

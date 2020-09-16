@@ -16,7 +16,7 @@
                     {{track.trackNumber}}
                 </div>
                 <div id='timestamp' class="row-timestamp"
-                     v-bind:class="{ 'pointer': hasTimestamp(track.timestamp) }"
+                     v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) }"
                      v-bind:title="getTitleAttribute(track.timestamp)"
                      v-on:click="playTrack(track.timestamp)">
                     {{track.time}}
@@ -41,23 +41,15 @@
     methods: {
       playTrack:
         function (timestamp) {
-          if(hasTimestamp(timestamp)){
-            let htmlPlayer = document.getElementsByTagName('audio')[0]
-            // little hack to load information in bottom player (when mix didn't has been played yet).
-            if (htmlPlayer.played.length === 0) {
-              // If I use directly htmlPlayer variable, hack don't work
-              document.getElementsByClassName('player-control')[0].click()
-              document.getElementsByClassName('player-control')[0].click()
-            }
-            htmlPlayer.currentTime = 0
-            htmlPlayer.currentTime = timestamp
-            if (htmlPlayer.paused) {
-              // setTimeout >> following hack above
-              setTimeout(() => htmlPlayer.play(), 50)
-            }
+          if(hasTimestamp(timestamp) && timestamp != 0) {
+            let replaybutton = document.querySelectorAll('button[class^="PlayerSeekingActions__ReplayButton"]')
+            // Have to click on replay else play on track don't work
+            replaybutton[0].click()
+            // Have to set a timeout else play on track don't work
+            setTimeout(() => document.getElementsByTagName('audio')[0].currentTime = timestamp, 200)
           }
         },
-      getTitleAttribute: function(timestamp){
+      getTitleAttribute: function(timestamp) {
         return hasTimestamp(timestamp) ? 'play' : 'no play'
       },
       hasTimestamp: hasTimestamp
@@ -65,7 +57,7 @@
   }
 
   function hasTimestamp (timestamp){
-    return timestamp !== null && timestamp !== undefined
+    return timestamp !== null && timestamp !== undefined && timestamp !== 0
   }
 </script>
 
@@ -128,7 +120,12 @@
         overflow: hidden;
         width: 40%;
     }
+
     .pointer {
-        cursor: pointer;
+      cursor: pointer;
+    }
+    .activeTimestamp {
+      cursor: pointer;
+      color : #4fa6d3
     }
 </style>
