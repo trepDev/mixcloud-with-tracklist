@@ -6,14 +6,14 @@
 /* global chrome */
 /* global MutationObserver */
 
-let graphQLFetcher = require('./utils/graphqlFetcher')
+const graphQLFetcher = require('./utils/graphqlFetcher')
 // svg from https://github.com/adlawson/mixcloud-tracklist
-let tracklistDisplayer = require('./tracklistDisplay')
+const tracklistDisplayer = require('./tracklistDisplay')
 
 let currentPath = document.location.pathname
 let tracklistActivated = false
 
-let mutationObserver = new MutationObserver(function (mutations) {
+const mutationObserver = new MutationObserver(function (mutations) {
   // If user is logged
   if (!document.getElementsByClassName('user-actions guest')[0]) {
     // Condition to avoid activate tracklist at each node mutation
@@ -21,7 +21,7 @@ let mutationObserver = new MutationObserver(function (mutations) {
       currentPath = document.location.pathname
       tracklistActivated = false
     }
-    let sectionNode = document.getElementsByClassName('show-about-section')
+    const sectionNode = document.getElementsByClassName('show-about-section')
     if (sectionNode.length !== 0 && !tracklistActivated && !document.getElementById('toogleTracklist')) {
       tracklistActivated = true
       activateTracklist(currentPath)
@@ -40,7 +40,7 @@ mutationObserver.observe(document.querySelector('section.cf'), {
  */
 function activateTracklist (path) {
   chrome.runtime.sendMessage(
-    {path: decodeURIComponent(path)},
+    { path: decodeURIComponent(path) },
     (datas) => {
       tracklistDisplayer.start(datas)
     }

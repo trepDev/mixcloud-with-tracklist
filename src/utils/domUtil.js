@@ -4,7 +4,7 @@
 
 'use strict'
 function htmlToNode (html) {
-  let temp = document.createElement('div')
+  const temp = document.createElement('div')
   temp.insertAdjacentHTML('afterbegin', html)
   return temp.firstChild
 }
@@ -13,8 +13,8 @@ function htmlToNode (html) {
  * Returns 2 functions show/hide. Switch beetween oldNode & newNode.
  */
 function replace (container, newNode, oldNode) {
-  let show = () => container.replaceChild(newNode, oldNode)
-  let hide = () => container.replaceChild(oldNode, newNode)
+  const show = () => container.replaceChild(newNode, oldNode)
+  const hide = () => container.replaceChild(oldNode, newNode)
   return {
     show,
     hide
@@ -25,8 +25,8 @@ function replace (container, newNode, oldNode) {
  * Returns 2 functions show/hide. Put newNode before referenceNode. Or remove new node.
  */
 function insertBefore (container, newNode, referenceNode) {
-  let show = () => container.insertBefore(newNode, referenceNode)
-  let hide = () => container.removeChild(newNode)
+  const show = () => container.insertBefore(newNode, referenceNode)
+  const hide = () => container.removeChild(newNode)
   return {
     show,
     hide

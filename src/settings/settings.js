@@ -16,12 +16,12 @@ function initialize () {
     radioShow.checked = settings.showTracklist
     radioShow.addEventListener('click', () => {
       settings.showTracklist = true
-      chrome.storage.local.set({'settings': settings})
+      chrome.storage.local.set({ settings: settings })
     })
     radioHide.checked = !settings.showTracklist
     radioHide.addEventListener('click', () => {
       settings.showTracklist = false
-      chrome.storage.local.set({'settings': settings})
+      chrome.storage.local.set({ settings: settings })
     })
   }
 }
