@@ -6,7 +6,7 @@ import TracklistButton from './templates/tracklistButton'
 import Tracklist from './templates/tracklist'
 import UnavailableTracklistButton from './templates/UnavailableTracklistButton'
 
-let domUtil = require('./utils/domUtil')
+const domUtil = require('./utils/domUtil')
 const ComponentClass = Vue.extend(Tracklist)
 const templateData = {}
 const tracklistVue = new ComponentClass({
@@ -23,7 +23,7 @@ const tracklistVue = new ComponentClass({
  * @param {Object[]} datas : templates's datas (see store.js for data attributes)
  */
 function start (datas) {
-  let sectionNodes = document.getElementsByClassName('show-about-section')[0]
+  const sectionNodes = document.getElementsByClassName('show-about-section')[0]
   if (!sectionNodes) {
     throw new Error('container for tracklist doesnt exist')
   }
@@ -32,7 +32,7 @@ function start (datas) {
     unavailableTracklistButton()
   } else {
     if (document.getElementsByClassName('tracklist-table-row-header').length === 0) {
-      let tracklistHandler = initializeTracklist(datas)
+      const tracklistHandler = initializeTracklist(datas)
       initializeTracklistButton(tracklistHandler, datas)
     }
   }
@@ -46,16 +46,16 @@ function initializeTracklist (datas) {
   updateTemplateTracklist(datas.tracklist)
   tracklistVue.$mount()
 
-  let selectTracklistAsNode = document.getElementsByClassName('tracklist-wrap')[0]
-  let sectionNodes = document.getElementsByClassName('show-about-section')[0]
-  let trackByAsNode = document.getElementsByClassName('show-tracklist')[0]
-  let chartAsNode = document.getElementsByClassName('chart-placement')[0]
-  let tagsAsNode = document.getElementsByClassName('show-tags')[0]
+  const selectTracklistAsNode = document.getElementsByClassName('tracklist-wrap')[0]
+  const sectionNodes = document.getElementsByClassName('show-about-section')[0]
+  const trackByAsNode = document.getElementsByClassName('show-tracklist')[0]
+  const chartAsNode = document.getElementsByClassName('chart-placement')[0]
+  const tagsAsNode = document.getElementsByClassName('show-tags')[0]
 
   let tracklistHandler
   if (selectTracklistAsNode) {
-    let tracklistDivAsNode = selectTracklistAsNode.parentNode
-    let tracklistParentAsNode = tracklistDivAsNode.parentNode
+    const tracklistDivAsNode = selectTracklistAsNode.parentNode
+    const tracklistParentAsNode = tracklistDivAsNode.parentNode
     // tracklist replace 'tracklist exclusive (pay) profile' section
     tracklistHandler = domUtil.replace(tracklistParentAsNode, tracklistVue.$el, tracklistDivAsNode)
   } else if (trackByAsNode) {
@@ -79,10 +79,10 @@ function initializeTracklist (datas) {
 }
 
 function initializeTracklistButton (tracklistHandler, datas) {
-  let actionAsNode = document.getElementsByClassName('actions')[0]
-  let optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
-  let ComponentClass = Vue.extend(TracklistButton)
-  let buttonVue = new ComponentClass({
+  const actionAsNode = document.getElementsByClassName('actions')[0]
+  const optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
+  const ComponentClass = Vue.extend(TracklistButton)
+  const buttonVue = new ComponentClass({
     data: { settings: datas.settings }
   })
   buttonVue.$mount()
@@ -91,10 +91,10 @@ function initializeTracklistButton (tracklistHandler, datas) {
 }
 
 function unavailableTracklistButton () {
-  let actionAsNode = document.getElementsByClassName('actions')[0]
-  let optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
-  let ComponentClass = Vue.extend(UnavailableTracklistButton)
-  let buttonVue = new ComponentClass()
+  const actionAsNode = document.getElementsByClassName('actions')[0]
+  const optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
+  const ComponentClass = Vue.extend(UnavailableTracklistButton)
+  const buttonVue = new ComponentClass()
   buttonVue.$mount()
   domUtil.insertBefore(actionAsNode, buttonVue.$el, optionAsNode).show()
 }

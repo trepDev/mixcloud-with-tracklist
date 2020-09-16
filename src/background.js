@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict'
-let store = require('./store')
+const store = require('./store')
 /* global chrome */
 /* global TextDecoder */
 
@@ -14,10 +14,10 @@ chrome.runtime.onInstalled.addListener(details => {
     showTracklist: true
   }
   if (details.reason === 'install') {
-    chrome.storage.local.set({ 'settings': settings })
+    chrome.storage.local.set({ settings: settings })
   } else if (details.reason === 'update') {
     chrome.storage.local.clear()
-    chrome.storage.local.set({ 'settings': settings })
+    chrome.storage.local.set({ settings: settings })
   }
 })
 
@@ -31,9 +31,9 @@ chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
 )
 
 function graphQLListener (spiedRequest) {
-  let byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
-  let decoder = new TextDecoder('utf-8')
-  let payload = JSON.parse(decoder.decode(byteArray))
+  const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
+  const decoder = new TextDecoder('utf-8')
+  const payload = JSON.parse(decoder.decode(byteArray))
   // Request for tracklist & not my own request & tracklist not already store >> call content script for request cloudcast
   if (payload.query.includes('TrackSection') && payload.id !== 'MwT' && !store.getCloudcastById(payload.variables.id_0) && !store.getCloudcastById(payload.variables.cloudcastId)) {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))

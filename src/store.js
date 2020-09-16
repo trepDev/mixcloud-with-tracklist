@@ -12,7 +12,7 @@
  *  cloudcast : cloudcast data
  * }
  */
-let store = {
+const store = {
   datas: [],
   settings: null
 }
@@ -48,12 +48,12 @@ function getSettings () {
 }
 
 function getTracklist (path) {
-  let data = store.datas.find((data) => data.path === path)
-  let sections = data.cloudcast.sections
+  const data = store.datas.find((data) => data.path === path)
+  const sections = data.cloudcast.sections
   // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
   const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
-  let tracklist = sections.map((section, index) => {
-    let track = {
+  const tracklist = sections.map((section, index) => {
+    const track = {
       trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
       timestamp: section.startSeconds,
       time: setTime(section.startSeconds, keepHours),

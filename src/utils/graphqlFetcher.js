@@ -17,7 +17,7 @@ try {
 
 function fetch (variables, query) {
   return new Promise((resolve, reject) => {
-    let xhr = new XMLHttpRequest()
+    const xhr = new XMLHttpRequest()
     xhr.responseType = 'json'
     xhr.open('POST', '/graphql')
     xhr.setRequestHeader('Content-Type', 'application/json')
@@ -48,8 +48,8 @@ function fetch (variables, query) {
 }
 
 function getCookie (name) {
-  let value = '; ' + document.cookie
-  let parts = value.split('; ' + name + '=')
+  const value = '; ' + document.cookie
+  const parts = value.split('; ' + name + '=')
   if (parts.length === 2) return parts.pop().split(';').shift()
 }
 
