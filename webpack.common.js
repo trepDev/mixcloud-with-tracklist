@@ -40,12 +40,13 @@ module.exports = {
     }),
     // make sure to include the plugin for the magic
     new VueLoaderPlugin(),
-    new CopyWebpackPlugin([
-      // {from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html'},
-      { from: 'manifest.json', to: 'manifest.json' },
-      { from: __dirname + '/src/icons', to: 'icons' },
-      { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' }
-    ])
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'manifest.json', to: 'manifest.json' },
+        { from: __dirname + '/src/icons', to: 'icons' },
+        { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' }
+      ]
+    })
   ]
 
 }
