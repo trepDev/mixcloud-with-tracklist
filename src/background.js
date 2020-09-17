@@ -9,7 +9,6 @@ const store = require('./store')
 
 // Set app setting: showTracklist by default
 chrome.runtime.onInstalled.addListener(details => {
-  console.log(details)
   const settings = {
     showTracklist: true
   }

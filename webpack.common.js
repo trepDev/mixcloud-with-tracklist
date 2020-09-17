@@ -10,7 +10,7 @@ module.exports = {
   entry: {
     background_scripts: './src/background.js',
     content_script: './src/content.js',
-    settings_script: './src/settings/settings.js'
+    settings: './src/settings/settings.js'
   },
   output: {
     path: path.resolve(__dirname, 'addon'),
