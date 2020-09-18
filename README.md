@@ -10,7 +10,6 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 
  - [Firefox Extension][firefox-install]
  - [Google Chrome Extension][chrome-install]
- - [Edge][edge-install]
  - Mobile website: Have to work on it (maybe one day?).
 
  
