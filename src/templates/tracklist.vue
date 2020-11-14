@@ -1,5 +1,4 @@
 <template>
-    <!--  TODO SANS DIV -->
     <div>
         <div class="mwt-tracklist-container">
             <div class="mwt-header">
@@ -109,10 +108,11 @@
     }
 
     .header-copy{
-        width: 5%;
-        padding-left: 12px;
+      width: 5%;
+      padding-left: 12px;
       padding-bottom: 0px;
       padding-top: 7px;
+      color: #4fa6d3
     }
 
     .row-number{
