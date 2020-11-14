@@ -55,7 +55,7 @@
       hasTimestamp: hasTimestamp,
       copyToClipoard: function (tracklist) {
         let toCopy = '';
-        tracklist.forEach((track) => toCopy = toCopy + track.trackNumber + ' - ' + track.songName + ' - ' + track.artistName + '\n');
+        tracklist.forEach((track) => toCopy = toCopy + track.trackNumber + ' - ' + track.time + ' - ' + track.songName + ' - ' + track.artistName + '\n');
         navigator.clipboard.writeText(toCopy);
       }
     }
