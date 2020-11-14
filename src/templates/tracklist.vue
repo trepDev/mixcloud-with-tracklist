@@ -125,13 +125,13 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        width: 40%;
+        width: 37.5%;
     }
     .row-artist{
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        width: 40%;
+        width: 37.5%;
     }
 
     .pointer {
