@@ -2,6 +2,7 @@
 
 - Displays tracklists Mixcloud Website.
 - You can play directly any track by clicking on track number/time
+- You can copy tracklist to clipboard
 - Extension supports current Mixcloud website (React/graphQL).
 
 ## Compatibility 
@@ -15,7 +16,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
  
 ---
 ## Instructions
-![Screenshot_mwt](readme_files/screenshot_mwt_v2_1.png)
+![Screenshot_mwt](readme_files/screenshot_mwt_v2_2.png)
 
 
 
