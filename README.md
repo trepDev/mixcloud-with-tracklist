@@ -39,7 +39,7 @@ Same as above, if selecting a track don't work, wait 10/20 second.
 
 
 ## Thanks
- - [Jean-Christophe Henry](http://www.oddsquid.com/) for icon's design.
+ - [Jean-Christophe Henry](https://jiss.tv/) for icon's design.
  - [Andrew Lawson](https://github.com/adlawson) for his previous Mixcloud Tracklist Extension (didn't fork it because Extension is full rewrited)
 
 
