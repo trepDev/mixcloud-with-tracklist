@@ -39,30 +39,35 @@
       return {tracklist: []}
     },
     methods: {
-      playTrack:
-        function (timestamp) {
-          if(hasTimestamp(timestamp) && timestamp != 0) {
-            let replaybutton = document.querySelectorAll('button[class^="PlayerSeekingActions__ReplayButton"]')
-            // Have to click on replay else play on track don't work
-            replaybutton[0].click()
-            // Have to set a timeout else play on track don't work
-            setTimeout(() => document.getElementsByTagName('audio')[0].currentTime = timestamp, 200)
-          }
-        },
-      getTitleAttribute: function(timestamp) {
-        return hasTimestamp(timestamp) ? 'play' : 'no play'
-      },
+      playTrack: playTrack,
       hasTimestamp: hasTimestamp,
-      copyToClipoard: function (tracklist) {
-        let toCopy = '';
-        tracklist.forEach((track) => toCopy = toCopy + track.trackNumber + ' - ' + track.time + ' - ' + track.songName + ' - ' + track.artistName + '\n');
-        navigator.clipboard.writeText(toCopy);
-      }
+      copyToClipoard: copyToClipoard,
+      getTitleAttribute: getTitleAttribute
     }
   }
 
-  function hasTimestamp (timestamp){
+  function playTrack(timestamp) {
+    if(hasTimestamp(timestamp) && timestamp != 0) {
+      let replaybutton = document.querySelectorAll('button[class^="PlayerSeekingActions__ReplayButton"]')
+      // Have to click on replay else play on track don't work
+      replaybutton[0].click()
+      // Have to set a timeout else play on track don't work
+      setTimeout(() => document.getElementsByTagName('audio')[0].currentTime = timestamp, 200)
+    }
+  }
+
+  function hasTimestamp(timestamp) {
     return timestamp !== null && timestamp !== undefined && timestamp !== 0
+  }
+
+  function copyToClipoard(tracklist) {
+    let toCopy = '';
+    tracklist.forEach((track) => toCopy = toCopy + track.trackNumber + ' - ' + track.time + ' - ' + track.songName + ' - ' + track.artistName + '\n');
+    navigator.clipboard.writeText(toCopy);
+  }
+
+  function getTitleAttribute(timestamp) {
+    return hasTimestamp(timestamp) ? 'play' : 'no play'
   }
 </script>
 
