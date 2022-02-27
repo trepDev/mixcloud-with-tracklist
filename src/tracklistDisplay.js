@@ -7,13 +7,8 @@ import Tracklist from './templates/tracklist'
 import UnavailableTracklistButton from './templates/UnavailableTracklistButton'
 
 const domUtil = require('./utils/domUtil')
-const ComponentClass = Vue.extend(Tracklist)
-const templateData = {}
-const tracklistVue = new ComponentClass({
-  data () {
-    return templateData
-  }
-})
+const ComponentClassTracklistVue = Vue.extend(Tracklist)
+let tracklistVue
 
 'use strict'
 // svg from https://github.com/adlawson/mixcloud-tracklist
@@ -23,6 +18,8 @@ const tracklistVue = new ComponentClass({
  * @param {Object[]} datas : templates's datas (see store.js for data attributes)
  */
 function start (datas) {
+  if (tracklistVue !== undefined) tracklistVue.$destroy()
+  tracklistVue = new ComponentClassTracklistVue()
   const sectionNodes = document.getElementsByClassName('show-about-section')[0]
   if (!sectionNodes) {
     throw new Error('container for tracklist doesnt exist')
@@ -39,7 +36,7 @@ function start (datas) {
 }
 
 function updateTemplateTracklist (tracklist) {
-  templateData.tracklist = tracklist
+  tracklistVue.tracklist = tracklist
 }
 
 function initializeTracklist (datas) {
