@@ -15,14 +15,18 @@ let tracklistActivated = false
 
 const mutationObserver = new MutationObserver(function (mutations) {
   // If user is logged
-  if (!document.getElementsByClassName('user-actions guest')[0]) {
+  if (document.querySelector('[class^="UserDropdown__ProfileIconWrapper"]') ||
+    document.querySelector('[class^="Header__Notification"]')) {
     // Condition to avoid activate tracklist at each node mutation
     if (document.location.pathname !== currentPath) {
       currentPath = document.location.pathname
       tracklistActivated = false
     }
-    const sectionNode = document.getElementsByClassName('show-about-section')
-    if (sectionNode.length !== 0 && !tracklistActivated && !document.getElementById('toogleTracklist')) {
+    const bodyDetailNode = document.querySelector('[class^="Layouts__RightSidebarLayout"]')
+    const cloudcastSideBar = document.querySelector('[class^="CloudcastBaseSidebar"]')
+    const loadingCloudcastSideBar = document.querySelector('[class^="CloudcastBaseSidebar"] > [class^="Loader__Wrapper"]')
+
+    if (bodyDetailNode && cloudcastSideBar && !loadingCloudcastSideBar && !tracklistActivated && !document.getElementById('toogleTracklist')) {
       tracklistActivated = true
       activateTracklist(currentPath)
     }
