@@ -33,16 +33,14 @@ function graphQLListener (spiedRequest) {
   const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
   const decoder = new TextDecoder('utf-8')
   const payload = JSON.parse(decoder.decode(byteArray))
-  // Request for tracklist & not my own request & tracklist not already store >> call content script for request cloudcast
-  if (payload.query.includes('TrackSection') && payload.id !== 'MwT' && !store.getCloudcastById(payload.variables.id_0) && !store.getCloudcastById(payload.variables.cloudcastId)) {
-    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))
-    // Request for tracklist with timestamps & no ads request (this one include also startSeconds)
-    // & not my own request & already store this cloudcast & cloudcast stored has not timestamps
-    // >> call content script for request cloudcast then notify front to upgrade tracklist template
-  } else if (payload.query.includes('startSeconds') && !payload.query.includes('fetchAudioAdsInfoQuery') &&
-    payload.id !== 'MwT' && (!!store.getCloudcastById(payload.variables.id_0) || !!store.getCloudcastById(payload.variables.cloudcastId)) &&
-    !store.hasTimestamps(payload.variables.id_0)) {
+
+  // Not my own request  & Request for tracklist (without timestamp) & tracklist not already store >> call content script for request cloudcast
+  if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
+    !store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, true))
+    // Not my own request  & Request for tracklist (with timestamp) & tracklist with timestamps not already store >> call content script for request cloudcast
+  } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !store.hasTimestamps(payload.variables.cloudcastId)) {
+    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))
   }
 }
 
@@ -52,10 +50,11 @@ function graphQLListener (spiedRequest) {
  * @param tabs
  * @param requestVariables
  * @param query
- * @param notifyTracklistUpdated : if true, call contentScript to update Tracklsit template (after getting new tracklist data)
+ * @param useRequestVariablesforStore data to get tracklist path is not availaible is sometimes in request variable, sometimes in response.
+ * So we have to indicate when use request variable.
  */
-function requestCloudcast (tabs, requestVariables, query, notifyTracklistUpdated) {
-  for (var tab of tabs) {
+function requestCloudcast (tabs, requestVariables, query, useRequestVariablesforStore) {
+  for (const tab of tabs) {
     chrome.tabs.sendMessage(
       tab.id,
       {
@@ -63,17 +62,28 @@ function requestCloudcast (tabs, requestVariables, query, notifyTracklistUpdated
         variables: requestVariables,
         query: query
       },
-      (response) => {
-        const dataStored = storeCloudcast(response)
-        if (notifyTracklistUpdated) {
-          const tracklist = new Promise((resolve, reject) => {
-            return getTracklist(dataStored.cloudcastDatas.path, 1, resolve, reject)
-          })
-          tracklist.then((data) => notifyUpdatedPlaylist(data.tracklist, dataStored.cloudcastDatas.path))
-        }
-      }
+      (response) => storeCloudcastAndNotifyIfTracklistUpdated(response, useRequestVariablesforStore ? requestVariables : null)
     )
   }
+}
+
+function storeCloudcastAndNotifyIfTracklistUpdated (response, requestVariables) {
+  if (hasTracklistInMixcloudResponse(response)) {
+    const cloudcastAlreadyInStore = !!store.getCloudcastById(response.xhrResponse.data.cloudcast.id)
+    const dataStored = storeCloudcast(response, requestVariables)
+    if (cloudcastAlreadyInStore) {
+      const tracklist = new Promise((resolve, reject) => {
+        return getTracklist(dataStored.cloudcastDatas.path, 1, resolve, reject)
+      })
+      tracklist.then((data) => notifyUpdatedPlaylist(data.tracklist, dataStored.cloudcastDatas.path))
+    }
+  }
+}
+
+function hasTracklistInMixcloudResponse (response) {
+  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
+    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
+    response.xhrResponse.data.cloudcast && !!response.xhrResponse.data.cloudcast.sections.length
 }
 
 /**
@@ -96,27 +106,33 @@ function notifyUpdatedPlaylist (tracklist, cloudcastPath) {
   })
 }
 
-function storeCloudcast (datas) {
-  let dataToStore = null
-  if (!!datas && datas.hasOwnProperty('xhrResponse') && !!datas.xhrResponse &&
-    datas.xhrResponse.hasOwnProperty('data') && datas.xhrResponse.data.hasOwnProperty('cloudcast')) {
-    dataToStore = {
-      cloudcastDatas: {
-        id: datas.xhrResponse.data.cloudcast.id,
-        path: '/' + datas.xhrResponse.data.cloudcast.owner.username + '/' + datas.xhrResponse.data.cloudcast.slug + '/',
-        cloudcast: datas.xhrResponse.data.cloudcast
-      }
+function storeCloudcast (datas, queryVariables) {
+  let username
+  let slug
+  if (queryVariables) {
+    username = queryVariables.lookup.username
+    slug = queryVariables.lookup.slug
+  } else {
+    username = datas.xhrResponse.data.cloudcast.owner.username
+    slug = datas.xhrResponse.data.cloudcast.slug
+  }
+
+  const dataToStore = {
+    cloudcastDatas: {
+      id: datas.xhrResponse.data.cloudcast.id,
+      path: '/' + username + '/' + slug + '/',
+      cloudcast: datas.xhrResponse.data.cloudcast
     }
   }
-  // If no tracklist, no need to save data
-  if (dataToStore.cloudcastDatas && !!dataToStore.cloudcastDatas.cloudcast.sections.length) {
-    if (!store.hasTimestamps(dataToStore.cloudcastDatas.id)) {
-      store.replaceCloudcast(dataToStore.cloudcastDatas)
-    } else {
-      store.setData(dataToStore)
-    }
-    return dataToStore
+
+  if (store.getCloudcastById(dataToStore.cloudcastDatas.id) && !store.hasTimestamps(dataToStore.cloudcastDatas.id)) {
+    console.log('replacecloudCast ' + dataToStore.cloudcastDatas.path)
+    store.replaceCloudcast(dataToStore.cloudcastDatas)
+  } else {
+    console.log('savecloudCast ' + dataToStore.cloudcastDatas.path)
+    store.setData(dataToStore)
   }
+  return dataToStore
 }
 
 // Listen content script asking tracklist
