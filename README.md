@@ -16,7 +16,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
  
 ---
 ## Instructions
-![Screenshot_mwt](readme_files/screenshot_mwt_v2_2.png)
+![Screenshot_mwt](readme_files/screenshot_mwt_v2_3.png)
 
 
 
@@ -27,7 +27,7 @@ By default tracklist is shown. You can change it in option panel.
 
 ## Limitations:
 ### General Limitations
-- Mixcloud returns tracklist data only if you're logged. Could happened that Mixcloud doesn't returns tracklist at all for few minutes. In that case, wait a little, and reload the page.
+- Could happened that Mixcloud doesn't returns tracklist at all for few minutes. In that case, wait a little, and reload the page.
 - Don't work on mobile website (m.mixcloud.com). Have to work on it (maybe one day?).
 ### Track Playing Limitations
 - Playing Track in media player works only for tracks with timestamp available.
@@ -35,11 +35,14 @@ By default tracklist is shown. You can change it in option panel.
 - Due to Mixcloud audio data retrieval way, once a mix is played, you often have to wait 10/20 second for you first track choice
 - Same if you click on reset mix.
 - On Firefox, playing track is not totally stable, avoid selecting too many tracks in a short amount of time (ex: 4/5 click in less than 10 secondes).
-Same as above, if selecting a track don't work, wait 10/20 second. 
+Same as above, if selecting a track don't work, wait 10/20 second.
+
+## Privacy Policy
+No personal info is used/collected.
 
 
 ## Thanks
- - [Jean-Christophe Henry](https://jiss.tv/) for icon's design.
+ - [Jean-Christophe Henry](https://jiss.tv/) for icon design.
  - [Andrew Lawson](https://github.com/adlawson) for his previous Mixcloud Tracklist Extension (didn't fork it because Extension is full rewrited)
 
 
