@@ -58,23 +58,21 @@ function initializeTracklist (datas) {
 
 function initializeTracklistButton (tracklistHandler, datas) {
   const actionAsNode = document.querySelector('[class^="styles__NonExclusiveActions"]')
-  const optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
   const ComponentClass = Vue.extend(TracklistButton)
   const buttonVue = new ComponentClass({
     data: { settings: datas.settings }
   })
   buttonVue.$mount()
-  domUtil.insertBefore(actionAsNode, buttonVue.$el, optionAsNode).show()
+  domUtil.insertAfter(actionAsNode, buttonVue.$el).show()
   buttonVue.$el.onclick = () => switchDisplayTracklist(buttonVue, tracklistHandler.show, tracklistHandler.hide, datas)
 }
 
 function unavailableTracklistButton () {
   const actionAsNode = document.querySelector('[class^="styles__NonExclusiveActions"]')
-  const optionAsNode = actionAsNode.childNodes[actionAsNode.childNodes.length - 1]
   const ComponentClass = Vue.extend(UnavailableTracklistButton)
   const buttonVue = new ComponentClass()
   buttonVue.$mount()
-  domUtil.insertBefore(actionAsNode, buttonVue.$el, optionAsNode).show()
+  domUtil.insertAfter(actionAsNode, buttonVue.$el).show()
 }
 
 /**
