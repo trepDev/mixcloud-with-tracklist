@@ -16,7 +16,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
  
 ---
 ## Instructions
-![Screenshot_mwt](readme_files/screenshot_mwt_v2_3.png)
+![Screenshot_mwt](readme_files/screenshot_mwt_v2_3_1.png)
 
 
 
