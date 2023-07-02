@@ -33,8 +33,22 @@ function insertBefore (container, newNode, referenceNode) {
   }
 }
 
+/**
+ * Returns 2 functions show/hide. Put newNode at the end of the container.
+ * Or remove new node.
+ */
+function append (container, newNode) {
+  const show = () => container.appendChild(newNode)
+  const hide = () => container.removeChild(newNode)
+  return {
+    show,
+    hide
+  }
+}
+
 module.exports = {
   htmlToNode,
   replace,
-  insertBefore
+  insertBefore,
+  insertAfter: append
 }

@@ -16,7 +16,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
  
 ---
 ## Instructions
-![Screenshot_mwt](readme_files/screenshot_mwt_v2_3.png)
+![Screenshot_mwt](readme_files/screenshot_mwt_v2_3_1.png)
 
 
 
@@ -25,9 +25,12 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 ## Extension options
 By default tracklist is shown. You can change it in option panel.
 
+## About Tracklist unavailable
+If the "Tracklist unavailable" button appears, this is not an issue with this extension, but it probably means that mix 
+uploader didn't provide it.
+
 ## Limitations:
 ### General Limitations
-- Could happened that Mixcloud doesn't returns tracklist at all for few minutes. In that case, wait a little, and reload the page.
 - Don't work on mobile website (m.mixcloud.com). Have to work on it (maybe one day?).
 ### Track Playing Limitations
 - Playing Track in media player works only for tracks with timestamp available.
