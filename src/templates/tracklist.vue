@@ -22,9 +22,7 @@
                     {{track.time}}
                 </div>
                 <div class="row-track"
-                     v-bind:class="{ 'pointer': hasTimestamp(track.timestamp) }"
-                     v-bind:title="getTitleAttribute(track.timestamp)"
-                     v-on:click="playTrack(track.timestamp)">
+                     v-bind:title="getTitleAttribute(track.timestamp)">
                     {{track.songName}}
                 </div>
                 <div class="row-artist">{{track.artistName}}</div>
@@ -155,6 +153,11 @@
       -webkit-user-select: none;
       vertical-align: middle;
       background-color: #fff;
+    }
+
+    .activeTimestamp {
+      cursor: pointer;
+      color: #4fa6d3
     }
 
     .copy-button:hover {
