@@ -26,7 +26,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 By default tracklist is shown. You can change it in option panel.
 
 ## About Tracklist unavailable
-If the "Tracklist unavailable" button appears, this is not a issue with this extension, but it probably means that mix 
+If the "Tracklist unavailable" button appears, this is not an issue with this extension, but it probably means that mix 
 uploader didn't provide it.
 
 ## Limitations:
