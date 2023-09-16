@@ -19,7 +19,7 @@ function fetch (variables, query) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
     xhr.responseType = 'json'
-    xhr.open('POST', '/graphql')
+    xhr.open('POST', 'https://app.mixcloud.com/graphql')
     xhr.setRequestHeader('Content-Type', 'application/json')
     xhr.setRequestHeader('Accept', 'application/json')
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'))
