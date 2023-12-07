@@ -29,7 +29,7 @@ const mutationObserver = new MutationObserver(function (mutations) {
   }
 })
 
-mutationObserver.observe(document.querySelector('section.cf'), {
+mutationObserver.observe(document.querySelector('.cf'), {
   childList: true,
   subtree: true
 })
