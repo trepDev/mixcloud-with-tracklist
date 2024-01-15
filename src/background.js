@@ -14,11 +14,25 @@ chrome.runtime.onInstalled.addListener(details => {
   }
   if (details.reason === 'install') {
     chrome.storage.local.set({ settings: settings })
+    chrome.storage.local.set({ isNofitiedMwtBroke: false })
   } else if (details.reason === 'update') {
     chrome.storage.local.clear()
     chrome.storage.local.set({ settings: settings })
+    chrome.storage.local.set({ isNofitiedMwtBroke: false })
   }
 })
+
+function handleNativeNotification() {
+  chrome.storage.local.set({ isNofitiedMwtBroke: true })
+  chrome.notifications.create('mwtNotif', {
+    type: 'basic',
+    title: 'Important: Mixcloud with Tracklist',
+    iconUrl: chrome.extension.getURL('icons/icon48.png'),
+    message: 'Tracklist extension is currently broken\n' +
+      'It will work again by the end of January (a major redesign is required).',
+    eventTime: 5000
+  })
+}
 
 /**
  * Unfortunately, I can't use https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/filterResponseData to directly get the tracklist's datas.
@@ -99,8 +113,7 @@ function notifyUpdatedPlaylist (tracklist, cloudcastPath) {
           action: 'updateTracklist',
           tracklist: tracklist,
           cloudcastPath: cloudcastPath
-        },
-        console.log('pouet')
+        }
       )
     }
   })

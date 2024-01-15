@@ -8,10 +8,25 @@ import UnavailableTracklistButton from './templates/UnavailableTracklistButton'
 
 const domUtil = require('./utils/domUtil')
 const ComponentClassTracklistVue = Vue.extend(Tracklist)
+const ComponentClassTracklistButtonVue = Vue.extend(TracklistButton)
+const ComponentClassTracklistButtonUnavailableVue = Vue.extend(UnavailableTracklistButton)
 let tracklistVue
+let tracklistButtonVue
+let tracklistButtonUnavailableVue
 
 'use strict'
 // svg from https://github.com/adlawson/mixcloud-tracklist
+
+function deleteUnavailableButton () {
+  if (tracklistButtonUnavailableVue !== undefined && tracklistButtonUnavailableVue.$el !== undefined) {
+    const parentElement = tracklistButtonUnavailableVue.$el.parentNode
+    if (parentElement != null) {
+      parentElement.removeChild(tracklistButtonUnavailableVue.$el)
+    }
+    tracklistButtonUnavailableVue.$destroy()
+    tracklistButtonUnavailableVue = undefined
+  }
+}
 
 /**
  * Initialize & start display
@@ -58,21 +73,19 @@ function initializeTracklist (datas) {
 
 function initializeTracklistButton (tracklistHandler, datas) {
   const actionAsNode = document.querySelector('[class^="styles__NonExclusiveActions"]')
-  const ComponentClass = Vue.extend(TracklistButton)
-  const buttonVue = new ComponentClass({
+  tracklistButtonVue = new ComponentClassTracklistButtonVue({
     data: { settings: datas.settings }
   })
-  buttonVue.$mount()
-  domUtil.insertAfter(actionAsNode, buttonVue.$el).show()
-  buttonVue.$el.onclick = () => switchDisplayTracklist(buttonVue, tracklistHandler.show, tracklistHandler.hide, datas)
+  tracklistButtonVue.$mount()
+  domUtil.insertAfter(actionAsNode, tracklistButtonVue.$el).show()
+  tracklistButtonVue.$el.onclick = () => switchDisplayTracklist(tracklistButtonVue, tracklistHandler.show, tracklistHandler.hide, datas)
 }
 
 function unavailableTracklistButton () {
   const actionAsNode = document.querySelector('[class^="styles__NonExclusiveActions"]')
-  const ComponentClass = Vue.extend(UnavailableTracklistButton)
-  const buttonVue = new ComponentClass()
-  buttonVue.$mount()
-  domUtil.insertAfter(actionAsNode, buttonVue.$el).show()
+  tracklistButtonUnavailableVue = new ComponentClassTracklistButtonUnavailableVue()
+  tracklistButtonUnavailableVue.$mount()
+  domUtil.insertAfter(actionAsNode, tracklistButtonUnavailableVue.$el).show()
 }
 
 /**
@@ -94,5 +107,7 @@ function switchDisplayTracklist (button, show, hide, datas) {
 
 export {
   start,
-  updateTemplateTracklist
+  updateTemplateTracklist,
+  unavailableTracklistButton,
+  deleteUnavailableButton
 }

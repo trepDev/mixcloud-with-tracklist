@@ -11,25 +11,49 @@ const graphQLFetcher = require('./utils/graphqlFetcher')
 const tracklistDisplayer = require('./tracklistDisplay')
 
 let currentPath = document.location.pathname
-let tracklistActivated = false
+let unavailableButtonActivated = false
+let tracklistMessageActivated = false
+let firstMixcloudAccess = true
 
 const mutationObserver = new MutationObserver(function (mutations) {
+  if (firstMixcloudAccess) {
+    firstMixcloudAccess = false
+    chrome.storage.local.get(['isNofitiedMwtBroke'], (result) => {
+      if (result.isNofitiedMwtBroke === false) {
+        // TODO call background for notification
+      }
+    })
+  }
   // Condition to avoid activate tracklist at each node mutation
   if (document.location.pathname !== currentPath) {
     currentPath = document.location.pathname
-    tracklistActivated = false
+    unavailableButtonActivated = false
+    tracklistMessageActivated = false
+    tracklistDisplayer.deleteUnavailableButton()
   }
-  const bodyDetailNode = document.querySelector('[class^="Layouts__RightSidebarLayout"]')
-  const cloudcastSideBar = document.querySelector('[class^="CloudcastBaseSidebar"]')
-  const loadingCloudcastSideBar = document.querySelector('[class^="CloudcastBaseSidebar"] > [class^="Loader__Wrapper"]')
 
-  if (bodyDetailNode && cloudcastSideBar && !loadingCloudcastSideBar && !tracklistActivated && !document.getElementById('toogleTracklist')) {
-    tracklistActivated = true
-    activateTracklist(currentPath)
+  const actionAsNode = document.querySelector('[class^="styles__NonExclusiveActions"]')
+
+  if (!unavailableButtonActivated && actionAsNode) {
+    unavailableButtonActivated = true
+    tracklistDisplayer.unavailableTracklistButton()
+  }
+
+  const tracklistHeaderAsNodeTemp = document.querySelector('[class^="styles__TracklistHeading"]')
+  if (!tracklistMessageActivated && tracklistHeaderAsNodeTemp) {
+    tracklistMessageActivated = true
+    setTimeout(() => {
+      const tracklistHeaderAsNode = document.querySelector('[class^="styles__TracklistHeading"]')
+      if (tracklistHeaderAsNode) {
+        // Modifiez le contenu de l'élément
+        tracklistHeaderAsNode.innerHTML = 'Tracklist (Extension is currently broke. A new version is coming soon. ' +
+          'More info <a href="https://github.com/trepDev/mixcloud-with-tracklist/issues/33"> here </a>)'
+      }
+    }, 500)
   }
 })
 
-mutationObserver.observe(document.querySelector('.cf'), {
+mutationObserver.observe(document.querySelector('#react-root'), {
   childList: true,
   subtree: true
 })
