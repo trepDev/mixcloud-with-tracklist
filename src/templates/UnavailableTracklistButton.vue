@@ -1,7 +1,7 @@
 <template>
   <button id="tracklistUnavailable" data-tooltip="Tracklist Unavailable" class="button__StyledButton-css-in-js__sc-1hu2thj-1 active-button">
     <span class="button__StyledChildren-css-in-js__sc-1hu2thj-0 inkfGg noUppercase">
-    Tracklist unavailable
+    Tracklists will be back soon
     </span>
 
   </button>
