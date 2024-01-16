@@ -9,26 +9,20 @@ const store = require('./store')
 
 // Set app setting: showTracklist by default
 chrome.runtime.onInstalled.addListener(details => {
-  const settings = {
-    showTracklist: true
-  }
   if (details.reason === 'install') {
-    chrome.storage.local.set({ settings: settings })
     chrome.storage.local.set({ isNofitiedMwtBroke: false })
   } else if (details.reason === 'update') {
     chrome.storage.local.clear()
-    chrome.storage.local.set({ settings: settings })
     chrome.storage.local.set({ isNofitiedMwtBroke: false })
   }
 })
 
-function handleNativeNotification() {
-  chrome.storage.local.set({ isNofitiedMwtBroke: true })
+function handleNativeNotification () {
   chrome.notifications.create('mwtNotif', {
     type: 'basic',
     title: 'Important: Mixcloud with Tracklist',
     iconUrl: chrome.extension.getURL('icons/icon48.png'),
-    message: 'Tracklist extension is currently broken\n' +
+    message: 'Tracklist extension is currently broken.\n' +
       'It will work again by the end of January (a major redesign is required).',
     eventTime: 5000
   })
@@ -39,9 +33,10 @@ function handleNativeNotification() {
  * It totally broke mixcloud website behaviour.
  * So, I have to spy graphQL request to get variables/query and make my own request.
  */
-chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
-  { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
-)
+// TODO Must be reactivated on the next version
+// chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
+//  { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
+// )
 
 function graphQLListener (spiedRequest) {
   const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
@@ -149,7 +144,12 @@ function storeCloudcast (datas, queryVariables) {
 }
 
 // Listen content script asking tracklist
-chrome.runtime.onMessage.addListener(mixPageListener)
+chrome.runtime.onMessage.addListener(askNotificationListener)
+
+function askNotificationListener (request, send, sendResponse) {
+  handleNativeNotification()
+  return true
+}
 
 function mixPageListener (request, send, sendResponse) {
   const tracklist = new Promise((resolve, reject) => {
