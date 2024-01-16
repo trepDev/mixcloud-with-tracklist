@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Mixcloud (with) Tracklist",
-  "version": "2.3.4",
+  "version": "3.0.0",
   "description": "Display tracklists on Mixcloud",
   "icons": {
     "16": "./icons/icon16.png",
@@ -35,6 +35,15 @@
       "js": ["./content_script/index.js"]
     }
   ],
+
+  "browser_action": {
+    "default_icon": {
+      "19": "./icons/icon16.png",
+      "38": "./icons/icon32.png"
+    },
+    "default_title": "Whereami?",
+    "default_popup": "popup/popup.html"
+  },
 
   "options_ui": {
     "page": "./settings/settings.html"
