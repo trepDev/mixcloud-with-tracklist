@@ -20,7 +20,8 @@ const mutationObserver = new MutationObserver(function (mutations) {
     firstMixcloudAccess = false
     chrome.storage.local.get(['isNofitiedMwtBroke'], (result) => {
       if (result.isNofitiedMwtBroke === false) {
-        // TODO call background for notification
+        chrome.storage.local.set({ isNofitiedMwtBroke: true })
+        askBackgroundForNotification()
       }
     })
   }
@@ -46,7 +47,7 @@ const mutationObserver = new MutationObserver(function (mutations) {
       const tracklistHeaderAsNode = document.querySelector('[class^="styles__TracklistHeading"]')
       if (tracklistHeaderAsNode) {
         // Modifiez le contenu de l'élément
-        tracklistHeaderAsNode.innerHTML = 'Tracklist (Extension is currently broke. A new version is coming soon. ' +
+        tracklistHeaderAsNode.innerHTML = 'Tracklist (Extension is currently broken. A new version is coming soon. ' +
           'More info <a href="https://github.com/trepDev/mixcloud-with-tracklist/issues/33"> here </a>)'
       }
     }, 500)
@@ -71,30 +72,20 @@ function activateTracklist (path) {
   )
 }
 
+function askBackgroundForNotification () {
+  chrome.runtime.sendMessage({})
+}
+
 // Listen Background asking to make request retrieving tracklist. Result (tracklist) is send to background (wich store it in store)
 chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
     if (message.action === 'requestTracklist') {
       return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
-    } else if (message.action === 'updateTracklist') {
-      return handleUpdateTracklist(message.tracklist, message.cloudcastPath, sender, sendResponse)
     }
   }
 )
 
 function handleRequestTracklist (variables, query, sender, sendResponse) {
   graphQLFetcher.fetch(variables, query).then(result => sendResponse(result)).catch(() => sendResponse(null))
-  return true
-}
-
-function handleUpdateTracklist (tracklist, cloudcastPath, sender, sendResponse) {
-  let responseMessage
-  if (document.location.pathname === cloudcastPath) {
-    tracklistDisplayer.updateTemplateTracklist(tracklist)
-    responseMessage = 'Tracklist Template updated'
-  } else {
-    responseMessage = 'Tracklist Template not updated. Paths are different'
-  }
-  sendResponse(responseMessage)
   return true
 }
