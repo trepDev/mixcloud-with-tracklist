@@ -1,3 +1,9 @@
+# IMPORTANT
+Due to some changes on Mixcloud Website, 
+this extension is currently broken.  
+Fix release is scheduled for the end of January. See [here](https://github.com/trepDev/mixcloud-with-tracklist/issues/33)
+for me details.
+
 # Mixcloud (with) Tracklist (Web-Extension)
 
 - Displays tracklists Mixcloud Website.
