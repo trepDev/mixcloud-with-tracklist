@@ -10,7 +10,8 @@ module.exports = {
   entry: {
     background_scripts: './src/background.js',
     content_script: './src/content.js',
-    settings: './src/settings/settings.js'
+    settings: './src/settings/settings.js',
+    popup: './src/popup/popup.js'
   },
   output: {
     path: path.resolve(__dirname, 'addon'),
@@ -44,7 +45,8 @@ module.exports = {
       patterns: [
         { from: 'manifest.json', to: 'manifest.json' },
         { from: __dirname + '/src/icons', to: 'icons' },
-        { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' }
+        { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' },
+        { from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html' }
       ]
     })
   ]
