@@ -76,6 +76,10 @@ chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
     if (message.action === 'requestTracklist') {
       return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
+    } else if (message.action === 'playTrack') {
+      // LEGACY >> Have to set a timeout else play on track don't work (SEEMS TO WORK WITHOUT IT NOW, BUT JUST IN CASE ...)
+      setTimeout(() => { document.getElementsByTagName('audio')[0].currentTime = message.timestamp }, 200)
+      sendResponse({})
     }
   }
 )

@@ -9,7 +9,15 @@ import domUtil from '../utils/domUtil'
 const ComponentClassTracklistVue = Vue.extend(Tracklist)
 let tracklistVue
 
-async function initializeTracklist () {
+initializeTracklist()
+
+window.addEventListener('beforeunload', function (event) {
+  if (tracklistVue) {
+    tracklistVue.$destroy()
+  }
+})
+
+function initializeTracklist () {
   tracklistVue = new ComponentClassTracklistVue()
   // TODO handle async ?
   getData()
@@ -32,7 +40,28 @@ function getData () {
   },
   (response) => {
     tracklistVue.tracklist = response.tracklist
+    tracklistVue.callContentToPlayTrack = callContentToPlayTrack
+    tracklistVue.hasTimestamp = hasTimestamp
   })
 }
 
-initializeTracklist()
+function callContentToPlayTrack (timestamp) {
+  if (hasTimestamp(timestamp) && timestamp !== 0) {
+    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+      // TODO probably handle better multitab
+      for (const tab of tabs) {
+        chrome.tabs.sendMessage(
+          tab.id,
+          {
+            action: 'playTrack',
+            timestamp: timestamp
+          }
+        )
+      }
+    })
+  }
+}
+
+function hasTimestamp (timestamp) {
+  return timestamp !== null && timestamp !== undefined && timestamp !== 0
+}
