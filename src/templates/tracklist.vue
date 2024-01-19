@@ -79,7 +79,8 @@ p {
 }
 
 .mwt-tracklist-container {
-  width: 100%
+  width: 100%;
+  padding: 0px 10px 0px 10px;
 }
 
 .mwt-header {
