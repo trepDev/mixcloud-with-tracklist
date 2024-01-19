@@ -21,7 +21,6 @@ const mutationObserver = new MutationObserver(function (mutations) {
     chrome.storage.local.get(['isNofitiedMwtBroke'], (result) => {
       if (result.isNofitiedMwtBroke === false) {
         chrome.storage.local.set({ isNofitiedMwtBroke: true })
-        askBackgroundForNotification()
       }
     })
   }
@@ -70,10 +69,6 @@ function activateTracklist (path) {
       tracklistDisplayer.start(datas)
     }
   )
-}
-
-function askBackgroundForNotification () {
-  chrome.runtime.sendMessage({})
 }
 
 // Listen Background asking to make request retrieving tracklist. Result (tracklist) is send to background (wich store it in store)

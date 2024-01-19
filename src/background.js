@@ -7,36 +7,20 @@ const store = require('./store')
 /* global chrome */
 /* global TextDecoder */
 
-// Set app setting: showTracklist by default
 chrome.runtime.onInstalled.addListener(details => {
-  if (details.reason === 'install') {
-    chrome.storage.local.set({ isNofitiedMwtBroke: false })
-  } else if (details.reason === 'update') {
+  if (details.reason === 'update') {
     chrome.storage.local.clear()
-    chrome.storage.local.set({ isNofitiedMwtBroke: false })
   }
 })
-
-function handleNativeNotification () {
-  chrome.notifications.create('mwtNotif', {
-    type: 'basic',
-    title: 'Important: Mixcloud with Tracklist',
-    iconUrl: chrome.extension.getURL('icons/icon48.png'),
-    message: 'Tracklist extension is currently broken.\n' +
-      'It will work again by the end of January (a major redesign is required).',
-    eventTime: 5000
-  })
-}
 
 /**
  * Unfortunately, I can't use https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/filterResponseData to directly get the tracklist's datas.
  * It totally broke mixcloud website behaviour.
  * So, I have to spy graphQL request to get variables/query and make my own request.
  */
-// TODO Must be reactivated on the next version
-// chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
-//  { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
-// )
+chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
+  { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
+)
 
 function graphQLListener (spiedRequest) {
   const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
@@ -144,18 +128,24 @@ function storeCloudcast (datas, queryVariables) {
 }
 
 // Listen content script asking tracklist
-chrome.runtime.onMessage.addListener(askNotificationListener)
+chrome.runtime.onMessage.addListener(popupListener)
 
-function askNotificationListener (request, send, sendResponse) {
-  handleNativeNotification()
-  return true
-}
-
-function mixPageListener (request, send, sendResponse) {
-  const tracklist = new Promise((resolve, reject) => {
-    return getTracklist(request.path, 1, resolve, reject)
+function popupListener (request, send, sendResponse) {
+  chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+    if (tabs.length > 0) {
+      const url = tabs[0].url
+      const regex = /^\D*:\/\/\D+\.mixcloud\.com/
+      const path = url.replace(regex, '')
+      const tracklist = new Promise((resolve, reject) => {
+        return getTracklist(path, 1, resolve, reject)
+      })
+      tracklist.then((data) => {
+        console.log('on va envoyé comme data à la popup')
+        console.log(data)
+        sendResponse(data)
+      })
+    }
   })
-  tracklist.then((data) => sendResponse(data))
   return true
 }
 
@@ -168,7 +158,7 @@ function mixPageListener (request, send, sendResponse) {
  * @returns {*} resolve(tracklist or emptry tracklist)
  */
 function getTracklist (path, counter, resolve, reject) {
-  if (counter > 10) {
+  if (counter > 5) {
     return resolve({ tracklist: [] })
   }
   if (!store.getCloudcastByPath(path)) {
@@ -180,6 +170,7 @@ function getTracklist (path, counter, resolve, reject) {
       return resolve({ tracklist: store.getTracklist(path), settings: settings })
     })
   }
+
   function getSettings () {
     return new Promise((resolve) => {
       let settings = store.getSettings()
