@@ -131,22 +131,24 @@ function storeCloudcast (datas, queryVariables) {
 chrome.runtime.onMessage.addListener(popupListener)
 
 function popupListener (request, send, sendResponse) {
-  chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-    if (tabs.length > 0) {
-      const url = tabs[0].url
-      const regex = /^\D*:\/\/\D+\.mixcloud\.com/
-      const path = url.replace(regex, '')
-      const tracklist = new Promise((resolve, reject) => {
-        return getTracklist(path, 1, resolve, reject)
-      })
-      tracklist.then((data) => {
-        console.log('on va envoyé comme data à la popup')
-        console.log(data)
-        sendResponse(data)
-      })
-    }
-  })
-  return true
+  if (request.action === 'getTracklist') {
+    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+      if (tabs.length > 0) {
+        const url = tabs[0].url
+        const regex = /^\D*:\/\/\D+\.mixcloud\.com/
+        const path = url.replace(regex, '')
+        const tracklist = new Promise((resolve, reject) => {
+          return getTracklist(path, 1, resolve, reject)
+        })
+        tracklist.then((data) => {
+          console.log('on va envoyé comme data à la popup')
+          console.log(data)
+          sendResponse(data)
+        })
+      }
+    })
+    return true
+  }
 }
 
 /**

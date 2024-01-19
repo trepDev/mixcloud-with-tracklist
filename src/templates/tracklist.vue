@@ -12,13 +12,13 @@
         <div id='trackNumber' class="row-number"
              v-bind:class="{ 'pointer': hasTimestamp(track.timestamp) }"
              v-bind:title="getTitleAttribute(track.timestamp)"
-             v-on:click="playTrack(track.timestamp)">
+             v-on:click="callContentToPlayTrack(track.timestamp)">
           {{track.trackNumber}}
         </div>
         <div id='timestamp' class="row-timestamp"
              v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) }"
              v-bind:title="getTitleAttribute(track.timestamp)"
-             v-on:click="playTrack(track.timestamp)">
+             v-on:click="callContentToPlayTrack(track.timestamp)">
           {{track.time}}
         </div>
         <div class="row-track"
@@ -37,26 +37,16 @@ export default {
     return {tracklist: []}
   },
   methods: {
-    playTrack: playTrack,
+    callContentToPlayTrack: callContentToPlayTrack,
     hasTimestamp: hasTimestamp,
     copyToClipoard: copyToClipoard,
-    getTitleAttribute: getTitleAttribute
+    getTitleAttribute: getTitleAttribute,
   }
 }
 
-function playTrack(timestamp) {
-  if(hasTimestamp(timestamp) && timestamp != 0) {
-    let replaybutton = document.querySelectorAll('button[class^="PlayerSeekingActions__ReplayButton"]')
-    // Have to click on replay else play on track don't work
-    replaybutton[0].click()
-    // Have to set a timeout else play on track don't work
-    setTimeout(() => document.getElementsByTagName('audio')[0].currentTime = timestamp, 200)
-  }
-}
+function callContentToPlayTrack() {}
 
-function hasTimestamp(timestamp) {
-  return timestamp !== null && timestamp !== undefined && timestamp !== 0
-}
+function hasTimestamp() {}
 
 function copyToClipoard(tracklist) {
   let toCopy = '';
