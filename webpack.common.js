@@ -46,7 +46,9 @@ module.exports = {
         { from: 'manifest.json', to: 'manifest.json' },
         { from: __dirname + '/src/icons', to: 'icons' },
         { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' },
-        { from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html' }
+        { from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html' },
+        { from: __dirname + '/src/' + 'onboarding/onboarding.html', to: 'onboarding/onboarding.html' },
+        { from: __dirname + '/src/' + 'onboarding/onboarding.css', to: 'onboarding/onboarding.css' }
       ]
     })
   ]
