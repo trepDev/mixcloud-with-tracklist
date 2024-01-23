@@ -41,7 +41,7 @@
       "19": "./icons/icon16.png",
       "38": "./icons/icon32.png"
     },
-    "default_title": "Whereami?",
+    "default_title": "Mixcloud (with) Tracklist",
     "default_popup": "popup/popup.html"
   },
 
