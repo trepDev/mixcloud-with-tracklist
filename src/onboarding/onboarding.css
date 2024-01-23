@@ -30,3 +30,13 @@ h1 {
 .img-margin {
     margin-right: 16px;
 }
+
+.text {
+    padding: 0px 24px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 18px;
+    line-height: 25px;
+    font-weight: 400;
+    color: #171c2b;
+    text-align: justify;
+}

@@ -8,6 +8,7 @@ const store = require('./store')
 /* global TextDecoder */
 
 chrome.runtime.onInstalled.addListener(details => {
+  chrome.browserAction.setPopup({ popup: './onboarding/onboarding.html'})
   if (details.reason === 'update') {
     chrome.storage.local.clear()
   }
