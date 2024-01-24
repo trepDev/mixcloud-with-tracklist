@@ -48,7 +48,8 @@ module.exports = {
         { from: __dirname + '/src/' + 'settings/settings.html', to: 'settings/settings.html' },
         { from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html' },
         { from: __dirname + '/src/' + 'onboarding/onboarding.html', to: 'onboarding/onboarding.html' },
-        { from: __dirname + '/src/' + 'onboarding/onboarding.css', to: 'onboarding/onboarding.css' }
+        { from: __dirname + '/src/' + 'onboarding/onboarding.css', to: 'onboarding/onboarding.css' },
+        { from: __dirname + '/src/' + 'onboarding/mwt-ext-chrome.png', to: 'onboarding/mwt-ext-chrome.png' }
       ]
     })
   ]
