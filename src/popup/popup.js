@@ -1,6 +1,5 @@
 'use strict'
 /* global chrome */
-/* global browser */
 
 import Vue from 'vue'
 import Tracklist from '../templates/tracklist.vue'

@@ -8,9 +8,10 @@ const store = require('./store')
 /* global TextDecoder */
 
 chrome.runtime.onInstalled.addListener(details => {
-  chrome.browserAction.setPopup({ popup: './onboarding/onboarding.html'})
-  if (details.reason === 'update') {
-    chrome.storage.local.clear()
+  if (details.reason === 'install') {
+    chrome.storage.local.set({ onboarding: true })
+  } else if (details.reason === 'update') {
+    chrome.storage.local.clear().then(() => chrome.storage.local.set({ onboarding: true }))
   }
 })
 
@@ -23,18 +24,22 @@ chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
   { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
 )
 
-function graphQLListener (spiedRequest) {
-  const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
-  const decoder = new TextDecoder('utf-8')
-  const payload = JSON.parse(decoder.decode(byteArray))
+chrome.runtime.onMessage.addListener(onMessageListener)
 
-  // Not my own request  & Request for tracklist (without timestamp) & tracklist not already store >> call content script for request cloudcast
-  if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
-    !store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
-    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, true))
-    // Not my own request  & Request for tracklist (with timestamp) & tracklist with timestamps not already store >> call content script for request cloudcast
-  } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !store.hasTimestamps(payload.variables.cloudcastId)) {
-    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))
+function graphQLListener (spiedRequest) {
+  if (spiedRequest.requestBody) {
+    const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
+    const decoder = new TextDecoder('utf-8')
+    const payload = JSON.parse(decoder.decode(byteArray))
+
+    // Not my own request  & Request for tracklist (without timestamp) & tracklist not already store >> call content script for request cloudcast
+    if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
+      !store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
+      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, true))
+      // Not my own request  & Request for tracklist (with timestamp) & tracklist with timestamps not already store >> call content script for request cloudcast
+    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !store.hasTimestamps(payload.variables.cloudcastId)) {
+      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))
+    }
   }
 }
 
@@ -77,7 +82,8 @@ function storeCloudcastAndNotifyIfTracklistUpdated (response, requestVariables) 
 function hasTracklistInMixcloudResponse (response) {
   return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
     response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
-    response.xhrResponse.data.cloudcast && !!response.xhrResponse.data.cloudcast.sections.length
+    response.xhrResponse.data.cloudcast && response.xhrResponse.data.cloudcast.hasOwnProperty('sections') &&
+    !!response.xhrResponse.data.cloudcast.sections.length
 }
 
 /**
@@ -128,26 +134,28 @@ function storeCloudcast (datas, queryVariables) {
   return dataToStore
 }
 
-// Listen content script asking tracklist
-chrome.runtime.onMessage.addListener(popupListener)
-
-function popupListener (request, send, sendResponse) {
+function onMessageListener (request, send, sendResponse) {
   if (request.action === 'getTracklist') {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
       if (tabs.length > 0) {
         const url = tabs[0].url
         const regex = /^\D*:\/\/\D+\.mixcloud\.com/
-        const path = url.replace(regex, '')
+        const path = decodeURIComponent(url.replace(regex, ''))
         const tracklist = new Promise((resolve, reject) => {
           return getTracklist(path, 1, resolve, reject)
         })
         tracklist.then((data) => {
-          console.log('on va envoyé comme data à la popup')
+          console.log('data sent to popup')
           console.log(data)
           sendResponse(data)
         })
       }
     })
+    return true
+  } else if (request.action === 'displayOnboarding') {
+    const urlIcon = chrome.runtime.getURL('icons/icon48.png')
+    const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')
+    sendResponse({ urlIcon: urlIcon, urlExtIcon: urlExtIcon })
     return true
   }
 }

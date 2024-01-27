@@ -1,40 +1,90 @@
-<!DOCTYPE html>
+<style>
+    .mwt-dialog-title {
+        font-family: "DM Sans", sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 1.11;
+        text-transform: none;
+    }
 
-<html>
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="onboarding.css"/>
-    <style>
-        html, body {
-            width: 780px;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-</head>
+    .mwt-dialog-content {
+        width: 90%;
+        margin: auto;
+    }
 
-<body>
-<div class="colored-header">
+    .mwt-title-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
 
-</div>
-<div class="title">
-    <div class="content">
-        <img class="img-margin" src="../icons/icon48.png">
-        <h1> Welcome to Mixcloud (with) Tracklist v3</h1>
+        background-color: #ffffff;
+        margin-bottom: 24px;
+    }
+
+    .mwt-img-margin {
+        margin-right: 16px;
+    }
+
+    .mwt-info-text {
+        font-family: "DM Sans", sans-serif;
+        font-size: 18px;
+        line-height: 25px;
+        font-weight: 400;
+        color: #171c2b;
+        text-align: justify;
+    }
+
+    .centered-button {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+
+        margin-top: 24px;
+    }
+
+    .mwt-rounded-button {
+        border-width: 0px;
+        border-radius: 5px; /* Ajoute des coins arrondis */
+        background-color: rgb(23, 28, 43); /* Couleur de fond du bouton */
+        color: #fff; /* Couleur du texte */
+        padding: 10px 20px; /* Espacement interne du bouton */
+        text-align: center; /* Texte centré horizontalement */
+        font-size: 16px; /* Taille de la police */
+        cursor: pointer; /* Curseur de type pointeur au survol */
+    }
+
+    /* Style pour le survol du bouton */
+    .mwt-rounded-button:hover {
+        background-color: #5000ff; /* Couleur de fond au survol */
+    }
+</style>
+
+<dialog id="mwt-dialog">
+    <div class="mwt-colored-header"></div>
+    <div class="mwt-dialog-content">
+        <div class="mwt-title-container">
+            <img class="mwt-img-margin" src="../icons/icon48.png">
+            <h1 class="mwt-dialog-title">Mixcloud (with) Tracklist is back!</h1>
+        </div>
+        <p class="mwt-info-text">
+            Due to changes made to Mixcloud's website, it is no longer possible to integrate tracklists directly on the
+            Mixcloud webpage.
+            <br/>
+            Now, you can access and interact with tracklists through the extension's browser popup.
+            <br/>
+            Simply click the extension icon to view the tracklist. You can still conveniently play tracks
+            directly from this popup.
+            <br/>
+            Tracklist displayed is the one from your first mixcloud open tab (if you have multiple tabs open).
+            <br/>
+            Tracklists from multiple tabs will be handled in a future update.
+            <br/>
+            For more infos, check out <a href="https://addons.mozilla.org/en-US/firefox/addon/mixcloud-with-tracklist/", target="_blank">
+            the firefox addon page.</a>
+        </p>
+        <div class="centered-button">
+            <button class="mwt-rounded-button">Got it!</button>
+        </div>
     </div>
-    <p class="text">
-        Due to changes made to Mixcloud's website, it is no longer possible to integrate tracklists directly on the Mixcloud webpage.
-        <br />
-        Now, you can access and interact with tracklists through the extension's browser popup.
-        <br />
-        Simply click the extension icon to view the tracklist. You can still conveniently play tracks
-        directly from this popup.
-        <br />
-        Tracklist displayed is the one from your first mixcloud open tab (if you have multiple tabs open).
-        <br />
-        Tracklists from multiple tabs will be handled in a future update.
-    </p>
-</div>
-</body>
-
-</html>
+</dialog>

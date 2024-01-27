@@ -54,8 +54,7 @@ module.exports = (env) => {
             from: env === 'chrome' ? __dirname + '/src/' + 'onboarding/onboarding-update-chrome.html' : __dirname + '/src/' + 'onboarding/onboarding-update-ff.html',
             to: 'onboarding/onboarding.html'
           },
-          { from: __dirname + '/src/' + 'onboarding/onboarding.css', to: 'onboarding/onboarding.css' },
-          { from: __dirname + '/src/' + 'onboarding/mwt-ext-chrome.png', to: 'onboarding/mwt-ext-chrome.png' }
+          { from: __dirname + '/src/' + 'onboarding/ext-icon.png', to: 'onboarding/ext-icon.png' }
         ]
       })
     ]
