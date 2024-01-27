@@ -74,5 +74,10 @@
 
   "options_ui": {
     "page": "./settings/settings.html"
-  }
+  },
+  "web_accessible_resources": [
+    "onboarding/onboarding.html",
+    "onboarding/ext-icon.png",
+    "icons/icon48.png"
+  ]
 }
