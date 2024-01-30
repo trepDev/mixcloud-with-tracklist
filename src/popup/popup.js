@@ -8,39 +8,78 @@ import domUtil from '../utils/domUtil'
 const ComponentClassTracklistVue = Vue.extend(Tracklist)
 let tracklistVue
 
-initializeTracklist()
+initializePopup()
 
 window.addEventListener('beforeunload', function (event) {
   if (tracklistVue) {
     tracklistVue.$destroy()
+    tracklistVue = null
   }
 })
 
-function initializeTracklist () {
-  tracklistVue = new ComponentClassTracklistVue()
-  // TODO handle async ?
-  getData()
-  tracklistVue.$mount()
+async function initializePopup () {
+  const popupElement = await initializeTemplate()
 
-  const tracklistHeaderAsNode = document.querySelector('[class^="hidden"]')
+  const popupContentAsNode = document.querySelector('[class^="to-replace"]')
 
-  const tracklistParentContainerAsNode = tracklistHeaderAsNode.parentNode
-  const tracklistAsNode = tracklistParentContainerAsNode.childNodes[1]
-  const tracklistHandler = domUtil.replace(tracklistParentContainerAsNode, tracklistVue.$el, tracklistAsNode)
+  const tracklistParentContainerAsNode = popupContentAsNode.parentNode
+  const tracklistHandler = domUtil.replace(tracklistParentContainerAsNode, popupElement, popupContentAsNode)
 
   tracklistHandler.show()
 
   return tracklistHandler
 }
 
-function getData () {
-  chrome.runtime.sendMessage({
-    action: 'getTracklist'
-  },
-  (response) => {
-    tracklistVue.tracklist = response.tracklist
-    tracklistVue.callContentToPlayTrack = callContentToPlayTrack
-    tracklistVue.hasTimestamp = hasTimestamp
+async function initializeTemplate () {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({
+      action: 'getTracklist'
+    },
+    (response) => {
+      if (!response) {
+        initializeNoMixcloudTemplate().then((htmlElement) => resolve(htmlElement))
+      } else if (response.tracklist && response.tracklist.length) {
+        resolve(initializeTracklistVue(response.tracklist))
+      } else if (response.tracklist && !response.tracklist.length) {
+        resolve(initializeNoTracklistTemplate())
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+function initializeTracklistVue (tracklist) {
+  tracklistVue = new ComponentClassTracklistVue()
+  tracklistVue.tracklist = tracklist
+  tracklistVue.callContentToPlayTrack = callContentToPlayTrack
+  tracklistVue.hasTimestamp = hasTimestamp
+  tracklistVue.$mount()
+  return tracklistVue.$el
+}
+
+function initializeNoMixcloudTemplate () {
+  return new Promise((resolve) => {
+    const url = chrome.extension.getURL('templates/no-mixcloud.html')
+    fetch(url)
+      .then(response => response.text())
+      .then(noMixcloudTemplate => {
+        var div = document.createElement('div')
+        div.innerHTML = noMixcloudTemplate.trim()
+        resolve(div.firstChild)
+      })
+  })
+}
+function initializeNoTracklistTemplate () {
+  return new Promise((resolve) => {
+    const url = chrome.extension.getURL('templates/no-tracklist.html')
+    fetch(url)
+      .then(response => response.text())
+      .then(noTracklistTemplate => {
+        var div = document.createElement('div')
+        div.innerHTML = noTracklistTemplate.trim()
+        resolve(div.firstChild)
+      })
   })
 }
 
