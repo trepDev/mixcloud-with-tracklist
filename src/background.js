@@ -32,50 +32,83 @@ function graphQLListener (spiedRequest) {
     const decoder = new TextDecoder('utf-8')
     const payload = JSON.parse(decoder.decode(byteArray))
 
-    // Not my own request  & Request for tracklist (without timestamp) & tracklist not already store >> call content script for request cloudcast
+    // Not my own request & Request for tracklist & tracklist not already store >> call content script to request cloudcast
     if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
       !store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
-      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, true))
-      // Not my own request  & Request for tracklist (with timestamp) & tracklist with timestamps not already store >> call content script for request cloudcast
-    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !store.hasTimestamps(payload.variables.cloudcastId)) {
-      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => requestCloudcast(tabs, payload.variables, payload.query, false))
+      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+        if (tabs[0]) requestCloudcast(tabs[0], payload.variables)
+      })
+      // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script for request cloudcast
+    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !store.getCloudcastById(payload.variables.cloudcastId)) {
+      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+        if (tabs[0]) requestPlayerControlsQuery(tabs[0], payload.variables, payload.query)
+      })
     }
   }
 }
 
 /**
- * send request notification (to content script) & store tracklist.
- * If this tracklist is an updated old one. Notify contentScript for potential tracklist template update
+ * Send message to content script in order to retrieve tracklist.
+ * Store tracklist if available in response.
  * @param tabs
  * @param requestVariables
  * @param query
- * @param useRequestVariablesforStore data to get tracklist path is not availaible is sometimes in request variable, sometimes in response.
- * So we have to indicate when use request variable.
  */
-function requestCloudcast (tabs, requestVariables, query, useRequestVariablesforStore) {
-  for (const tab of tabs) {
-    chrome.tabs.sendMessage(
-      tab.id,
-      {
-        action: 'requestTracklist',
-        variables: requestVariables,
-        query: query
-      },
-      (response) => storeCloudcastAndNotifyIfTracklistUpdated(response, useRequestVariablesforStore ? requestVariables : null)
-    )
-  }
+function requestCloudcast (tab, requestVariables) {
+  chrome.tabs.sendMessage(
+    tab.id,
+    {
+      action: 'requestTracklist',
+      variables: requestVariables,
+      // query made by mixcloud, but I add startSeconds to retrieve timestamp
+      query: `
+    query TracklistAudioPageQuery($lookup: CloudcastLookup!) {
+        cloudcast: cloudcastLookup(lookup: $lookup) {
+            canShowTracklist
+            featuringArtistList
+            moreFeaturingArtists
+            sections {
+                ... on TrackSection {
+                    __typename
+                    artistName
+                    songName
+                    startSeconds
+                }
+                ... on ChapterSection {
+                    chapter
+                }
+            }
+            id
+        }
+    }
+`
+    },
+    (response) => checkAndStoreCloudcast(response, requestVariables)
+  )
 }
 
-function storeCloudcastAndNotifyIfTracklistUpdated (response, requestVariables) {
-  if (hasTracklistInMixcloudResponse(response)) {
-    const cloudcastAlreadyInStore = !!store.getCloudcastById(response.xhrResponse.data.cloudcast.id)
-    const dataStored = storeCloudcast(response, requestVariables)
-    if (cloudcastAlreadyInStore) {
-      const tracklist = new Promise((resolve, reject) => {
-        return getTracklist(dataStored.cloudcastDatas.path, 1, resolve, reject)
-      })
-      tracklist.then((data) => notifyUpdatedPlaylist(data.tracklist, dataStored.cloudcastDatas.path))
+// PlayerControlsQuery doesn't have the tracklist in response (my tries to add section in this request all failed).
+// I use this response to get the username and slug, which allows me to call TracklistAudioPageQuery (with tracklist in response)
+function requestPlayerControlsQuery (tab, requestVariables, query) {
+  chrome.tabs.sendMessage(tab.id,
+    {
+      action: 'requestTracklist',
+      variables: requestVariables,
+      query: query
+    },
+    (response) => requestCloudcast(tab, {
+      lookup: {
+        username: response.xhrResponse.data.cloudcast.owner.username,
+        slug: response.xhrResponse.data.cloudcast.slug
+      }
     }
+    )
+  )
+}
+
+function checkAndStoreCloudcast (response, requestVariables) {
+  if (hasTracklistInMixcloudResponse(response)) {
+    storeCloudcast(response, requestVariables)
   }
 }
 
@@ -86,35 +119,9 @@ function hasTracklistInMixcloudResponse (response) {
     !!response.xhrResponse.data.cloudcast.sections.length
 }
 
-/**
- * Call contentScript to update tracklist template
- * @param tracklist: trackist data
- */
-function notifyUpdatedPlaylist (tracklist, cloudcastPath) {
-  chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-    for (const tab of tabs) {
-      chrome.tabs.sendMessage(
-        tab.id,
-        {
-          action: 'updateTracklist',
-          tracklist: tracklist,
-          cloudcastPath: cloudcastPath
-        }
-      )
-    }
-  })
-}
-
 function storeCloudcast (datas, queryVariables) {
-  let username
-  let slug
-  if (queryVariables) {
-    username = queryVariables.lookup.username
-    slug = queryVariables.lookup.slug
-  } else {
-    username = datas.xhrResponse.data.cloudcast.owner.username
-    slug = datas.xhrResponse.data.cloudcast.slug
-  }
+  const username = queryVariables.lookup.username
+  const slug = queryVariables.lookup.slug
 
   const dataToStore = {
     cloudcastDatas: {
@@ -124,13 +131,11 @@ function storeCloudcast (datas, queryVariables) {
     }
   }
 
-  if (store.getCloudcastById(dataToStore.cloudcastDatas.id) && !store.hasTimestamps(dataToStore.cloudcastDatas.id)) {
-    console.log('replacecloudCast ' + dataToStore.cloudcastDatas.path)
-    store.replaceCloudcast(dataToStore.cloudcastDatas)
-  } else {
+  if (!store.getCloudcastById(dataToStore.cloudcastDatas.id)) {
     console.log('savecloudCast ' + dataToStore.cloudcastDatas.path)
     store.setData(dataToStore)
   }
+
   return dataToStore
 }
 
