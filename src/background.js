@@ -52,7 +52,6 @@ function graphQLListener (spiedRequest) {
  * Store tracklist if available in response.
  * @param tabs
  * @param requestVariables
- * @param query
  */
 function requestCloudcast (tab, requestVariables) {
   chrome.tabs.sendMessage(
@@ -184,23 +183,6 @@ function getTracklist (path, counter, resolve, reject) {
       getTracklist(path, counter + 1, resolve, reject)
     }, 500)
   } else {
-    getSettings().then((settings) => {
-      return resolve({ tracklist: store.getTracklist(path), settings: settings })
-    })
-  }
-
-  function getSettings () {
-    return new Promise((resolve) => {
-      let settings = store.getSettings()
-      if (settings) {
-        resolve(settings)
-      } else {
-        chrome.storage.local.get(null, content => {
-          settings = content.settings
-          store.setSettings(content.settings)
-          resolve(settings)
-        })
-      }
-    })
+    return resolve({ tracklist: store.getTracklist(path) })
   }
 }

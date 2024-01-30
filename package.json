@@ -2,7 +2,7 @@
   "name": "mixcloud-with-tracklist",
   "version": "3.0.0",
   "description": "Display tracklists on Mixcloud",
-  "author": "Trep Dev",
+  "author": "TrepDev",
   "repository": {
     "type": "git",
     "url": "https://github.com/trepDev/mixcloud-with-tracklist.git"
