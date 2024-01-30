@@ -154,6 +154,8 @@ function onMessageListener (request, send, sendResponse) {
           console.log(data)
           sendResponse(data)
         })
+      } else {
+        sendResponse()
       }
     })
     return true
@@ -174,7 +176,7 @@ function onMessageListener (request, send, sendResponse) {
  * @returns {*} resolve(tracklist or emptry tracklist)
  */
 function getTracklist (path, counter, resolve, reject) {
-  if (counter > 5) {
+  if (counter > 3) {
     return resolve({ tracklist: [] })
   }
   if (!store.getCloudcastByPath(path)) {
