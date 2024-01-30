@@ -8,11 +8,7 @@
 
 const graphQLFetcher = require('./utils/graphqlFetcher')
 // svg from https://github.com/adlawson/mixcloud-tracklist
-const tracklistDisplayer = require('./tracklistDisplay')
 
-let currentPath = document.location.pathname
-let unavailableButtonActivated = false
-let tracklistMessageActivated = false
 let firstMixcloudAccess = true
 
 const mutationObserver = new MutationObserver(function (mutations) {
@@ -21,36 +17,9 @@ const mutationObserver = new MutationObserver(function (mutations) {
     chrome.storage.local.get(['onboarding'], (result) => {
       if (result.onboarding === true) {
         chrome.storage.local.set({ onboarding: false })
-        setTimeout(askDisplayOnboarding, 1000)
+        setTimeout(displayOnboarding, 1000)
       }
     })
-  }
-  // Condition to avoid activate tracklist at each node mutation
-  if (document.location.pathname !== currentPath) {
-    currentPath = document.location.pathname
-    unavailableButtonActivated = false
-    tracklistMessageActivated = false
-    tracklistDisplayer.deleteUnavailableButton()
-  }
-
-  const actionAsNode = document.querySelector('[class^="styles__NonExclusiveActions"]')
-
-  if (!unavailableButtonActivated && actionAsNode) {
-    unavailableButtonActivated = true
-    tracklistDisplayer.unavailableTracklistButton()
-  }
-
-  const tracklistHeaderAsNodeTemp = document.querySelector('[class^="styles__TracklistHeading"]')
-  if (!tracklistMessageActivated && tracklistHeaderAsNodeTemp) {
-    tracklistMessageActivated = true
-    setTimeout(() => {
-      const tracklistHeaderAsNode = document.querySelector('[class^="styles__TracklistHeading"]')
-      if (tracklistHeaderAsNode) {
-        // Modifiez le contenu de l'élément
-        tracklistHeaderAsNode.innerHTML = 'Tracklist (Extension is currently broken. A new version is coming soon. ' +
-          'More info <a href="https://github.com/trepDev/mixcloud-with-tracklist/issues/33"> here </a>)'
-      }
-    }, 500)
   }
 })
 
@@ -60,10 +29,10 @@ mutationObserver.observe(document.querySelector('#react-root'), {
 })
 
 /**
- * Get templates's data from background store & activate tracklist.
- * @param path : current path.
+ * Display onBoarding.
+ * Sending a message to the background to retrieve the image URL is necessary in the onboarding template.
  */
-function askDisplayOnboarding () {
+function displayOnboarding () {
   console.log('enter askDisplayOnboarding')
   chrome.runtime.sendMessage(
     { action: 'displayOnboarding' },
@@ -91,7 +60,7 @@ function askDisplayOnboarding () {
           dialog.showModal()
         })
         .catch(error => {
-          console.error('Une erreur s\'est produite :', error)
+          console.error('Error in retrieving onboarding.htm :', error)
         })
     }
   )
@@ -103,17 +72,22 @@ chrome.runtime.onMessage.addListener(
     if (message.action === 'requestTracklist') {
       return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
     } else if (message.action === 'playTrack') {
-      // LEGACY >> Have to set a timeout else play on track don't work (SEEMS TO WORK WITHOUT IT NOW, BUT JUST IN CASE ...)
-      setTimeout(() => {
-        const audioPlayer = document.getElementsByTagName('audio')[0]
-        if (audioPlayer) audioPlayer.currentTime = message.timestamp
-      }, 200)
-      sendResponse({})
+      handlePlayTrack(message.timestamp, sendResponse)
     }
   }
 )
 
 function handleRequestTracklist (variables, query, sender, sendResponse) {
   graphQLFetcher.fetch(variables, query).then(result => sendResponse(result)).catch(() => sendResponse(null))
+  return true
+}
+
+function handlePlayTrack (timestamp, sendResponse) {
+  // LEGACY >> Have to set a timeout else play on track don't work (SEEMS TO WORK WITHOUT IT NOW, BUT JUST IN CASE ...)
+  setTimeout(() => {
+    const audioPlayer = document.getElementsByTagName('audio')[0]
+    if (audioPlayer) audioPlayer.currentTime = timestamp
+  }, 200)
+  sendResponse({})
   return true
 }

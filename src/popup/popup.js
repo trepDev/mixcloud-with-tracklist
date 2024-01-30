@@ -84,7 +84,7 @@ function initializeNoTracklistTemplate () {
 }
 
 function callContentToPlayTrack (timestamp) {
-  if (hasTimestamp(timestamp) && timestamp !== 0) {
+  if (hasTimestamp(timestamp)) {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
       // TODO probably handle better multitab
       for (const tab of tabs) {
@@ -101,5 +101,5 @@ function callContentToPlayTrack (timestamp) {
 }
 
 function hasTimestamp (timestamp) {
-  return timestamp !== null && timestamp !== undefined && timestamp !== 0
+  return timestamp !== null && timestamp !== undefined
 }
