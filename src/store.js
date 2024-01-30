@@ -69,7 +69,7 @@ function getTracklist (path) {
 function setTime (seconds, keepHours) {
   let time
   if (seconds === null || seconds === undefined) {
-    time = 'no time'
+    time = "didn't provide"
   } else {
     time = timetoHHMMSS(seconds, keepHours)
   }
