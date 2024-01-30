@@ -11,7 +11,7 @@ chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
     chrome.storage.local.set({ onboarding: true })
   } else if (details.reason === 'update') {
-    chrome.storage.local.clear().then(() => chrome.storage.local.set({ onboarding: true }))
+    chrome.storage.local.clear().then(() => chrome.storage.local.set({ onboarding: true })).catch(chrome.storage.local.set({ onboarding: true }))
   }
 })
 
@@ -152,6 +152,9 @@ function onMessageListener (request, send, sendResponse) {
           console.log('data sent to popup')
           console.log(data)
           sendResponse(data)
+        }).catch((reason) => {
+          console.error('Error on getTracklist : ' + reason)
+          sendResponse()
         })
       } else {
         sendResponse()

@@ -64,7 +64,7 @@ function initializeNoMixcloudTemplate () {
     fetch(url)
       .then(response => response.text())
       .then(noMixcloudTemplate => {
-        var div = document.createElement('div')
+        const div = document.createElement('div')
         div.innerHTML = noMixcloudTemplate.trim()
         resolve(div.firstChild)
       })
@@ -76,7 +76,7 @@ function initializeNoTracklistTemplate () {
     fetch(url)
       .then(response => response.text())
       .then(noTracklistTemplate => {
-        var div = document.createElement('div')
+        const div = document.createElement('div')
         div.innerHTML = noTracklistTemplate.trim()
         resolve(div.firstChild)
       })
