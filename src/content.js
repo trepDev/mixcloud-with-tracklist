@@ -33,11 +33,9 @@ mutationObserver.observe(document.querySelector('#react-root'), {
  * Sending a message to the background to retrieve the image URL is necessary in the onboarding template.
  */
 function displayOnboarding () {
-  console.log('enter askDisplayOnboarding')
   chrome.runtime.sendMessage(
     { action: 'displayOnboarding' },
     (imgUrls) => {
-      console.log('enter retour displayOnoarding')
       const url = chrome.extension.getURL('onboarding/onboarding.html')
       fetch(url)
         .then(response => response.text())
@@ -56,11 +54,10 @@ function displayOnboarding () {
           closeButton.addEventListener('click', () => {
             dialog.close()
           })
-          console.log('justBeforeShowModale')
           dialog.showModal()
         })
         .catch(error => {
-          console.error('Error in retrieving onboarding.htm :', error)
+          console.error('Error in retrieving onboarding.html :', error)
         })
     }
   )
@@ -78,7 +75,10 @@ chrome.runtime.onMessage.addListener(
 )
 
 function handleRequestTracklist (variables, query, sender, sendResponse) {
-  graphQLFetcher.fetch(variables, query).then(result => sendResponse(result)).catch(() => sendResponse(null))
+  graphQLFetcher.fetch(variables, query).then(result => sendResponse(result)).catch((reason) => {
+    console.error('Error on graphQLFetcher.fetch : ' + reason)
+    sendResponse(null)
+  })
   return true
 }
 
