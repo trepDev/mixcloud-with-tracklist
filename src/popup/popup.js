@@ -60,7 +60,7 @@ function initializeTracklistVue (tracklist) {
 
 function initializeNoMixcloudTemplate () {
   return new Promise((resolve) => {
-    const url = chrome.extension.getURL('templates/no-mixcloud.html')
+    const url = chrome.runtime.getURL('templates/no-mixcloud.html')
     fetch(url)
       .then(response => response.text())
       .then(noMixcloudTemplate => {
@@ -72,7 +72,7 @@ function initializeNoMixcloudTemplate () {
 }
 function initializeNoTracklistTemplate () {
   return new Promise((resolve) => {
-    const url = chrome.extension.getURL('templates/no-tracklist.html')
+    const url = chrome.runtime.getURL('templates/no-tracklist.html')
     fetch(url)
       .then(response => response.text())
       .then(noTracklistTemplate => {

@@ -36,7 +36,7 @@ function displayOnboarding () {
   chrome.runtime.sendMessage(
     { action: 'displayOnboarding' },
     (imgUrls) => {
-      const url = chrome.extension.getURL('onboarding/onboarding.html')
+      const url = chrome.runtime.getURL('onboarding/onboarding.html')
       fetch(url)
         .then(response => response.text())
         .then(onboardingTemplate => {
