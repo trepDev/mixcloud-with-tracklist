@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        html, body {
+            margin: 0; /* Pour s'assurer qu'il n'y a pas de marges par défaut */
+            padding: 0; /* Pour s'assurer qu'il n'y a pas de rembourrage par défaut */
+            font-family: "DM Sans", sans-serif
+        }
+
+        .to-replace {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #171C2C;
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite; /* Durée infinie */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+<div class="to-replace">
+    <div class="loader"></div>
+</div>
+<script src="index.js"></script>
+</body>
+
+</html>

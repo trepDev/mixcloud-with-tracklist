@@ -1,8 +1,8 @@
 {
   "name": "mixcloud-with-tracklist",
-  "version": "2.3.4",
+  "version": "3.0.0",
   "description": "Display tracklists on Mixcloud",
-  "author": "Trep Dev",
+  "author": "TrepDev",
   "repository": {
     "type": "git",
     "url": "https://github.com/trepDev/mixcloud-with-tracklist.git"
@@ -14,8 +14,10 @@
     "tracklist"
   ],
   "scripts": {
-    "buildDev": "webpack --config webpack.dev.js",
-    "buildProd": "webpack --config webpack.prod.js"
+    "buildDevChrome": "webpack --env chrome --config webpack.dev.js",
+    "buildDevFF": "webpack --env ff --config webpack.dev.js",
+    "buildProdChrome": "webpack --env chrome --config webpack.prod.js",
+    "buildProdFF": "webpack --env ff --config webpack.prod.js"
   },
   "dependencies": {},
   "devDependencies": {
@@ -28,6 +30,7 @@
     "webpack": "4.44.1",
     "webpack-cli": "3.3.12",
     "copy-webpack-plugin": "6.1.0",
-    "webpack-merge": "5.1.4"
+    "webpack-merge": "5.1.4",
+    "uglifyjs-webpack-plugin": "2.2.0"
   }
 }
