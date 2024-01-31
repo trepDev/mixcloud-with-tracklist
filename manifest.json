@@ -20,8 +20,7 @@
     "webRequest",
     "tabs",
     "http://*.mixcloud.com/*", "https://*.mixcloud.com/*",
-    "storage",
-    "notifications"
+    "storage"
   ],
 
   "background": {
