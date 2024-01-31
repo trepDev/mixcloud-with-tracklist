@@ -14,7 +14,6 @@
  */
 const store = {
   datas: [],
-  settings: null
 }
 
 function getCloudcastById (id) {
@@ -25,26 +24,8 @@ function getCloudcastByPath (path) {
   return store.datas.find((data) => data.path === path)
 }
 
-function hasTimestamps (id) {
-  const data = getCloudcastById(id)
-  return data ? data.cloudcast.sections.find((section) => section.startSeconds !== null && section.startSeconds !== undefined) !== undefined : false
-}
-
 function setData (data) {
   store.datas.push(data.cloudcastDatas)
-}
-
-function replaceCloudcast (newData) {
-  const indexToReplace = store.datas.findIndex((data) => data.id === newData.id)
-  store.datas.splice(indexToReplace, 1, newData)
-}
-
-function setSettings (settings) {
-  store.settings = settings
-}
-
-function getSettings () {
-  return store.settings
 }
 
 function getTracklist (path) {
@@ -69,7 +50,7 @@ function getTracklist (path) {
 function setTime (seconds, keepHours) {
   let time
   if (seconds === null || seconds === undefined) {
-    time = 'no time'
+    time = "didn't provide"
   } else {
     time = timetoHHMMSS(seconds, keepHours)
   }
@@ -92,10 +73,6 @@ function timetoHHMMSS (time, keepHours) {
 module.exports = {
   getCloudcastById,
   getCloudcastByPath,
-  hasTimestamps,
   setData,
-  getTracklist,
-  setSettings,
-  getSettings,
-  replaceCloudcast
+  getTracklist
 }
