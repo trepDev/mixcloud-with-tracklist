@@ -9,9 +9,13 @@ const store = require('./store')
 
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
-    chrome.storage.local.set({ onboarding: true })
+    chrome.storage.local.set({ onboarding: false })
   } else if (details.reason === 'update') {
-    chrome.storage.local.clear().then(() => chrome.storage.local.set({ onboarding: true })).catch(chrome.storage.local.set({ onboarding: true }))
+    try {
+      chrome.storage.local.clear(() => chrome.storage.local.set({ onboarding: true }))
+    } catch (e) {
+      chrome.storage.local.set({ onboarding: true })
+    }
   }
 })
 
