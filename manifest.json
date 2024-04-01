@@ -1,7 +1,7 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Mixcloud (with) Tracklist",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Display tracklists on Mixcloud",
   "icons": {
     "16": "./icons/icon16.png",
@@ -19,12 +19,17 @@
   "permissions": [
     "webRequest",
     "tabs",
-    "http://*.mixcloud.com/*", "https://*.mixcloud.com/*",
     "storage"
   ],
 
+  "host_perimissions": [
+    "http://*.mixcloud.com/*",
+    "https://*.mixcloud.com/*"
+  ],
+
   "background": {
-    "scripts": ["./background_scripts/index.js"]
+    "service_worker": "./background_scripts/index.js",
+    "type": "module"
   },
 
   "content_scripts": [
@@ -35,7 +40,7 @@
     }
   ],
 
-  "browser_action": {
+  "action": {
     "default_area" : "navbar",
     "default_icon": {
       "16": "./icons/icon16.png",
@@ -71,10 +76,15 @@
       }]
   },
   "web_accessible_resources": [
-    "onboarding/onboarding.html",
-    "onboarding/ext-icon.png",
-    "templates/no-mixcloud.html",
-    "templates/no-tracklist.html",
-    "icons/icon48.png"
+    {
+      "resources": [
+        "onboarding/onboarding.html",
+        "onboarding/ext-icon.png",
+        "templates/no-mixcloud.html",
+        "templates/no-tracklist.html",
+        "icons/icon48.png"
+      ],
+      "matches": ["*://*.mixcloud.com/*"]
+    }
   ]
 }
