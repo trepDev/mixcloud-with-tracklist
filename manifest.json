@@ -22,7 +22,7 @@
     "storage"
   ],
 
-  "host_perimissions": [
+  "host_permissions": [
     "http://*.mixcloud.com/*",
     "https://*.mixcloud.com/*"
   ],
