@@ -30,7 +30,7 @@ chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
 
 chrome.runtime.onMessage.addListener(onMessageListener)
 
-function graphQLListener (spiedRequest) {
+async function graphQLListener (spiedRequest) {
   if (spiedRequest.requestBody) {
     const byteArray = new Uint8Array(spiedRequest.requestBody.raw[0].bytes)
     const decoder = new TextDecoder('utf-8')
@@ -38,12 +38,12 @@ function graphQLListener (spiedRequest) {
 
     // Not my own request & Request for tracklist & tracklist not already store >> call content script to request cloudcast
     if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
-      !store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
+      !await store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
         if (tabs[0]) requestCloudcast(tabs[0], payload.variables)
       })
       // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script for request cloudcast
-    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !store.getCloudcastById(payload.variables.cloudcastId)) {
+    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !await store.getCloudcastPathFromId(payload.variables.cloudcastId)) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
         if (tabs[0]) requestPlayerControlsQuery(tabs[0], payload.variables, payload.query)
       })
@@ -86,12 +86,11 @@ function requestCloudcast (tab, requestVariables) {
     }
 `
     },
-    (response) => checkAndStoreCloudcast(response, requestVariables)
+    (response) => checkAndStoreCloudcast(response,
+      { username: requestVariables.lookup.username, slug: requestVariables.lookup.slug })
   )
 }
 
-// PlayerControlsQuery doesn't have the tracklist in response (my tries to add section in this request all failed).
-// I use this response to get the username and slug, which allows me to call TracklistAudioPageQuery (with tracklist in response)
 function requestPlayerControlsQuery (tab, requestVariables, query) {
   chrome.tabs.sendMessage(tab.id,
     {
@@ -99,19 +98,14 @@ function requestPlayerControlsQuery (tab, requestVariables, query) {
       variables: requestVariables,
       query: query
     },
-    (response) => requestCloudcast(tab, {
-      lookup: {
-        username: response.xhrResponse.data.cloudcast.owner.username,
-        slug: response.xhrResponse.data.cloudcast.slug
-      }
-    }
-    )
+    (response) => checkAndStoreCloudcast(response,
+      { username: response.cloudcast.owner.username, slug: response.cloudcast.slug })
   )
 }
 
-function checkAndStoreCloudcast (response, requestVariables) {
+function checkAndStoreCloudcast (response, usernameAndSlug) {
   if (hasTracklistInMixcloudResponse(response)) {
-    storeCloudcast(response, requestVariables)
+    storeCloudcast(response, usernameAndSlug)
   }
 }
 
@@ -122,19 +116,17 @@ function hasTracklistInMixcloudResponse (response) {
     !!response.xhrResponse.data.cloudcast.sections.length
 }
 
-function storeCloudcast (datas, queryVariables) {
-  const username = queryVariables.lookup.username
-  const slug = queryVariables.lookup.slug
-
+async function storeCloudcast (datas, usernameAndSlug) {
   const dataToStore = {
     cloudcastDatas: {
       id: datas.xhrResponse.data.cloudcast.id,
-      path: '/' + username + '/' + slug + '/',
+      path: '/' + usernameAndSlug.username + '/' + usernameAndSlug.slug + '/',
       cloudcast: datas.xhrResponse.data.cloudcast
     }
   }
 
-  if (!store.getCloudcastById(dataToStore.cloudcastDatas.id)) {
+  if (!await store.getCloudcastPathFromId(dataToStore.cloudcastDatas.id)) {
+    store.saveIdToPath(dataToStore.cloudcastDatas.id, dataToStore.cloudcastDatas.path)
     console.log('savecloudCast ' + dataToStore.cloudcastDatas.path)
     store.setData(dataToStore)
   }
@@ -183,13 +175,16 @@ function onMessageListener (request, send, sendResponse) {
  */
 function getTracklist (path, counter, resolve, reject) {
   if (counter > 3) {
-    return resolve({ tracklist: [] })
+    resolve({ tracklist: [] })
   }
-  if (!store.getCloudcastByPath(path)) {
-    setTimeout(function () {
-      getTracklist(path, counter + 1, resolve, reject)
-    }, 500)
-  } else {
-    return resolve({ tracklist: store.getTracklist(path) })
-  }
+  store.getCloudcastByPath(path).then((cloudcast) => {
+    if (!cloudcast) {
+      setTimeout(function () {
+        getTracklist(path, counter + 1, resolve, reject)
+      }, 500)
+    } else {
+      store.getTracklist(path).then((tracklist) => resolve({ tracklist: tracklist }))
+    }
+  })
+
 }

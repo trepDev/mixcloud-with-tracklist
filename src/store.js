@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict'
+/* global chrome */
 
 /**
  * data format :
@@ -12,25 +13,37 @@
  *  cloudcast : cloudcast data
  * }
  */
-const store = {
-  datas: [],
+
+function saveIdToPath (id, path) {
+  chrome.storage.local.set({ [id]: path }).catch((e) => console.log('error on save id', e))
 }
 
-function getCloudcastById (id) {
-  return store.datas.find((data) => data.id === id)
+async function getCloudcastPathFromId (id) {
+  const result = await chrome.storage.local.get(id).catch((e) => undefined)
+  if (Object.keys(result).length === 0 && result.constructor === Object) {
+    return undefined
+  } else {
+    return result[id]
+  }
 }
 
-function getCloudcastByPath (path) {
-  return store.datas.find((data) => data.path === path)
+async function getCloudcastByPath (path) {
+  const result = await chrome.storage.local.get(path).catch((e) => undefined)
+  if (Object.keys(result).length === 0 && result.constructor === Object) {
+    return undefined
+  } else {
+    return result[path]
+  }
 }
-
 function setData (data) {
-  store.datas.push(data.cloudcastDatas)
+  const storageKey = data.cloudcastDatas.path
+  chrome.storage.local.set({ [storageKey]: data.cloudcastDatas })
+    .catch((e) => console.error(`Error on save for tracklist ${storageKey}`, e))
 }
 
-function getTracklist (path) {
-  const data = store.datas.find((data) => data.path === path)
-  const sections = data.cloudcast.sections
+async function getTracklist (path) {
+  const result = await chrome.storage.local.get(path).catch((e) => undefined)
+  const sections = result[path].cloudcast.sections
   // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
   const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
   const tracklist = sections.map((section, index) => {
@@ -71,7 +84,8 @@ function timetoHHMMSS (time, keepHours) {
 }
 
 module.exports = {
-  getCloudcastById,
+  saveIdToPath,
+  getCloudcastPathFromId,
   getCloudcastByPath,
   setData,
   getTracklist
