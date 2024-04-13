@@ -6,7 +6,9 @@
 /* global browser */
 /* global content */
 /* global XMLHttpRequest */
-// firefox needs 'content' namespace to have Origin & Referer. Chrome didn't know 'browser' & 'content'
+// Firefox with manifest V2 needs 'content' namespace to have Origin & Referer.
+// Chrome didn't know 'browser' & 'content'
+// see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#xhr_and_fetch
 
 try {
   browser // eslint-disable-line no-unused-expression
