@@ -3,7 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict'
-/* global chrome */
+
+// native-store will be create at build time from chrome/firefox-native-store.js following build context
+// both used promise api but can't use the same namespace
+// (FF is still in manifest v2 & chrome namespace don't work on promise API in manifest V2)
+let nativeStore
+if (__BUILD_CONTEXT__ === 'chrome') {
+  nativeStore = require('./chrome-native-store.js')
+} else {
+  nativeStore = require('./firefox-native-store.js')
+}
+
 
 /**
  * data format :
@@ -15,11 +25,11 @@
  */
 
 function saveIdToPath (id, path) {
-  chrome.storage.local.set({ [id]: path }).catch((e) => console.log('error on save id', e))
+  nativeStore.set({ [id]: path }).catch((e) => console.log('error on save id', e))
 }
 
 async function getCloudcastPathFromId (id) {
-  const result = await chrome.storage.local.get(id).catch((e) => undefined)
+  const result = await nativeStore.get(id).catch((e) => undefined)
   if (Object.keys(result).length === 0 && result.constructor === Object) {
     return undefined
   } else {
@@ -28,7 +38,7 @@ async function getCloudcastPathFromId (id) {
 }
 
 async function getCloudcastByPath (path) {
-  const result = await chrome.storage.local.get(path).catch((e) => undefined)
+  const result = await nativeStore.get(path).catch((e) => undefined)
   if (Object.keys(result).length === 0 && result.constructor === Object) {
     return undefined
   } else {
@@ -37,12 +47,12 @@ async function getCloudcastByPath (path) {
 }
 function setData (data) {
   const storageKey = data.cloudcastDatas.path
-  chrome.storage.local.set({ [storageKey]: data.cloudcastDatas })
+  nativeStore.set({ [storageKey]: data.cloudcastDatas })
     .catch((e) => console.error(`Error on save for tracklist ${storageKey}`, e))
 }
 
 async function getTracklist (path) {
-  const result = await chrome.storage.local.get(path).catch((e) => undefined)
+  const result = await nativeStore.get(path).catch((e) => undefined)
   const sections = result[path].cloudcast.sections
   // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
   const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600

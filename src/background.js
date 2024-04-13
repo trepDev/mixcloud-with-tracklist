@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict'
-const store = require('./store')
 /* global chrome */
 /* global TextDecoder */
+
+const store = require('./store/store')
+
 
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
@@ -98,8 +100,12 @@ function requestPlayerControlsQuery (tab, requestVariables, query) {
       variables: requestVariables,
       query: query
     },
-    (response) => checkAndStoreCloudcast(response,
-      { username: response.cloudcast.owner.username, slug: response.cloudcast.slug })
+    (response) => {
+      if (hasDataForPathInMixcloudResponse(response)) {
+        checkAndStoreCloudcast(response,
+          { username: response.xhrResponse.data.cloudcast.owner.username, slug: response.xhrResponse.data.cloudcast.slug })
+      }
+    }
   )
 }
 
@@ -107,6 +113,15 @@ function checkAndStoreCloudcast (response, usernameAndSlug) {
   if (hasTracklistInMixcloudResponse(response)) {
     storeCloudcast(response, usernameAndSlug)
   }
+}
+
+function hasDataForPathInMixcloudResponse (response) {
+  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
+    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
+    response.xhrResponse.data.cloudcast && response.xhrResponse.data.cloudcast.hasOwnProperty('owner') &&
+    !!response.xhrResponse.data.cloudcast.owner && response.xhrResponse.data.cloudcast.owner.hasOwnProperty('username') &&
+    !!response.xhrResponse.data.cloudcast.owner.username && response.xhrResponse.data.cloudcast.hasOwnProperty('slug') &&
+    !!response.xhrResponse.data.cloudcast.slug
 }
 
 function hasTracklistInMixcloudResponse (response) {

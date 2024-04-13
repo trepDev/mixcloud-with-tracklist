@@ -41,11 +41,14 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         global: 'window' // Placeholder for global used in any node_modules
       }),
+      new webpack.DefinePlugin({
+        __BUILD_CONTEXT__: JSON.stringify(env)
+      }),
       // make sure to include the plugin for the magic
       new VueLoaderPlugin(),
       new CopyWebpackPlugin({
         patterns: [
-          { from: 'manifest.json', to: 'manifest.json' },
+          { from: env === 'chrome' ? 'manifest-chrome.json' : 'manifest-firefox.json', to: 'manifest.json' },
           { from: __dirname + '/src/icons', to: 'icons' },
           { from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html' },
           {
