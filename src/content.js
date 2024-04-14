@@ -9,23 +9,11 @@
 const graphQLFetcher = require('./utils/graphqlFetcher')
 // svg from https://github.com/adlawson/mixcloud-tracklist
 
-let firstMixcloudAccess = true
-
-const mutationObserver = new MutationObserver(function (mutations) {
-  if (firstMixcloudAccess) {
-    firstMixcloudAccess = false
-    chrome.storage.local.get(['onboarding'], (result) => {
-      if (result.onboarding === true) {
-        chrome.storage.local.set({ onboarding: false })
-        setTimeout(displayOnboarding, 1000)
-      }
-    })
+chrome.storage.local.get(['onboarding'], (result) => {
+  if (result.onboarding === true) {
+    chrome.storage.local.set({ onboarding: false })
+    setTimeout(displayOnboarding, 1000)
   }
-})
-
-mutationObserver.observe(document.querySelector('#react-root'), {
-  childList: true,
-  subtree: true
 })
 
 /**
