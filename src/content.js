@@ -33,34 +33,31 @@ mutationObserver.observe(document.querySelector('#react-root'), {
  * Sending a message to the background to retrieve the image URL is necessary in the onboarding template.
  */
 function displayOnboarding () {
-  chrome.runtime.sendMessage(
-    { action: 'displayOnboarding' },
-    (imgUrls) => {
-      const url = chrome.runtime.getURL('onboarding/onboarding.html')
-      fetch(url)
-        .then(response => response.text())
-        .then(onboardingTemplate => {
-          document.body.insertAdjacentHTML('afterbegin', onboardingTemplate)
-          const dialog = document.getElementById('mwt-dialog')
-          const iconImg = document.getElementsByClassName('mwt-img-margin')[0]
-          iconImg.setAttribute('src', imgUrls.urlIcon)
+  const urlIcon = chrome.runtime.getURL('icons/icon48.png')
+  const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')
+  const url = chrome.runtime.getURL('onboarding/onboarding.html')
+  fetch(url)
+    .then(response => response.text())
+    .then(onboardingTemplate => {
+      document.body.insertAdjacentHTML('afterbegin', onboardingTemplate)
+      const dialog = document.getElementById('mwt-dialog')
+      const iconImg = document.getElementsByClassName('mwt-img-margin')[0]
+      iconImg.setAttribute('src', urlIcon)
 
-          const extIcon = document.getElementsByClassName('mwt-ext-icon')[0]
-          if (extIcon) {
-            extIcon.setAttribute('src', imgUrls.urlExtIcon)
-          }
+      const extIcon = document.getElementsByClassName('mwt-ext-icon')[0]
+      if (extIcon) {
+        extIcon.setAttribute('src', urlExtIcon)
+      }
 
-          const closeButton = document.getElementsByClassName('mwt-rounded-button')[0]
-          closeButton.addEventListener('click', () => {
-            dialog.close()
-          })
-          dialog.showModal()
-        })
-        .catch(error => {
-          console.error('Error in retrieving onboarding.html :', error)
-        })
-    }
-  )
+      const closeButton = document.getElementsByClassName('mwt-rounded-button')[0]
+      closeButton.addEventListener('click', () => {
+        dialog.close()
+      })
+      dialog.showModal()
+    })
+    .catch(error => {
+      console.error('Error in retrieving onboarding.html :', error)
+    })
 }
 
 // Listen Background asking to make request retrieving tracklist. Result (tracklist) is send to background (wich store it in store)

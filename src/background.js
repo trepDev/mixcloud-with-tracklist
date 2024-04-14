@@ -8,11 +8,12 @@
 
 const store = require('./store/store')
 
-
+// TODO Handle onboarding on install & put this operation in store
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
     chrome.storage.local.set({ onboarding: false })
   } else if (details.reason === 'update') {
+    // TODO remove onboarding update & put this operation in store
     try {
       chrome.storage.local.clear(() => chrome.storage.local.set({ onboarding: true }))
     } catch (e) {
@@ -171,11 +172,6 @@ function onMessageListener (request, send, sendResponse) {
         sendResponse()
       }
     })
-    return true
-  } else if (request.action === 'displayOnboarding') {
-    const urlIcon = chrome.runtime.getURL('icons/icon48.png')
-    const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')
-    sendResponse({ urlIcon: urlIcon, urlExtIcon: urlExtIcon })
     return true
   }
 }
