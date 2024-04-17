@@ -14,6 +14,22 @@ if (__BUILD_CONTEXT__ === 'chrome') {
   nativeStore = browser.storage.local
 }
 
+function clear () {
+  return nativeStore.clear()
+}
+
+async function setSettings (settings) {
+  const storeResult = await nativeStore.get('settings')
+  const currentSettings = storeResult && storeResult.settings ? storeResult.settings : {}
+  Object.assign(currentSettings, settings)
+  nativeStore.set({ settings: currentSettings })
+}
+
+async function getSettings () {
+  const result = await nativeStore.get('settings')
+  return result && result.settings ? result.settings : { }
+}
+
 /**
  * data format :
  * {
@@ -44,10 +60,19 @@ async function getCloudcastByPath (path) {
     return result[path]
   }
 }
-function setData (data) {
+async function setTracklistData (data) {
   const storageKey = data.cloudcastDatas.path
-  nativeStore.set({ [storageKey]: data.cloudcastDatas })
-    .catch((e) => console.error(`Error on save for tracklist ${storageKey}`, e))
+  try {
+    await nativeStore.set({ [storageKey]: data.cloudcastDatas })
+  } catch (e) {
+    console.error(`Error on save for tracklist ${storageKey}`, e)
+    if (e.name && e.name.toLowerCase().includes('quota')) {
+      const settings = await getSettings()
+      await clear()
+      await setSettings(settings)
+      await nativeStore.set({ [storageKey]: data.cloudcastDatas })
+    }
+  }
 }
 
 async function getTracklist (path) {
@@ -93,9 +118,12 @@ function timetoHHMMSS (time, keepHours) {
 }
 
 module.exports = {
+  clear,
+  setSettings,
+  getSettings,
   saveIdToPath,
   getCloudcastPathFromId,
   getCloudcastByPath,
-  setData,
+  setTracklistData,
   getTracklist
 }

@@ -8,17 +8,11 @@
 
 const store = require('./store/store')
 
-// TODO Handle onboarding on install & put this operation in store
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
-    chrome.storage.local.set({ onboarding: false })
+    store.setSettings({ onboarding: true })
   } else if (details.reason === 'update') {
-    // TODO remove onboarding update & put this operation in store
-    try {
-      chrome.storage.local.clear(() => chrome.storage.local.set({ onboarding: true }))
-    } catch (e) {
-      chrome.storage.local.set({ onboarding: true })
-    }
+    store.clear().then(() => store.setSettings({ onboarding: false }))
   }
 })
 
@@ -144,7 +138,7 @@ async function storeCloudcast (datas, usernameAndSlug) {
   if (!await store.getCloudcastPathFromId(dataToStore.cloudcastDatas.id)) {
     store.saveIdToPath(dataToStore.cloudcastDatas.id, dataToStore.cloudcastDatas.path)
     console.log('savecloudCast ' + dataToStore.cloudcastDatas.path)
-    store.setData(dataToStore)
+    store.setTracklistData(dataToStore)
   }
 
   return dataToStore
@@ -177,7 +171,7 @@ function onMessageListener (request, send, sendResponse) {
 }
 
 /**
- * Recursive function to handle asynchronious between request's spy & tracklist display
+ * Recursive function to handle asynchronicity between request's spy & tracklist display
  * @param path : mix path
  * @param counter : attempt counter for tracklist retrieval from store
  * @param resolve

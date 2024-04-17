@@ -2,16 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
-/* global chrome */
-/* global MutationObserver */
-
-const graphQLFetcher = require('./utils/graphqlFetcher')
 // svg from https://github.com/adlawson/mixcloud-tracklist
 
-chrome.storage.local.get(['onboarding'], (result) => {
-  if (result.onboarding === true) {
-    chrome.storage.local.set({ onboarding: false })
+'use strict'
+/* global chrome */
+
+const graphQLFetcher = require('./utils/graphqlFetcher')
+const store = require('./store/store')
+
+store.getSettings().then(settings => {
+  if (settings.onboarding === true) {
+    settings.onboarding = false
+    store.setSettings(settings)
     setTimeout(displayOnboarding, 1000)
   }
 })
