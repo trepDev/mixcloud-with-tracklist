@@ -97,7 +97,7 @@ async function getTracklist (path) {
 function setTime (seconds, keepHours) {
   let time
   if (seconds === null || seconds === undefined) {
-    time = "didn't provide"
+    time = 'not provided'
   } else {
     time = timetoHHMMSS(seconds, keepHours)
   }
