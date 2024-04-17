@@ -4,16 +4,15 @@
 
 'use strict'
 
-// native-store will be create at build time from chrome/firefox-native-store.js following build context
+// native-store will following build context
 // both used promise api but can't use the same namespace
 // (FF is still in manifest v2 & chrome namespace don't work on promise API in manifest V2)
 let nativeStore
 if (__BUILD_CONTEXT__ === 'chrome') {
-  nativeStore = require('./chrome-native-store.js')
+  nativeStore = chrome.storage.local
 } else {
-  nativeStore = require('./firefox-native-store.js')
+  nativeStore = browser.storage.local
 }
-
 
 /**
  * data format :
