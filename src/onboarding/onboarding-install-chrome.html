@@ -1,4 +1,12 @@
 <style>
+    #mwt-dialog {
+        max-width: 850px;
+    }
+
+    #mwt-dialog::backdrop {
+        background: rgb(0 0 0 / 75%);
+    }
+
     .mwt-dialog-title {
         font-family: "DM Sans", sans-serif;
         font-weight: 400;
@@ -35,6 +43,11 @@
         text-align: justify;
     }
 
+    .mwt-ext-icon {
+        display: inline;
+        vertical-align: middle;
+    }
+
     .centered-button {
         display: flex;
         flex-direction: row;
@@ -56,34 +69,39 @@
 
     /* Style pour le survol du bouton */
     .mwt-rounded-button:hover {
-        background-color: #5000ff; /* Couleur de fond au survol */
+        background-color: #0056b3; /* Couleur de fond au survol */
     }
+
+    .mwt-rounded-button:focus { outline: #0056b3 auto 10px; }
 </style>
 
 <dialog id="mwt-dialog">
-    <div class="mwt-colored-header"></div>
     <div class="mwt-dialog-content">
         <div class="mwt-title-container">
             <img class="mwt-img-margin" src="../icons/icon48.png">
-            <h1 class="mwt-dialog-title">Mixcloud (with) Tracklist is back!</h1>
+            <h1 class="mwt-dialog-title" tabindex="-1" autofocus>Mixcloud (with) Tracklist</h1>
         </div>
         <p class="mwt-info-text">
-            Now, you can access and interact with tracklists through the extension's browser popup.
+            You can access and interact with tracklists through the extension's browser popup.
             <br/>
-            (Due to changes on Mixcloud website, tracklists can no longer be directly integrated into pages).
+            <b>IMPORTANT</b>: By default,Chrome hide extensions in its extension menu (this icon <img
+                class="mwt-ext-icon" src="ext-icon.png">).
             <br/>
-            Simply click the extension icon to view the tracklist. You can still conveniently play tracks
-            directly from this popup.
             <br/>
-            Tracklist displayed is the one from your first mixcloud open tab (if you have multiple tabs open).
+            Simply click the extension icon to view the tracklist. You can conveniently play tracks
+            directly from this popup (If the DJ did provide a timestamp).
+            <br/>
+            The displayed tracklist is from the leftmost first open Mixcloud tab (if you have multiple tabs open).
             <br/>
             Tracklists from multiple tabs will be managed in a future update.
             <br/>
-            For more infos, check out <a href="https://addons.mozilla.org/en-US/firefox/addon/mixcloud-with-tracklist/", target="_blank">
-            the Firefox addon page.</a>
+            <br/>
+            For more infos, check out <a
+                href="https://chromewebstore.google.com/detail/mixcloud-with-tracklist/jgghogcekaldifaiifpnbfnpmmpiengb", target="_blank">
+            the Chrome web store page.</a>
         </p>
         <div class="centered-button">
-            <button class="mwt-rounded-button">Got it!</button>
+            <button class="mwt-rounded-button" >Got it!</button>
         </div>
     </div>
 </dialog>
