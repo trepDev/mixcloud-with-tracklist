@@ -27,7 +27,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 - The displayed tracklist is from your first open Mixcloud tab (if you have multiple tabs open).
 By first, I mean the one on the far left.
 - Don't work on mobile website (m.mixcloud.com). Mixcloud has limited its functionality, encouraging users to migrate to the mobile app.
-Therefore mobile website version is not scheduled for implementation.
+Therefore, mobile website version is not scheduled for implementation.
 ### Track Playing Limitations
 - Playing Track in media player works only for tracks with timestamp available.
 
@@ -35,8 +35,7 @@ Therefore mobile website version is not scheduled for implementation.
 No personal info is used/collected.
 
 ## Scheduled updates for the future 
-- Manage tracklist form multi-tab
-- Manifest v3 >_<
+- Manage tracklist from multi-tab
 
 
 ## Thanks
