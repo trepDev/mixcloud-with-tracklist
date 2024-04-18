@@ -10,11 +10,6 @@
     "96": "./icons/icon96.png",
     "128": "./icons/icon128.png"
   },
-  "applications": {
-    "gecko": {
-      "strict_min_version": "58.0"
-    }
-  },
 
   "permissions": [
     "webRequest",
