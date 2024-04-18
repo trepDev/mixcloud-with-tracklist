@@ -1,0 +1,81 @@
+{
+  "manifest_version": 2,
+  "name": "Mixcloud (with) Tracklist",
+  "version": "4.0.0",
+  "description": "Display tracklists on Mixcloud",
+  "icons": {
+    "16": "./icons/icon16.png",
+    "32": "./icons/icon32.png",
+    "48": "./icons/icon48.png",
+    "96": "./icons/icon96.png",
+    "128": "./icons/icon128.png"
+  },
+  "applications": {
+    "gecko": {
+      "strict_min_version": "58.0"
+    }
+  },
+
+  "permissions": [
+    "webRequest",
+    "tabs",
+    "http://*.mixcloud.com/*", "https://*.mixcloud.com/*",
+    "storage"
+  ],
+
+  "background": {
+    "scripts": ["./background_scripts/index.js"],
+    "persistent" : false
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.mixcloud.com/*"],
+      "run_at" : "document_end",
+      "js": ["./content_script/index.js"]
+    }
+  ],
+
+  "browser_action": {
+    "default_area" : "navbar",
+    "default_icon": {
+      "16": "./icons/icon16.png",
+      "32": "./icons/icon32.png",
+      "48": "./icons/icon48.png",
+      "96": "./icons/icon96.png",
+      "128": "./icons/icon128.png"
+    },
+    "default_title": "Mixcloud (with) Tracklist",
+    "default_popup": "popup/popup.html",
+    "theme_icons": [{
+      "light": "./icons/icon16-light.png",
+      "dark": "./icons/icon16.png",
+      "size": 16
+    }, {
+      "light": "./icons/icon32-light.png",
+      "dark": "./icons/icon32.png",
+      "size": 32
+    },{
+      "light": "./icons/icon48-light.png",
+      "dark": "./icons/icon48.png",
+      "size": 48
+    },
+      {
+        "light": "./icons/icon96-light.png",
+        "dark": "./icons/icon96.png",
+        "size": 96
+      },
+      {
+        "light": "./icons/icon128-light.png",
+        "dark": "./icons/icon128.png",
+        "size": 128
+      }]
+  },
+  "web_accessible_resources": [
+    "onboarding/onboarding.html",
+    "onboarding/ext-icon.png",
+    "templates/no-mixcloud.html",
+    "templates/no-tracklist.html",
+    "icons/icon48.png"
+  ]
+}
