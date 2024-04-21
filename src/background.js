@@ -148,13 +148,15 @@ function onMessageListener (request, send, sendResponse) {
   if (request.action === 'getTracklist') {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
       if (tabs.length > 0) {
-        const url = tabs[0].url
-        const regex = /^\D*:\/\/\D+\.mixcloud\.com/
-        const path = decodeURIComponent(url.replace(regex, ''))
-        const tracklist = new Promise((resolve, reject) => {
-          return getTracklist(path, 1, resolve, reject)
+        const paths = tabs.map((tab) => {
+          const url = tab.url
+          const regex = /^\D*:\/\/\D+\.mixcloud\.com/
+          return decodeURIComponent(url.replace(regex, ''))
         })
-        tracklist.then((data) => {
+        const tracklists = new Promise((resolve, reject) => {
+          return getTracklists(paths, 1, resolve, reject)
+        })
+        tracklists.then((data) => {
           console.log('data sent to popup')
           console.log(data)
           sendResponse(data)
@@ -176,19 +178,19 @@ function onMessageListener (request, send, sendResponse) {
  * @param counter : attempt counter for tracklist retrieval from store
  * @param resolve
  * @param reject
- * @returns {*} resolve(tracklist or emptry tracklist)
+ * @returns {*} resolve(an array of tracklist or empty array)
  */
-function getTracklist (path, counter, resolve, reject) {
+function getTracklists (paths, counter, resolve, reject) {
   if (counter > 3) {
-    resolve({ tracklist: [] })
+    resolve({ tracklists: [] })
   }
-  store.getCloudcastByPath(path).then((cloudcast) => {
-    if (!cloudcast) {
+  store.getMultipleTracklist(paths).then((tracklists) => {
+    if (tracklists.length === 0) {
       setTimeout(function () {
-        getTracklist(path, counter + 1, resolve, reject)
+        getTracklists(paths, counter + 1, resolve, reject)
       }, 500)
     } else {
-      store.getTracklist(path).then((tracklist) => resolve({ tracklist: tracklist }))
+      store.getMultipleTracklist(paths).then((tracklists) => resolve({ tracklists: tracklists }))
     }
   })
 
