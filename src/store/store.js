@@ -54,7 +54,7 @@ async function getCloudcastPathFromId (id) {
 
 async function getCloudcastByPath (path) {
   const result = await nativeStore.get(path).catch((e) => undefined)
-  if (Object.keys(result).length === 0 && result.constructor === Object) {
+  if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
     return undefined
   } else {
     return result[path]
@@ -75,21 +75,41 @@ async function setTracklistData (data) {
   }
 }
 
+async function getMultipleTracklist (paths) {
+  if (paths.length > 1) {
+    // remove duplicate
+    paths = [...new Set(paths)]
+  }
+  const multipleTracklist = []
+  for (const path of paths) {
+    const tracklist = await getTracklist(path)
+    if (tracklist) {
+      multipleTracklist.push(tracklist)
+    }
+  }
+  return multipleTracklist
+}
+
 async function getTracklist (path) {
   const result = await nativeStore.get(path).catch((e) => undefined)
-  const sections = result[path].cloudcast.sections
-  // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
-  const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
-  const tracklist = sections.map((section, index) => {
-    const track = {
-      trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
-      timestamp: section.startSeconds,
-      time: setTime(section.startSeconds, keepHours),
-      artistName: section.artistName === undefined ? 'unknow' : section.artistName,
-      songName: section.artistName === undefined ? 'unknow' : section.songName
-    }
-    return track
-  })
+  let tracklist
+  if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
+    tracklist = undefined
+  } else {
+    const sections = result[path].cloudcast.sections
+    // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
+    const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
+    tracklist = sections.map((section, index) => {
+      const track = {
+        trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
+        timestamp: section.startSeconds,
+        time: setTime(section.startSeconds, keepHours),
+        artistName: section.artistName === undefined ? 'unknow' : section.artistName,
+        songName: section.artistName === undefined ? 'unknow' : section.songName
+      }
+      return track
+    })
+  }
 
   return tracklist
 }
@@ -125,5 +145,6 @@ module.exports = {
   getCloudcastPathFromId,
   getCloudcastByPath,
   setTracklistData,
-  getTracklist
+  getTracklist,
+  getMultipleTracklist
 }

@@ -38,9 +38,9 @@ async function initializeTemplate () {
     (response) => {
       if (!response) {
         initializeNoMixcloudTemplate().then((htmlElement) => resolve(htmlElement))
-      } else if (response.tracklist && response.tracklist.length) {
-        resolve(initializeTracklistVue(response.tracklist))
-      } else if (response.tracklist && !response.tracklist.length) {
+      } else if (response.tracklists && response.tracklists.length) {
+        resolve(initializeTracklistVue(response.tracklists[0]))
+      } else if (response.tracklists && !response.tracklists.length) {
         resolve(initializeNoTracklistTemplate())
       } else {
         resolve()
