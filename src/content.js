@@ -50,7 +50,7 @@ function displayOnboarding () {
     })
 }
 
-// Listen Background asking to make request retrieving tracklist. Result (tracklist) is send to background (wich store it in store)
+// Listen Background asking to make request retrieving tracklist. Result (cloudcast) is send to background (which extract tracklist & some others information to store)
 chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
     if (message.action === 'requestTracklist') {
@@ -62,7 +62,9 @@ chrome.runtime.onMessage.addListener(
 )
 
 function handleRequestTracklist (variables, query, sender, sendResponse) {
-  graphQLFetcher.fetch(variables, query).then(result => sendResponse(result)).catch((reason) => {
+  graphQLFetcher.fetch(variables, query).then(result => {
+    sendResponse(result)
+  }).catch((reason) => {
     console.error('Error on graphQLFetcher.fetch : ' + reason)
     sendResponse(null)
   })

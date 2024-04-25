@@ -35,23 +35,21 @@ async function initializeTemplate () {
     chrome.runtime.sendMessage({
       action: 'getTracklist'
     },
-    (response) => {
-      if (!response) {
+    (mixesData) => {
+      if (!mixesData) {
         initializeNoMixcloudTemplate().then((htmlElement) => resolve(htmlElement))
-      } else if (response.tracklists && response.tracklists.length) {
-        resolve(initializeTracklistVue(response.tracklists[0]))
-      } else if (response.tracklists && !response.tracklists.length) {
-        resolve(initializeNoTracklistTemplate())
+      } else if (mixesData.length) {
+        resolve(initializeTracklistVue(mixesData[0]))
       } else {
-        resolve()
+        resolve(initializeNoTracklistTemplate())
       }
     })
   })
 }
 
-function initializeTracklistVue (tracklist) {
+function initializeTracklistVue (mixData) {
   tracklistVue = new ComponentClassTracklistVue()
-  tracklistVue.tracklist = tracklist
+  tracklistVue.tracklist = mixData.tracklist
   tracklistVue.callContentToPlayTrack = callContentToPlayTrack
   tracklistVue.hasTimestamp = hasTimestamp
   tracklistVue.$mount()
