@@ -7,6 +7,7 @@
 /* global TextDecoder */
 
 const store = require('./store/store')
+const mixMapper = require('./utils/mixMapper')
 
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
@@ -83,8 +84,12 @@ function requestCloudcast (tab, requestVariables) {
     }
 `
     },
-    (response) => checkAndStoreCloudcast(response,
-      { username: requestVariables.lookup.username, slug: requestVariables.lookup.slug })
+    (response) => {
+      if (hasCloudcast(response)) {
+        storeCloudcast(response.xhrResponse.data.cloudcast,
+          { username: requestVariables.lookup.username, slug: requestVariables.lookup.slug })
+      }
+    }
   )
 }
 
@@ -97,51 +102,33 @@ function requestPlayerControlsQuery (tab, requestVariables, query) {
     },
     (response) => {
       if (hasDataForPathInMixcloudResponse(response)) {
-        checkAndStoreCloudcast(response,
+        storeCloudcast(response.xhrResponse.data.cloudcast,
           { username: response.xhrResponse.data.cloudcast.owner.username, slug: response.xhrResponse.data.cloudcast.slug })
       }
     }
   )
 }
 
-function checkAndStoreCloudcast (response, usernameAndSlug) {
-  if (hasTracklistInMixcloudResponse(response)) {
-    storeCloudcast(response, usernameAndSlug)
-  }
+function hasCloudcast (response) {
+  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
+    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast')
 }
 
 function hasDataForPathInMixcloudResponse (response) {
-  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
-    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
-    response.xhrResponse.data.cloudcast && response.xhrResponse.data.cloudcast.hasOwnProperty('owner') &&
+  return hasCloudcast(response) && response.xhrResponse.data.cloudcast.hasOwnProperty('owner') &&
     !!response.xhrResponse.data.cloudcast.owner && response.xhrResponse.data.cloudcast.owner.hasOwnProperty('username') &&
     !!response.xhrResponse.data.cloudcast.owner.username && response.xhrResponse.data.cloudcast.hasOwnProperty('slug') &&
     !!response.xhrResponse.data.cloudcast.slug
 }
 
-function hasTracklistInMixcloudResponse (response) {
-  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
-    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
-    response.xhrResponse.data.cloudcast && response.xhrResponse.data.cloudcast.hasOwnProperty('sections') &&
-    !!response.xhrResponse.data.cloudcast.sections.length
-}
+async function storeCloudcast (cloudcast, usernameAndSlug) {
+  const dataToStore = mixMapper.cloudcastToMixData(cloudcast, usernameAndSlug)
 
-async function storeCloudcast (datas, usernameAndSlug) {
-  const dataToStore = {
-    cloudcastDatas: {
-      id: datas.xhrResponse.data.cloudcast.id,
-      path: '/' + usernameAndSlug.username + '/' + usernameAndSlug.slug + '/',
-      cloudcast: datas.xhrResponse.data.cloudcast
-    }
+  if (!await store.getCloudcastPathFromId(dataToStore.id)) {
+    store.saveIdToPath(dataToStore.id, dataToStore.path)
+    console.log('savecloudCast ' + dataToStore.path)
+    store.setMixData(dataToStore)
   }
-
-  if (!await store.getCloudcastPathFromId(dataToStore.cloudcastDatas.id)) {
-    store.saveIdToPath(dataToStore.cloudcastDatas.id, dataToStore.cloudcastDatas.path)
-    console.log('savecloudCast ' + dataToStore.cloudcastDatas.path)
-    store.setTracklistData(dataToStore)
-  }
-
-  return dataToStore
 }
 
 function onMessageListener (request, send, sendResponse) {
@@ -153,10 +140,10 @@ function onMessageListener (request, send, sendResponse) {
           const regex = /^\D*:\/\/\D+\.mixcloud\.com/
           return decodeURIComponent(url.replace(regex, ''))
         })
-        const tracklists = new Promise((resolve, reject) => {
-          return getTracklists(paths, 1, resolve, reject)
+        const mixesData = new Promise((resolve, reject) => {
+          return getMixesData(paths, 1, resolve, reject)
         })
-        tracklists.then((data) => {
+        mixesData.then((data) => {
           console.log('data sent to popup')
           console.log(data)
           sendResponse(data)
@@ -173,25 +160,24 @@ function onMessageListener (request, send, sendResponse) {
 }
 
 /**
- * Recursive function to handle asynchronicity between request's spy & tracklist display
+ * Recursive function to handle asynchronicity between request's spy & tracklists display
  * @param path : mix path
  * @param counter : attempt counter for tracklist retrieval from store
  * @param resolve
  * @param reject
- * @returns {*} resolve(an array of tracklist or empty array)
+ * @returns {*} resolve(an array of mixesData or empty array)
  */
-function getTracklists (paths, counter, resolve, reject) {
+function getMixesData (paths, counter, resolve, reject) {
   if (counter > 3) {
-    resolve({ tracklists: [] })
+    resolve([])
   }
-  store.getMultipleTracklist(paths).then((tracklists) => {
-    if (tracklists.length === 0) {
+  store.getMultipleMixData(paths).then((mixesData) => {
+    if (mixesData.length === 0) {
       setTimeout(function () {
-        getTracklists(paths, counter + 1, resolve, reject)
+        getMixesData(paths, counter + 1, resolve, reject)
       }, 500)
     } else {
-      store.getMultipleTracklist(paths).then((tracklists) => resolve({ tracklists: tracklists }))
+      store.getMultipleMixData(paths).then((mixesData) => resolve(mixesData))
     }
   })
-
 }
