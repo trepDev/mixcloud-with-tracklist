@@ -57,6 +57,8 @@ chrome.runtime.onMessage.addListener(
       return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
     } else if (message.action === 'playTrack') {
       handlePlayTrack(message.timestamp, sendResponse)
+    } else if (message.action === 'requestMixPathFromPlayer') {
+      handleMixPathFromPlayer(sendResponse)
     }
   }
 )
@@ -78,5 +80,24 @@ function handlePlayTrack (timestamp, sendResponse) {
     if (audioPlayer) audioPlayer.currentTime = timestamp
   }, 200)
   sendResponse({})
+  return true
+}
+
+function handleMixPathFromPlayer (sendResponse) {
+  // The mix path from audio player is on element with class styles__PlainLink-css-in-js__sc-1fruqy3-2.
+  // But there is also one with just the uploader name
+  // I have to retrieve only these(s) with 3 split part (the third one is empty)
+  // ex : https://www.mixcloud.com/david-patterson/cosmic-echoes-with-david-patterson-3rd-december-2023-sundays-10pm-on-jfsrco/
+  // split to ["david-patterson", "cosmic-echoes-with-david-patterson-3rd-december-2023-sundays-10pm-on-jfsrco", ""]
+  const splitPathsFromPlayer = Array.from(document.getElementsByClassName('styles__PlainLink-css-in-js__sc-1fruqy3-2'))
+    .map(
+      element => element.href.replace('https://www.mixcloud.com/', '').split('/')
+    )
+    .filter(hrefParts => hrefParts.length === 3)
+  if (splitPathsFromPlayer && splitPathsFromPlayer.length > 0) {
+    sendResponse('/' + splitPathsFromPlayer[0][0] + '/' + splitPathsFromPlayer[0][1])
+  } else {
+    sendResponse(null)
+  }
   return true
 }

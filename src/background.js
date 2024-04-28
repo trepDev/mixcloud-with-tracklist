@@ -133,24 +133,41 @@ async function storeCloudcast (cloudcast, usernameAndSlug) {
 
 function onMessageListener (request, send, sendResponse) {
   if (request.action === 'getTracklist') {
-    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
+    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, async (tabs) => {
       if (tabs.length > 0) {
-        const paths = tabs.map((tab) => {
+        const pathsAndTitle = tabs.map((tab) => {
           const url = tab.url
+          const title = tab.title
           const regex = /^\D*:\/\/\D+\.mixcloud\.com/
-          return decodeURIComponent(url.replace(regex, ''))
+          return {
+            url: decodeURIComponent(url.replace(regex, '')),
+            title: title
+          }
         })
-        const mixesData = new Promise((resolve, reject) => {
-          return getMixesData(paths, 1, resolve, reject)
+        const mixesDataFromStore = new Promise((resolve, reject) => {
+          return getMixesData(pathsAndTitle.paths, 1, resolve, reject)
         })
-        mixesData.then((data) => {
+
+        let isMixPathFromPlayerFound = false
+        let mixPathFromPlayer
+        for (let i = 0; i < tabs.length && !isMixPathFromPlayerFound; i++) {
+          mixPathFromPlayer = await getMixPathFromPlayer(tabs[i])
+          isMixPathFromPlayerFound = !!mixPathFromPlayer
+        }
+
+        try {
+          const mixesData = await mixesDataFromStore
+          const mixesDataforPopUp = {
+            currentPlayedMixPath: mixPathFromPlayer,
+            mixesData: mixesData
+          }
           console.log('data sent to popup')
-          console.log(data)
-          sendResponse(data)
-        }).catch((reason) => {
-          console.error('Error on getTracklist : ' + reason)
+          console.log(mixesDataforPopUp)
+          sendResponse(mixesDataforPopUp)
+        } catch (e) {
+          console.error('Error on getTracklist : ' + e)
           sendResponse()
-        })
+        }
       } else {
         sendResponse()
       }
@@ -179,5 +196,19 @@ function getMixesData (paths, counter, resolve, reject) {
     } else {
       store.getMultipleMixData(paths).then((mixesData) => resolve(mixesData))
     }
+  })
+}
+
+async function getMixPathFromPlayer (tab) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(
+      tab.id,
+      {
+        action: 'requestMixPathFromPlayer'
+      },
+      (response) => {
+        resolve(response)
+      }
+    )
   })
 }

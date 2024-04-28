@@ -35,11 +35,11 @@ async function initializeTemplate () {
     chrome.runtime.sendMessage({
       action: 'getTracklist'
     },
-    (mixesData) => {
-      if (!mixesData) {
+    (mixesDataforPopUp) => {
+      if (!mixesDataforPopUp) {
         initializeNoMixcloudTemplate().then((htmlElement) => resolve(htmlElement))
-      } else if (mixesData.length) {
-        resolve(initializeTracklistVue(mixesData[0]))
+      } else if (mixesDataforPopUp.mixesData && mixesDataforPopUp.mixesData.length) {
+        resolve(initializeTracklistVue(mixesDataforPopUp.mixesData[0]))
       } else {
         resolve(initializeNoTracklistTemplate())
       }
