@@ -89,13 +89,24 @@ function handleMixPathFromPlayer (sendResponse) {
   // I have to retrieve only these(s) with 3 split part (the third one is empty)
   // ex : https://www.mixcloud.com/david-patterson/cosmic-echoes-with-david-patterson-3rd-december-2023-sundays-10pm-on-jfsrco/
   // split to ["david-patterson", "cosmic-echoes-with-david-patterson-3rd-december-2023-sundays-10pm-on-jfsrco", ""]
-  const splitPathsFromPlayer = Array.from(document.getElementsByClassName('styles__PlainLink-css-in-js__sc-1fruqy3-2'))
+  // The mix title is in 2 childnotes after
+  const textAndHrefPartList = Array.from(document.getElementsByClassName('styles__PlainLink-css-in-js__sc-1fruqy3-2'))
     .map(
-      element => element.href.replace('https://www.mixcloud.com/', '').split('/')
+      element => {
+        return {
+          text: element.firstChild.firstChild.nodeValue,
+          hrefParts: element.href.replace('https://www.mixcloud.com/', '').split('/')
+        }
+      }
     )
-    .filter(hrefParts => hrefParts.length === 3)
-  if (splitPathsFromPlayer && splitPathsFromPlayer.length > 0) {
-    sendResponse('/' + splitPathsFromPlayer[0][0] + '/' + splitPathsFromPlayer[0][1])
+    .filter(textAndHrefPart => textAndHrefPart.hrefParts.length === 3)
+  if (textAndHrefPartList && textAndHrefPartList.length > 0) {
+    sendResponse(
+      {
+        mixTitle: textAndHrefPartList[0].text,
+        mixPath: '/' + textAndHrefPartList[0].hrefParts[0] + '/' + textAndHrefPartList[0].hrefParts[1]
+      }
+    )
   } else {
     sendResponse(null)
   }

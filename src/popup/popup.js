@@ -5,6 +5,8 @@ import Vue from 'vue'
 import Tracklist from '../templates/tracklist.vue'
 import domUtil from '../utils/domUtil'
 
+const retrieveMixesData = require('./retrieveMixesData')
+
 const ComponentClassTracklistVue = Vue.extend(Tracklist)
 let tracklistVue
 
@@ -18,7 +20,8 @@ window.addEventListener('beforeunload', function (event) {
 })
 
 async function initializePopup () {
-  const popupElement = await initializeTemplate()
+  const mixesDataforPopUp = await retrieveMixesData()
+  const popupElement = await initializeTemplate(mixesDataforPopUp)
 
   const popupContentAsNode = document.querySelector('[class^="to-replace"]')
 
@@ -30,21 +33,14 @@ async function initializePopup () {
   return tracklistHandler
 }
 
-async function initializeTemplate () {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage({
-      action: 'getTracklist'
-    },
-    (mixesDataforPopUp) => {
-      if (!mixesDataforPopUp) {
-        initializeNoMixcloudTemplate().then((htmlElement) => resolve(htmlElement))
-      } else if (mixesDataforPopUp.mixesData && mixesDataforPopUp.mixesData.length) {
-        resolve(initializeTracklistVue(mixesDataforPopUp.mixesData[0]))
-      } else {
-        resolve(initializeNoTracklistTemplate())
-      }
-    })
-  })
+async function initializeTemplate (mixesDataforPopUp) {
+  if (!mixesDataforPopUp) {
+    return initializeNoMixcloudTemplate()
+  } else if (mixesDataforPopUp.mixesData && mixesDataforPopUp.mixesData.length) {
+    return initializeTracklistVue(mixesDataforPopUp.mixesData[0])
+  } else {
+    return initializeNoTracklistTemplate()
+  }
 }
 
 function initializeTracklistVue (mixData) {
