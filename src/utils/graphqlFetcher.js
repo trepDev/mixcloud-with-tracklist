@@ -3,18 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict'
-/* global browser */
 /* global content */
 /* global XMLHttpRequest */
 // Firefox with manifest V2 needs 'content' namespace to have Origin & Referer.
-// Chrome didn't know 'browser' & 'content'
 // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#xhr_and_fetch
-
-try {
-  browser // eslint-disable-line no-unused-expression
+if (__BUILD_CONTEXT__ === 'ff') {
   XMLHttpRequest = content.XMLHttpRequest // eslint-disable-line no-global assign
-} catch (error) {
-  // nothing to do
 }
 
 function fetch (variables, query) {
