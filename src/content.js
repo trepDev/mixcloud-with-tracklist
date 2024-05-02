@@ -104,7 +104,7 @@ function handleMixPathFromPlayer (sendResponse) {
     sendResponse(
       {
         mixTitle: textAndHrefPartList[0].text,
-        mixPath: '/' + textAndHrefPartList[0].hrefParts[0] + '/' + textAndHrefPartList[0].hrefParts[1]
+        mixPath: '/' + textAndHrefPartList[0].hrefParts[0] + '/' + textAndHrefPartList[0].hrefParts[1] + '/'
       }
     )
   } else {
