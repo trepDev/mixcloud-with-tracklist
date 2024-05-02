@@ -36,8 +36,8 @@ async function initializePopup () {
 async function initializeTemplate (mixesDataforPopUp) {
   if (!mixesDataforPopUp) {
     return initializeNoMixcloudTemplate()
-  } else if (mixesDataforPopUp.mixesData && mixesDataforPopUp.mixesData.length) {
-    return initializeTracklistVue(mixesDataforPopUp.mixesData[0])
+  } else if (mixesDataforPopUp.length) {
+    return initializeTracklistVue(mixesDataforPopUp[0])
   } else {
     return initializeNoTracklistTemplate()
   }

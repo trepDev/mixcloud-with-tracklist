@@ -68,22 +68,18 @@ async function setMixData (mixesData) {
 }
 
 async function getMultipleMixData (paths) {
-  if (paths.length > 1) {
-    // remove duplicate
-    paths = [...new Set(paths)]
-  }
-  const multipleMixData = []
-  for (const path of paths) {
-    const mixData = await getMixData(path)
-    if (mixData) {
-      multipleMixData.push(mixData)
-    }
-  }
-  return multipleMixData
+  const result = await nativeStore.get(paths).catch((e) => {
+    console.error(e)
+    return undefined
+  })
+  return result ? Object.values(result) : []
 }
 
 async function getMixData (path) {
-  const result = await nativeStore.get(path).catch((e) => undefined)
+  const result = await nativeStore.get('path').catch((e) => {
+    console.error(e)
+    return undefined
+  })
   let tracklist
   if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
     tracklist = undefined

@@ -5,7 +5,7 @@ async function retrieveMixesData () {
   return new Promise((resolve) => {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, async (tabs) => {
       if (tabs.length > 0) {
-        const pathsAndTitle = tabs.map((tab) => {
+        const pathsAndTitleFromTab = tabs.map((tab) => {
           const url = tab.url
           const title = tab.title
           const regex = /^\D*:\/\/\D+\.mixcloud\.com/
@@ -14,21 +14,21 @@ async function retrieveMixesData () {
             title: title
           }
         })
-        const mixesDataFromStore = new Promise((resolve, reject) => {
-          return getMixesData(pathsAndTitle.map(pathAndtitle => pathAndtitle.path), 1, resolve, reject)
-        })
 
         const mixPathAndTitleFromPlayer = await getRequestMixPathFromPlayer(tabs)
+        const allPathsAndTitle = mergeAndSortFromTabAndFromPlayer(pathsAndTitleFromTab, mixPathAndTitleFromPlayer)
+
+        const mixesDataFromStore = new Promise((resolve, reject) => {
+          return getMixesData(allPathsAndTitle.map(pathAndtitle => pathAndtitle.path), 1, resolve, reject)
+        })
 
         try {
           const mixesData = await mixesDataFromStore
-          const mixesDataforPopUp = {
-            currentPlayedMixPath: mixPathAndTitleFromPlayer,
-            mixesData: mixesData
-          }
+          addTitleAndIsPlayingInMixesData(mixesData, allPathsAndTitle)
+
           console.log('data sent to popup')
-          console.log(mixesDataforPopUp)
-          resolve(mixesDataforPopUp)
+          console.log(mixesData)
+          resolve(mixesData)
         } catch (e) {
           console.error('Error on getTracklist : ' + e)
           resolve()
@@ -85,6 +85,49 @@ function getMixesData (paths, counter, resolve, reject) {
       store.getMultipleMixData(paths).then((mixesData) => resolve(mixesData))
     }
   })
+}
+
+/**
+ *  If mix from player is not in mixes list from tab, we add it in first position
+ *  else we move the played mix in first position
+ *
+ * @param pathsAndTitleFromTab
+ * @param mixPathAndTitleFromPlayer
+ * @returns {PathAndTitle[]} All PathAndTitle with PathAndTitleFrom player at first position
+ */
+function mergeAndSortFromTabAndFromPlayer (pathsAndTitleFromTab, mixPathAndTitleFromPlayer) {
+  const pathPlayerInPathFromTabIndex = pathsAndTitleFromTab.findIndex(pathAndtitle => pathAndtitle.path === mixPathAndTitleFromPlayer.mixPath)
+  let allpathsAndTitle
+  if (pathPlayerInPathFromTabIndex === -1) {
+    allpathsAndTitle = [{
+      path: mixPathAndTitleFromPlayer.mixPath,
+      title: mixPathAndTitleFromPlayer.mixTitle
+    }].concat(pathsAndTitleFromTab)
+  } else {
+    const mixPathAndTitleCurrentlyPlayed = pathsAndTitleFromTab[pathPlayerInPathFromTabIndex]
+    allpathsAndTitle = [mixPathAndTitleCurrentlyPlayed].concat(
+      pathsAndTitleFromTab.filter(pathAndtitle => pathAndtitle === mixPathAndTitleCurrentlyPlayed)
+    )
+  }
+
+  return allpathsAndTitle
+}
+
+function addTitleAndIsPlayingInMixesData (mixesData, allpathsAndTitle) {
+  if (mixesData.length === allpathsAndTitle.length) {
+    mixesData.forEach((data, index) => {
+      data.title = allpathsAndTitle[index].title
+      data.isPlaying = index === 0
+    })
+  } else {
+    mixesData.forEach((data, index) => {
+      const pathAndTitleFound = allpathsAndTitle.find(pathAndTitle => pathAndTitle.path === data.path)
+      if (pathAndTitleFound) {
+        data.title = pathAndTitleFound.title
+        data.isPlaying = data.path === pathAndTitleFound.path && pathAndTitleFound === allpathsAndTitle[0]
+      }
+    })
+  }
 }
 
 module.exports = retrieveMixesData
