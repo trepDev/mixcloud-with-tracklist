@@ -72,7 +72,13 @@ async function getMultipleMixData (paths) {
     console.error(e)
     return undefined
   })
-  return result ? Object.values(result) : []
+  if (!result) {
+    return []
+  } else {
+    // Chrome doesn't return result in same order as path is given.
+    // So we have to sort it. Paths which give no result are removed
+    return paths.filter(path => !!result[path]).map(path => result[path])
+  }
 }
 
 async function getMixData (path) {
