@@ -82,7 +82,7 @@ function getMixesData (paths, counter, resolve, reject) {
         getMixesData(paths, counter + 1, resolve, reject)
       }, 500)
     } else {
-      store.getMultipleMixData(paths).then((mixesData) => resolve(mixesData))
+      resolve(mixesData)
     }
   })
 }
@@ -106,9 +106,10 @@ function mergeAndSortFromTabAndFromPlayer (pathsAndTitleFromTab, mixPathAndTitle
   } else {
     const mixPathAndTitleCurrentlyPlayed = pathsAndTitleFromTab[pathPlayerInPathFromTabIndex]
     allpathsAndTitle = [mixPathAndTitleCurrentlyPlayed].concat(
-      pathsAndTitleFromTab.filter(pathAndtitle => pathAndtitle === mixPathAndTitleCurrentlyPlayed)
+      pathsAndTitleFromTab.filter(pathAndtitle => pathAndtitle !== mixPathAndTitleCurrentlyPlayed)
     )
   }
+  console.log('allpathsAndTitle', allpathsAndTitle)
 
   return allpathsAndTitle
 }
