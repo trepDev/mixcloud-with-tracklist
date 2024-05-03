@@ -21,16 +21,33 @@ window.addEventListener('beforeunload', function (event) {
 
 async function initializePopup () {
   const mixesDataforPopUp = await retrieveMixesData()
-  const popupElement = await initializeTemplate(mixesDataforPopUp)
 
-  const popupContentAsNode = document.querySelector('[class^="to-replace"]')
+  const header = document.createElement('nav')
+  header.className = 'scrollable-header'
+  mixesDataforPopUp.map(data => createTab(data)).forEach(tab => header.appendChild(tab))
 
-  const tracklistParentContainerAsNode = popupContentAsNode.parentNode
-  const tracklistHandler = domUtil.replace(tracklistParentContainerAsNode, popupElement, popupContentAsNode)
+  const tracklistTable = await initializeTemplate(mixesDataforPopUp)
+
+  const contentContainer = document.createElement('div')
+  contentContainer.appendChild(header)
+  contentContainer.appendChild(tracklistTable)
+
+  const popupContentPlaceholder = document.querySelector('[class^="to-replace"]')
+
+  const tracklistParentContainerAsNode = popupContentPlaceholder.parentNode
+  const tracklistHandler = domUtil.replace(tracklistParentContainerAsNode, contentContainer, popupContentPlaceholder)
 
   tracklistHandler.show()
 
   return tracklistHandler
+}
+
+function createTab (mixData) {
+  const link = document.createElement('a')
+  link.textContent = mixData.title
+  link.id = mixData.id
+  link.className = 'mix-title-header'
+  return link
 }
 
 async function initializeTemplate (mixesDataforPopUp) {
