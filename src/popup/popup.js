@@ -9,6 +9,7 @@ const retrieveMixesData = require('./retrieveMixesData')
 
 const ComponentClassTracklistVue = Vue.extend(Tracklist)
 let tracklistVue
+let currentMixId
 
 initializePopup()
 
@@ -47,22 +48,28 @@ function createTab (mixData) {
   link.textContent = mixData.title
   link.id = mixData.id
   link.className = 'mix-title-header'
+  link.onclick = () => {
+    if (mixData.id !== currentMixId) {
+      currentMixId = mixData.id
+      tracklistVue.tracklist = mixData.tracklist
+      tracklistVue.isFromPlayer = mixData.isFromPlayer
+    }
+  }
   return link
 }
 
 async function initializeTemplate (mixesDataforPopUp) {
-  if (!mixesDataforPopUp) {
+  if (!mixesDataforPopUp || mixesDataforPopUp.length === 0) {
     return initializeNoMixcloudTemplate()
-  } else if (mixesDataforPopUp.length) {
-    return initializeTracklistVue(mixesDataforPopUp[0])
   } else {
-    return initializeNoTracklistTemplate()
+    return initializeTracklistVue(mixesDataforPopUp[0])
   }
 }
 
 function initializeTracklistVue (mixData) {
   tracklistVue = new ComponentClassTracklistVue()
   tracklistVue.tracklist = mixData.tracklist
+  tracklistVue.isFromPlayer = mixData.isFromPlayer
   tracklistVue.callContentToPlayTrack = callContentToPlayTrack
   tracklistVue.hasTimestamp = hasTimestamp
   tracklistVue.$mount()
@@ -81,21 +88,9 @@ function initializeNoMixcloudTemplate () {
       })
   })
 }
-function initializeNoTracklistTemplate () {
-  return new Promise((resolve) => {
-    const url = chrome.runtime.getURL('templates/no-tracklist.html')
-    fetch(url)
-      .then(response => response.text())
-      .then(noTracklistTemplate => {
-        const div = document.createElement('div')
-        div.innerHTML = noTracklistTemplate.trim()
-        resolve(div.firstChild)
-      })
-  })
-}
 
-function callContentToPlayTrack (timestamp) {
-  if (hasTimestamp(timestamp)) {
+function callContentToPlayTrack (timestamp, isFromPlayer) {
+  if (hasTimestamp(timestamp) && isFromPlayer) {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
       // TODO probably handle better multitab
       for (const tab of tabs) {

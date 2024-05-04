@@ -18,10 +18,6 @@ store.getSettings().then(settings => {
   }
 })
 
-/**
- * Display onBoarding.
- * Sending a message to the background to retrieve the image URL is necessary in the onboarding template.
- */
 function displayOnboarding () {
   const urlIcon = chrome.runtime.getURL('icons/icon48.png')
   const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')

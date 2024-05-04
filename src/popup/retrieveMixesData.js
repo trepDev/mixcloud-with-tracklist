@@ -7,7 +7,8 @@ async function retrieveMixesData () {
       if (tabs.length > 0) {
         const pathsAndTitleFromTab = tabs.map((tab) => {
           const url = tab.url
-          const title = tab.title
+          // We keep only the mix title. All text after by is not the title
+          const title = tab.title.split('by')[0]
           const regex = /^\D*:\/\/\D+\.mixcloud\.com/
           return {
             path: decodeURIComponent(url.replace(regex, '')),
@@ -16,7 +17,12 @@ async function retrieveMixesData () {
         })
 
         const mixPathAndTitleFromPlayer = await getRequestMixPathFromPlayer(tabs)
-        const allPathsAndTitle = mergeAndSortFromTabAndFromPlayer(pathsAndTitleFromTab, mixPathAndTitleFromPlayer)
+        let allPathsAndTitle
+        if (mixPathAndTitleFromPlayer) {
+          allPathsAndTitle = mergeAndSortFromTabAndFromPlayer(pathsAndTitleFromTab, mixPathAndTitleFromPlayer)
+        } else {
+          allPathsAndTitle = pathsAndTitleFromTab
+        }
 
         const mixesDataFromStore = new Promise((resolve, reject) => {
           return getMixesData(allPathsAndTitle.map(pathAndtitle => pathAndtitle.path), 1, resolve, reject)
@@ -24,7 +30,7 @@ async function retrieveMixesData () {
 
         try {
           const mixesData = await mixesDataFromStore
-          addTitleAndIsPlayingInMixesData(mixesData, allPathsAndTitle)
+          addTitleAndIsFromPlayerInMixesData(mixesData, allPathsAndTitle)
 
           console.log('data sent to popup')
           console.log(mixesData)
@@ -114,18 +120,18 @@ function mergeAndSortFromTabAndFromPlayer (pathsAndTitleFromTab, mixPathAndTitle
   return allpathsAndTitle
 }
 
-function addTitleAndIsPlayingInMixesData (mixesData, allpathsAndTitle) {
+function addTitleAndIsFromPlayerInMixesData (mixesData, allpathsAndTitle) {
   if (mixesData.length === allpathsAndTitle.length) {
     mixesData.forEach((data, index) => {
       data.title = allpathsAndTitle[index].title
-      data.isPlaying = index === 0
+      data.isFromPlayer = index === 0
     })
   } else {
     mixesData.forEach((data, index) => {
       const pathAndTitleFound = allpathsAndTitle.find(pathAndTitle => pathAndTitle.path === data.path)
       if (pathAndTitleFound) {
         data.title = pathAndTitleFound.title
-        data.isPlaying = data.path === pathAndTitleFound.path && pathAndTitleFound === allpathsAndTitle[0]
+        data.isFromPlayer = data.path === pathAndTitleFound.path && pathAndTitleFound === allpathsAndTitle[0]
       }
     })
   }
