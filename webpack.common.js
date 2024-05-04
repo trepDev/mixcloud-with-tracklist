@@ -56,8 +56,7 @@ module.exports = (env) => {
             to: 'onboarding/onboarding.html'
           },
           { from: __dirname + '/src/' + 'onboarding/ext-icon.png', to: 'onboarding/ext-icon.png' },
-          { from: __dirname + '/src/' + 'templates/no-mixcloud.html', to: 'templates/no-mixcloud.html' },
-          { from: __dirname + '/src/' + 'templates/no-tracklist.html', to: 'templates/no-tracklist.html' }
+          { from: __dirname + '/src/' + 'templates/no-mixcloud.html', to: 'templates/no-mixcloud.html' }
         ]
       })
     ]

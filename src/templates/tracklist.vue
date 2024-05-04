@@ -1,6 +1,11 @@
 <template>
-  <div>
-    <div class="mwt-tracklist-container">
+  <div v-if="tracklist.length === 0" style="min-width: 780px; padding: 24px; text-align: center;">
+    <p style="font-size: 18px; font-weight: 400;">We are unable to retrieve any tracklist because either :</p>
+    <ul style="text-align: start; font-size: 16px;">
+      <li>The DJ didn't provide the tracklist for the mix.</li>
+    </ul>
+  </div>
+    <div v-else class="mwt-tracklist-container">
       <div class="mwt-header">
         <div class="header-number">#</div>
         <div class="header-timestamp">Time</div>
@@ -16,25 +21,23 @@
           {{track.trackNumber}}
         </div>
         <div id='timestamp' class="row-timestamp"
-             v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) }"
+             v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) && isFromPlayer}"
              v-bind:title="getTitleAttribute(track.timestamp)"
-             v-on:click="callContentToPlayTrack(track.timestamp)">
+             v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)">
           {{track.time}}
         </div>
         <div class="row-artist">{{track.artistName}}</div>
-        <div class="row-track"
-             v-bind:title="getTitleAttribute(track.timestamp)">
+        <div class="row-track">
           {{track.songName}}
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
 export default {
   data () {
-    return {tracklist: []}
+    return {tracklist: [], isFromPlayer : false}
   },
   methods: {
     callContentToPlayTrack: callContentToPlayTrack,
@@ -69,7 +72,7 @@ p {
 }
 
 .mwt-tracklist-container {
-  width: 780px;
+  min-width: 780px;
   padding: 0px 10px 0px 10px;
 }
 
