@@ -1,13 +1,13 @@
 'use strict'
 /* global chrome */
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import Tracklist from '../templates/tracklist.vue'
 import domUtil from '../utils/domUtil'
 
 const retrieveMixesData = require('./retrieveMixesData')
 
-const ComponentClassTracklistVue = Vue.extend(Tracklist)
+const ComponentClassTracklistVue = createApp(Tracklist)
 let tracklistVue
 let currentMixId
 
@@ -67,13 +67,12 @@ async function initializeTemplate (mixesDataforPopUp) {
 }
 
 function initializeTracklistVue (mixData) {
-  tracklistVue = new ComponentClassTracklistVue()
-  tracklistVue.tracklist = mixData.tracklist
-  tracklistVue.isFromPlayer = mixData.isFromPlayer
-  tracklistVue.callContentToPlayTrack = callContentToPlayTrack
-  tracklistVue.hasTimestamp = hasTimestamp
-  tracklistVue.$mount()
-  return tracklistVue.$el
+  ComponentClassTracklistVue.tracklist = mixData.tracklist
+  ComponentClassTracklistVue.isFromPlayer = mixData.isFromPlayer
+  ComponentClassTracklistVue.callContentToPlayTrack = callContentToPlayTrack
+  ComponentClassTracklistVue.hasTimestamp = hasTimestamp
+  ComponentClassTracklistVue.mount()
+  return ComponentClassTracklistVue.$el
 }
 
 function initializeNoMixcloudTemplate () {
