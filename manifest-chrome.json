@@ -75,7 +75,6 @@
       "resources": [
         "onboarding/onboarding.html",
         "onboarding/ext-icon.png",
-        "templates/no-mixcloud.html",
         "icons/icon48.png"
       ],
       "matches": ["*://*.mixcloud.com/*"]

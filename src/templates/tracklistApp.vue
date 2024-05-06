@@ -2,10 +2,12 @@
 export default {
   props: ['mixesData', 'callContentToPlayTrack'],
   data() {
-    return {currentMix : ''}
+    return {currentMix : null}
   },
   created() {
-    this.currentMix = this.mixesData[0]
+    if (this.mixesData) {
+      this.currentMix = this.mixesData[0]
+    }
   },
   methods: {
     onTabClick: onTabClick,
@@ -20,16 +22,19 @@ function onTabClick(selectedMix) {
 </script>
 
 <template>
-  <nav class="scrollable-header">
-    <a v-for="mixData in mixesData"
-       v-bind:id="mixData.id"
-       class="mix-title-header"
-       v-on:click="onTabClick(mixData)"
-    >{{ mixData.title }}</a>
-  </nav>
-  <Tracklist :tracklist="currentMix.tracklist"
-             :isFromPlayer="currentMix.isFromPlayer"
-             :callContentToPlayTrack="callContentToPlayTrack" />
+  <NoMix v-if="!mixesData || mixesData.length === 0"/>
+  <template v-else>
+    <nav class="scrollable-header">
+      <a v-for="mixData in mixesData"
+         v-bind:id="mixData.id"
+         class="mix-title-header"
+         v-on:click="onTabClick(mixData)"
+      >{{ mixData.title }}</a>
+    </nav>
+    <Tracklist :tracklist="currentMix.tracklist"
+               :isFromPlayer="currentMix.isFromPlayer"
+               :callContentToPlayTrack="callContentToPlayTrack"/>
+  </template>
 </template>
 
 <style scoped>
