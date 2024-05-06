@@ -36,20 +36,19 @@
 
 <script>
 export default {
-  data () {
-    return {tracklist: [], isFromPlayer : false}
-  },
+  props:[
+    'tracklist', 'isFromPlayer', 'callContentToPlayTrack'
+  ],
   methods: {
-    callContentToPlayTrack: callContentToPlayTrack,
     hasTimestamp: hasTimestamp,
     copyToClipoard: copyToClipoard,
     getTitleAttribute: getTitleAttribute,
   }
 }
 
-function callContentToPlayTrack() {}
-
-function hasTimestamp() {}
+function hasTimestamp (timestamp) {
+  return timestamp !== null && timestamp !== undefined
+}
 
 function copyToClipoard(tracklist) {
   let toCopy = '';

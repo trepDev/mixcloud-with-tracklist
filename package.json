@@ -14,10 +14,10 @@
     "tracklist"
   ],
   "scripts": {
-    "buildDevChrome": "webpack --env chrome --config webpack.dev.js",
-    "buildDevFF": "webpack --env ff --config webpack.dev.js",
-    "buildProdChrome": "webpack --env chrome --config webpack.prod.js",
-    "buildProdFF": "webpack --env ff --config webpack.prod.js"
+    "buildDevChrome": "webpack --env target=chrome --config webpack.dev.js",
+    "buildDevFF": "webpack --env target=ff --config webpack.dev.js",
+    "buildProdChrome": "webpack --env target=chrome --config webpack.prod.js",
+    "buildProdFF": "webpack --env target=ff --config webpack.prod.js"
   },
   "dependencies": {},
   "devDependencies": {
