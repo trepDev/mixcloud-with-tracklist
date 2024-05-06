@@ -3,11 +3,10 @@
 
 import { createApp } from 'vue'
 import Tracklist from '../templates/tracklist.vue'
+import TracklistApp from '../templates/tracklistApp.vue'
 import domUtil from '../utils/domUtil'
 
 const retrieveMixesData = require('./retrieveMixesData')
-
-const ComponentClassTracklistVue = createApp(Tracklist)
 let tracklistVue
 let currentMixId
 
@@ -23,56 +22,33 @@ window.addEventListener('beforeunload', function (event) {
 async function initializePopup () {
   const mixesDataforPopUp = await retrieveMixesData()
 
-  const header = document.createElement('nav')
-  header.className = 'scrollable-header'
-  mixesDataforPopUp.map(data => createTab(data)).forEach(tab => header.appendChild(tab))
-
-  const tracklistTable = await initializeTemplate(mixesDataforPopUp)
-
   const contentContainer = document.createElement('div')
-  contentContainer.appendChild(header)
-  contentContainer.appendChild(tracklistTable)
+  const tracklistContainer = document.createElement('div')
+  tracklistContainer.id = 'tracklistContainer'
+  contentContainer.appendChild(tracklistContainer)
 
   const popupContentPlaceholder = document.querySelector('[class^="to-replace"]')
-
   const tracklistParentContainerAsNode = popupContentPlaceholder.parentNode
   const tracklistHandler = domUtil.replace(tracklistParentContainerAsNode, contentContainer, popupContentPlaceholder)
 
   tracklistHandler.show()
 
-  return tracklistHandler
-}
-
-function createTab (mixData) {
-  const link = document.createElement('a')
-  link.textContent = mixData.title
-  link.id = mixData.id
-  link.className = 'mix-title-header'
-  link.onclick = () => {
-    if (mixData.id !== currentMixId) {
-      currentMixId = mixData.id
-      tracklistVue.tracklist = mixData.tracklist
-      tracklistVue.isFromPlayer = mixData.isFromPlayer
-    }
-  }
-  return link
+  await initializeTemplate(mixesDataforPopUp)
 }
 
 async function initializeTemplate (mixesDataforPopUp) {
   if (!mixesDataforPopUp || mixesDataforPopUp.length === 0) {
     return initializeNoMixcloudTemplate()
   } else {
-    return initializeTracklistVue(mixesDataforPopUp[0])
+    return initializeTracklistVue(mixesDataforPopUp)
   }
 }
 
-function initializeTracklistVue (mixData) {
-  ComponentClassTracklistVue.tracklist = mixData.tracklist
-  ComponentClassTracklistVue.isFromPlayer = mixData.isFromPlayer
-  ComponentClassTracklistVue.callContentToPlayTrack = callContentToPlayTrack
-  ComponentClassTracklistVue.hasTimestamp = hasTimestamp
-  ComponentClassTracklistVue.mount()
-  return ComponentClassTracklistVue.$el
+function initializeTracklistVue (mixesData) {
+  const ComponentClassTracklistVue = createApp(TracklistApp,
+    { mixesData: mixesData, callContentToPlayTrack: callContentToPlayTrack })
+  ComponentClassTracklistVue.component('Tracklist', Tracklist)
+  ComponentClassTracklistVue.mount('#tracklistContainer')
 }
 
 function initializeNoMixcloudTemplate () {

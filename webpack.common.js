@@ -43,17 +43,17 @@ module.exports = (env) => {
         global: 'window' // Placeholder for global used in any node_modules
       }),
       new webpack.DefinePlugin({
-        __BUILD_CONTEXT__: JSON.stringify(env)
+        __BUILD_CONTEXT__: JSON.stringify(env.target)
       }),
       // make sure to include the plugin for the magic
       new VueLoaderPlugin(),
       new CopyWebpackPlugin({
         patterns: [
-          { from: env === 'chrome' ? 'manifest-chrome.json' : 'manifest-firefox.json', to: 'manifest.json' },
+          { from: env.target === 'chrome' ? 'manifest-chrome.json' : 'manifest-firefox.json', to: 'manifest.json' },
           { from: __dirname + '/src/icons', to: 'icons' },
           { from: __dirname + '/src/' + 'popup/popup.html', to: 'popup/popup.html' },
           {
-            from: env === 'chrome' ? __dirname + '/src/' + 'onboarding/onboarding-install-chrome.html' : __dirname + '/src/' + 'onboarding/onboarding-install-ff.html',
+            from: env.target === 'chrome' ? __dirname + '/src/' + 'onboarding/onboarding-install-chrome.html' : __dirname + '/src/' + 'onboarding/onboarding-install-ff.html',
             to: 'onboarding/onboarding.html'
           },
           { from: __dirname + '/src/' + 'onboarding/ext-icon.png', to: 'onboarding/ext-icon.png' },
