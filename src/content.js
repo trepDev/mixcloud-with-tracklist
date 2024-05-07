@@ -70,11 +70,22 @@ function handleRequestTracklist (variables, query, sender, sendResponse) {
 }
 
 function handlePlayTrack (timestamp, sendResponse) {
+  let playTimeout = 200
+
+  // Click on play button doesn't seems fully stable on Firefox, so we only do it for Chrome
+  if (__BUILD_CONTEXT__ === 'chrome') {
+    const playButtonPlayer = document.getElementsByClassName('PlayButton__PlayerControl-css-in-js__sc-v1elkk-1')
+    if (playButtonPlayer.length === 1 && playButtonPlayer[0].getAttribute('aria-label') === 'Play') {
+      playButtonPlayer[0].click()
+      playTimeout = 500
+    }
+  }
+
   // LEGACY >> Have to set a timeout else play on track don't work (SEEMS TO WORK WITHOUT IT NOW, BUT JUST IN CASE ...)
   setTimeout(() => {
     const audioPlayer = document.getElementsByTagName('audio')[0]
     if (audioPlayer) audioPlayer.currentTime = timestamp
-  }, 200)
+  }, playTimeout)
   sendResponse({})
   return true
 }
