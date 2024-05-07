@@ -1,9 +1,6 @@
 <template>
   <div v-if="tracklist.length === 0" style="min-width: 780px; padding: 24px; text-align: center;">
-    <p style="font-size: 18px; font-weight: 400;">We are unable to retrieve any tracklist because either :</p>
-    <ul style="text-align: start; font-size: 16px;">
-      <li>The DJ didn't provide the tracklist for the mix.</li>
-    </ul>
+    <p style="font-size: 18px; font-weight: 400;">Sorry but the DJ didn't provide any tracklist for this mix.</p>
   </div>
     <div v-else class="mwt-tracklist-container">
       <div class="mwt-header">
@@ -71,7 +68,7 @@ p {
 }
 
 .mwt-tracklist-container {
-  min-width: 780px;
+  width: 780px;
   padding: 0px 10px 0px 10px;
 }
 

@@ -11,12 +11,22 @@ export default {
   },
   methods: {
     onTabClick: onTabClick,
+    getHeaderItemClass: getHeaderItemClass
   }
 }
 
 function onTabClick(selectedMix) {
   if (selectedMix !== this.currentMix) {
     this.currentMix = selectedMix
+  }
+}
+
+function getHeaderItemClass (itemsCount, mixId) {
+  const isCurrentMix = this.currentMix.id === mixId
+  if (itemsCount <= 4 ){
+    return { 'mix-title-header': true, 'selected-title-header': isCurrentMix && itemsCount !== 1}
+  } else {
+    return { 'mix-title-header-multi': true, 'selected-title-header': isCurrentMix }
   }
 }
 </script>
@@ -27,7 +37,8 @@ function onTabClick(selectedMix) {
     <nav class="scrollable-header">
       <a v-for="mixData in mixesData"
          v-bind:id="mixData.id"
-         class="mix-title-header"
+         v-bind:class="getHeaderItemClass(mixesData.length, mixData.id)"
+         v-bind:title="mixData.title"
          v-on:click="onTabClick(mixData)"
       >{{ mixData.title }}</a>
     </nav>
@@ -39,16 +50,48 @@ function onTabClick(selectedMix) {
 
 <style scoped>
 .scrollable-header {
-  background-color: #333;
-  overflow: auto;
-  white-space: nowrap;
+  background-color: #171C2B;
+  display: flex;
+  width: 780px;
+  overflow-x: auto;
+
+  a:last-child {
+    border-width: 0;
+  }
+}
+
+.unselected-title-header {
+  background-color: white;
 }
 
 .mix-title-header {
-  display: inline-block;
+  flex: 1;
   color: white;
   text-align: center;
   padding: 14px;
   text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.mix-title-header-multi {
+  flex: 0 0 169px;
+  color: white;
+  text-align: center;
+  padding: 14px;
+  border-right-width: 2px;
+  border-right: solid;
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.selected-title-header {
+  background-color: white;
+  color: black;
 }
 </style>
