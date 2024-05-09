@@ -11,9 +11,9 @@ const mixMapper = require('./utils/mixMapper')
 
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
-    store.setSettings({ onboarding: true })
+    store.setSettings({ onboardingInstall: true })
   } else if (details.reason === 'update') {
-    store.clear().then(() => store.setSettings({ onboarding: false }))
+    store.clear().then(() => store.setSettings({ onboardingUpdate: true }))
   }
 })
 

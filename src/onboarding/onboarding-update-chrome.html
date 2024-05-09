@@ -41,19 +41,12 @@
         line-height: 25px;
         font-weight: 400;
         color: #171c2b;
-        text-align: justify;
-    }
-
-    .mwt-ext-icon {
-        display: inline;
-        vertical-align: middle;
     }
 
     .centered-button {
         display: flex;
         flex-direction: row;
         justify-content: center;
-
         margin-top: 24px;
     }
 
@@ -70,29 +63,24 @@
 
     /* Style pour le survol du bouton */
     .mwt-rounded-button:hover {
-        background-color: #0056b3; /* Couleur de fond au survol */
+        background-color: #5000ff; /* Couleur de fond au survol */
     }
-
     .mwt-rounded-button:focus { outline: #0056b3 auto 10px; }
 </style>
 
 <dialog id="mwt-dialog">
+    <div class="mwt-colored-header"></div>
     <div class="mwt-dialog-content">
         <div class="mwt-title-container">
             <img class="mwt-img-margin" src="../icons/icon48.png">
             <h1 class="mwt-dialog-title" tabindex="-1" autofocus>Mixcloud (with) Tracklist</h1>
         </div>
         <p class="mwt-info-text">
-            You can access and interact with tracklists through the extension's browser popup.
+            Great news! You can now display tracklists from multiple Mixcloud pages.
             <br/>
-            <b>IMPORTANT</b>: By default,Chrome hide extensions in its extension menu (this icon <img
-                class="mwt-ext-icon" src="ext-icon.png">).
+            The first one displayed will always be from the music player.
             <br/>
-            <br/>
-            Simply click the extension icon to view the tracklist. You can conveniently play tracks
-            directly from this popup (If the DJ did provide a timestamp).
-            <br/>
-            You can display tracklists from multiple Mixcloud pages. The first one displayed will always be from the music player.
+            Enjoy exploring more music!
             <br/>
             <br/>
             For more infos, check out <a
@@ -100,7 +88,7 @@
             the Chrome web store page.</a>
         </p>
         <div class="centered-button">
-            <button class="mwt-rounded-button" >Got it!</button>
+            <button class="mwt-rounded-button">Got it!</button>
         </div>
     </div>
 </dialog>
