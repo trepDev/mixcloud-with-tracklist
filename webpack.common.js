@@ -45,6 +45,12 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         __BUILD_CONTEXT__: JSON.stringify(env.target)
       }),
+      // see https://vuejs.org/api/compile-time-flags.html
+      new webpack.DefinePlugin({
+        __VUE_OPTIONS_API__: 'true',
+        __VUE_PROD_DEVTOOLS__: 'false',
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+      }),
       // make sure to include the plugin for the magic
       new VueLoaderPlugin(),
       new CopyWebpackPlugin({
