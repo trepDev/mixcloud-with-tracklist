@@ -72,7 +72,8 @@
       }]
   },
   "web_accessible_resources": [
-    "onboarding/onboarding.html",
+    "onboarding/onboarding-install.html",
+    "onboarding/onboarding-update.html",
     "onboarding/ext-icon.png",
     "icons/icon48.png"
   ]

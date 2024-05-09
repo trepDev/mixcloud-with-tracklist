@@ -23,8 +23,10 @@ function onTabClick(selectedMix) {
 
 function getHeaderItemClass (itemsCount, mixId) {
   const isCurrentMix = this.currentMix.id === mixId
-  if (itemsCount <= 4 ){
-    return { 'mix-title-header': true, 'selected-title-header': isCurrentMix && itemsCount !== 1}
+  if (itemsCount === 1) {
+    return { 'mix-title-header': true, 'selected-title-header': false}
+  } else if (itemsCount <= 4 ){
+    return { 'mix-title-header-2': true, 'selected-title-header': isCurrentMix}
   } else {
     return { 'mix-title-header-multi': true, 'selected-title-header': isCurrentMix }
   }
@@ -69,6 +71,20 @@ function getHeaderItemClass (itemsCount, mixId) {
   color: white;
   text-align: center;
   padding: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.mix-title-header-2 {
+  flex: 1;
+  color: white;
+  text-align: center;
+  padding: 14px;
+  border-right-width: 2px;
+  border-right: solid;
   text-decoration: none;
   white-space: nowrap;
   text-overflow: ellipsis;

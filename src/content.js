@@ -11,17 +11,22 @@ const graphQLFetcher = require('./utils/graphqlFetcher')
 const store = require('./store/store')
 
 store.getSettings().then(settings => {
-  if (settings.onboarding === true) {
-    settings.onboarding = false
+  if (settings.onboardingInstall === true) {
+    settings.onboardingInstall = false
     store.setSettings(settings)
-    setTimeout(displayOnboarding, 1000)
+    setTimeout(() => displayOnboarding(true), 1000)
+  } else if (settings.onboardingUpdate === true) {
+    settings.onboardingUpdate = false
+    store.setSettings(settings)
+    setTimeout(() => displayOnboarding(false), 1000)
   }
 })
 
-function displayOnboarding () {
+function displayOnboarding (isInstall) {
   const urlIcon = chrome.runtime.getURL('icons/icon48.png')
   const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')
-  const url = chrome.runtime.getURL('onboarding/onboarding.html')
+  const url = isInstall ? chrome.runtime.getURL('onboarding/onboarding-install.html')
+    : chrome.runtime.getURL('onboarding/onboarding-update.html')
   fetch(url)
     .then(response => response.text())
     .then(onboardingTemplate => {
