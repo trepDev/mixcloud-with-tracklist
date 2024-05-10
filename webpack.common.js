@@ -3,7 +3,6 @@ const path = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-
 module.exports = (env) => {
 
   console.log(env)
@@ -40,7 +39,7 @@ module.exports = (env) => {
     },
     plugins: [
       new webpack.DefinePlugin({
-        global: 'window' // Placeholder for global used in any node_modules
+        global: 'window'
       }),
       new webpack.DefinePlugin({
         __BUILD_CONTEXT__: JSON.stringify(env.target)
@@ -71,6 +70,5 @@ module.exports = (env) => {
         ]
       })
     ]
-
-  };
-};
+  }
+}
