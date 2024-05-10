@@ -1,6 +1,6 @@
 # Mixcloud (with) Tracklist (Web-Extension)
 
-- Displays tracklists for Mixcloud Website.
+- Displays tracklists for Mixcloud Website. (You can display tracklists from multiple Mixcloud pages. The first one displayed will always be from the music player.)
 - You can play any track directly by clicking on its timestamp.
 - You can copy tracklist to clipboard
 
@@ -10,6 +10,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 
  - [Firefox Extension][firefox-install]
  - [Google Chrome Extension][chrome-install]
+ - [Edge Extension][edge-install]
  - The mobile website is not compatible.
 
  
@@ -24,8 +25,6 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 ## Limitations:
 ### General Limitations
 - Tracklists and timestamps are available only when the mix uploader has provided them.
-- The displayed tracklist is from your first open Mixcloud tab (if you have multiple tabs open).
-By first, I mean the one on the far left.
 - Don't work on mobile website (m.mixcloud.com). Mixcloud has limited its functionality, encouraging users to migrate to the mobile app.
 Therefore, mobile website version is not scheduled for implementation.
 ### Track Playing Limitations
@@ -33,9 +32,6 @@ Therefore, mobile website version is not scheduled for implementation.
 
 ## Privacy Policy
 No personal info is used/collected.
-
-## Scheduled updates for the future 
-- Manage tracklist from multi-tab
 
 
 ## Thanks
@@ -46,3 +42,4 @@ No personal info is used/collected.
 
 [firefox-install]: https://addons.mozilla.org/en-US/firefox/addon/mixcloud-with-tracklist/
 [chrome-install]: https://chrome.google.com/webstore/detail/mixcloud-with-tracklist/jgghogcekaldifaiifpnbfnpmmpiengb?hl=en-US&gl=FR
+[edge-install]: https://microsoftedge.microsoft.com/addons/detail/mixcloud-with-tracklist/kiacdpcggbfmlpgodnpmdildfgelpbae
