@@ -35,7 +35,7 @@ function getHeaderItemClass (itemsCount, mixId) {
 
 <template>
   <NoMix v-if="!mixesData || mixesData.length === 0"/>
-  <template v-else>
+  <template v-if="mixesData && mixesData.length > 0">
     <nav class="scrollable-header">
       <a v-for="mixData in mixesData"
          v-bind:id="mixData.id"
@@ -47,6 +47,12 @@ function getHeaderItemClass (itemsCount, mixId) {
     <Tracklist :tracklist="currentMix.tracklist"
                :isFromPlayer="currentMix.isFromPlayer"
                :callContentToPlayTrack="callContentToPlayTrack"/>
+    <template v-if="currentMix.tracklist.length > 17">
+      <p class="coffee-text">If you're glad to discover all these tracklists, feel free to</p>
+      <a href="https://www.buymeacoffee.com/trepDev" target="_blank">
+      <img src="/popup/coffee.png" alt="Buy Me A Coffee" class="coffee-img">
+      </a>
+    </template>
   </template>
 </template>
 
@@ -60,10 +66,6 @@ function getHeaderItemClass (itemsCount, mixId) {
   a:last-child {
     border-width: 0;
   }
-}
-
-.unselected-title-header {
-  background-color: white;
 }
 
 .mix-title-header {
@@ -109,5 +111,20 @@ function getHeaderItemClass (itemsCount, mixId) {
 .selected-title-header {
   background-color: white;
   color: black;
+}
+
+.coffee-text {
+  color: rgb(105, 127, 149);
+  font-weight: 600;
+  text-align: center;
+}
+
+.coffee-img {
+  height: 60px;
+  width: 217px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
 }
 </style>
