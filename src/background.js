@@ -108,15 +108,12 @@ function requestPlayerControlsQuery (tab, requestVariables, query) {
 }
 
 function hasCloudcast (response) {
-  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
-    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast')
+  return !!response?.xhrResponse?.data?.cloudcast
 }
 
 function hasDataForPathInMixcloudResponse (response) {
-  return hasCloudcast(response) && response.xhrResponse.data.cloudcast.hasOwnProperty('owner') &&
-    !!response.xhrResponse.data.cloudcast.owner && response.xhrResponse.data.cloudcast.owner.hasOwnProperty('username') &&
-    !!response.xhrResponse.data.cloudcast.owner.username && response.xhrResponse.data.cloudcast.hasOwnProperty('slug') &&
-    !!response.xhrResponse.data.cloudcast.slug
+  return !!response?.xhrResponse?.data?.cloudcast?.owner?.username &&
+    !!response?.xhrResponse?.data?.cloudcast?.slug
 }
 
 async function storeCloudcast (cloudcast, usernameAndSlug) {
