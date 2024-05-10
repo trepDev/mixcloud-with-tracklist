@@ -67,7 +67,7 @@ module.exports = (env) => {
             to: 'onboarding/onboarding-update.html'
           },
           { from: __dirname + '/src/' + 'onboarding/ext-icon.png', to: 'onboarding/ext-icon.png' },
-          { from: __dirname + '/src/' + 'templates/coffee.png', to: 'popup/coffee.png' }
+          { from: __dirname + '/src/' + 'popup/templates/coffee.png', to: 'popup/coffee.png' }
         ]
       })
     ]

@@ -2,9 +2,9 @@
 /* global chrome */
 
 import { createApp } from 'vue'
-import TracklistApp from '../templates/tracklistApp.vue'
-import Tracklist from '../templates/tracklist.vue'
-import NoMix from '../templates/noMix.vue'
+import TracklistApp from './templates/tracklistApp.vue'
+import Tracklist from './templates/tracklist.vue'
+import NoMix from './templates/noMix.vue'
 import domUtil from '../utils/domUtil'
 
 const retrieveMixesData = require('./retrieveMixesData')

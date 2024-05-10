@@ -24,11 +24,11 @@ function onTabClick(selectedMix) {
 function getHeaderItemClass (itemsCount, mixId) {
   const isCurrentMix = this.currentMix.id === mixId
   if (itemsCount === 1) {
-    return { 'mix-title-header': true, 'selected-title-header': false}
+    return { 'common-mix-title-header': true, 'mix-title-header': true, 'selected-title-header': false}
   } else if (itemsCount <= 4 ){
-    return { 'mix-title-header-2': true, 'selected-title-header': isCurrentMix}
+    return { 'common-mix-title-header': true, 'mix-title-header-2': true, 'selected-title-header': isCurrentMix}
   } else {
-    return { 'mix-title-header-multi': true, 'selected-title-header': isCurrentMix }
+    return { 'common-mix-title-header': true, 'mix-title-header-multi': true, 'selected-title-header': isCurrentMix }
   }
 }
 </script>
@@ -68,9 +68,9 @@ function getHeaderItemClass (itemsCount, mixId) {
   }
 }
 
-.mix-title-header {
-  flex: 1;
+.common-mix-title-header {
   color: white;
+  font-size: 17px;
   text-align: center;
   padding: 14px;
   text-decoration: none;
@@ -78,35 +78,22 @@ function getHeaderItemClass (itemsCount, mixId) {
   text-overflow: ellipsis;
   overflow: hidden;
   cursor: pointer;
+}
+
+.mix-title-header {
+  flex: 1;
 }
 
 .mix-title-header-2 {
   flex: 1;
-  color: white;
-  text-align: center;
-  padding: 14px;
-  border-right-width: 2px;
-  border-right: solid;
-  text-decoration: none;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  cursor: pointer;
+  border-right: 2px solid white;
 }
 
 .mix-title-header-multi {
   flex: 0 0 169px;
-  color: white;
-  text-align: center;
-  padding: 14px;
-  border-right-width: 2px;
-  border-right: solid;
-  text-decoration: none;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  cursor: pointer;
+  border-right: 2px solid white;
 }
+
 
 .selected-title-header {
   background-color: white;
