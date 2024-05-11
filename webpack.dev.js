@@ -6,4 +6,4 @@ module.exports = (env) => {
     mode: 'development',
     devtool: 'cheap-module-source-map'
   })
-};
+}

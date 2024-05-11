@@ -1,11 +1,12 @@
 'use strict'
 /* global chrome */
 
-import Vue from 'vue'
-import Tracklist from '../templates/tracklist.vue'
-import domUtil from '../utils/domUtil'
+import { createApp } from 'vue'
+import TracklistApp from './templates/tracklistApp.vue'
+import Tracklist from './templates/tracklist.vue'
+import NoMix from './templates/noMix.vue'
 
-const ComponentClassTracklistVue = Vue.extend(Tracklist)
+const retrieveMixesData = require('./retrieveMixesData')
 let tracklistVue
 
 initializePopup()
@@ -18,73 +19,20 @@ window.addEventListener('beforeunload', function (event) {
 })
 
 async function initializePopup () {
-  const popupElement = await initializeTemplate()
-
-  const popupContentAsNode = document.querySelector('[class^="to-replace"]')
-
-  const tracklistParentContainerAsNode = popupContentAsNode.parentNode
-  const tracklistHandler = domUtil.replace(tracklistParentContainerAsNode, popupElement, popupContentAsNode)
-
-  tracklistHandler.show()
-
-  return tracklistHandler
+  const mixesDataforPopUp = await retrieveMixesData()
+  await initializeTracklistVue(mixesDataforPopUp)
 }
 
-async function initializeTemplate () {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage({
-      action: 'getTracklist'
-    },
-    (response) => {
-      if (!response) {
-        initializeNoMixcloudTemplate().then((htmlElement) => resolve(htmlElement))
-      } else if (response.tracklist && response.tracklist.length) {
-        resolve(initializeTracklistVue(response.tracklist))
-      } else if (response.tracklist && !response.tracklist.length) {
-        resolve(initializeNoTracklistTemplate())
-      } else {
-        resolve()
-      }
-    })
-  })
+function initializeTracklistVue (mixesData) {
+  const ComponentClassTracklistVue = createApp(TracklistApp,
+    { mixesData: mixesData, callContentToPlayTrack: callContentToPlayTrack })
+  ComponentClassTracklistVue.component('Tracklist', Tracklist)
+  ComponentClassTracklistVue.component('NoMix', NoMix)
+  ComponentClassTracklistVue.mount('#mwt-placeholder')
 }
 
-function initializeTracklistVue (tracklist) {
-  tracklistVue = new ComponentClassTracklistVue()
-  tracklistVue.tracklist = tracklist
-  tracklistVue.callContentToPlayTrack = callContentToPlayTrack
-  tracklistVue.hasTimestamp = hasTimestamp
-  tracklistVue.$mount()
-  return tracklistVue.$el
-}
-
-function initializeNoMixcloudTemplate () {
-  return new Promise((resolve) => {
-    const url = chrome.runtime.getURL('templates/no-mixcloud.html')
-    fetch(url)
-      .then(response => response.text())
-      .then(noMixcloudTemplate => {
-        const div = document.createElement('div')
-        div.innerHTML = noMixcloudTemplate.trim()
-        resolve(div.firstChild)
-      })
-  })
-}
-function initializeNoTracklistTemplate () {
-  return new Promise((resolve) => {
-    const url = chrome.runtime.getURL('templates/no-tracklist.html')
-    fetch(url)
-      .then(response => response.text())
-      .then(noTracklistTemplate => {
-        const div = document.createElement('div')
-        div.innerHTML = noTracklistTemplate.trim()
-        resolve(div.firstChild)
-      })
-  })
-}
-
-function callContentToPlayTrack (timestamp) {
-  if (hasTimestamp(timestamp)) {
+function callContentToPlayTrack (timestamp, isFromPlayer) {
+  if (hasTimestamp(timestamp) && isFromPlayer) {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
       // TODO probably handle better multitab
       for (const tab of tabs) {

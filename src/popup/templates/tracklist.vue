@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <div class="mwt-tracklist-container">
+  <div v-if="tracklist.length === 0" style="min-width: 780px; padding: 24px; text-align: center;">
+    <p style="font-size: 18px; font-weight: 400;">Sorry but the DJ didn't provide any tracklist for this mix.</p>
+  </div>
+    <div v-else class="mwt-tracklist-container">
       <div class="mwt-header">
         <div class="header-number">#</div>
         <div class="header-timestamp">Time</div>
@@ -16,37 +18,34 @@
           {{track.trackNumber}}
         </div>
         <div id='timestamp' class="row-timestamp"
-             v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) }"
+             v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) && isFromPlayer}"
              v-bind:title="getTitleAttribute(track.timestamp)"
-             v-on:click="callContentToPlayTrack(track.timestamp)">
+             v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)">
           {{track.time}}
         </div>
         <div class="row-artist">{{track.artistName}}</div>
-        <div class="row-track"
-             v-bind:title="getTitleAttribute(track.timestamp)">
+        <div class="row-track">
           {{track.songName}}
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
 export default {
-  data () {
-    return {tracklist: []}
-  },
+  props:[
+    'tracklist', 'isFromPlayer', 'callContentToPlayTrack'
+  ],
   methods: {
-    callContentToPlayTrack: callContentToPlayTrack,
     hasTimestamp: hasTimestamp,
     copyToClipoard: copyToClipoard,
     getTitleAttribute: getTitleAttribute,
   }
 }
 
-function callContentToPlayTrack() {}
-
-function hasTimestamp() {}
+function hasTimestamp (timestamp) {
+  return timestamp !== null && timestamp !== undefined
+}
 
 function copyToClipoard(tracklist) {
   let toCopy = '';

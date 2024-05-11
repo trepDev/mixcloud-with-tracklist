@@ -7,12 +7,13 @@
 /* global TextDecoder */
 
 const store = require('./store/store')
+const mixMapper = require('./utils/mixMapper')
 
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
-    store.setSettings({ onboarding: true })
+    store.setSettings({ onboardingInstall: true })
   } else if (details.reason === 'update') {
-    store.clear().then(() => store.setSettings({ onboarding: false }))
+    store.clear().then(() => store.setSettings({ onboardingUpdate: true }))
   }
 })
 
@@ -24,8 +25,6 @@ chrome.runtime.onInstalled.addListener(details => {
 chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
   { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
 )
-
-chrome.runtime.onMessage.addListener(onMessageListener)
 
 async function graphQLListener (spiedRequest) {
   if (spiedRequest.requestBody) {
@@ -83,8 +82,12 @@ function requestCloudcast (tab, requestVariables) {
     }
 `
     },
-    (response) => checkAndStoreCloudcast(response,
-      { username: requestVariables.lookup.username, slug: requestVariables.lookup.slug })
+    (response) => {
+      if (hasCloudcast(response)) {
+        storeCloudcast(response.xhrResponse.data.cloudcast,
+          { username: requestVariables.lookup.username, slug: requestVariables.lookup.slug })
+      }
+    }
   )
 }
 
@@ -97,99 +100,28 @@ function requestPlayerControlsQuery (tab, requestVariables, query) {
     },
     (response) => {
       if (hasDataForPathInMixcloudResponse(response)) {
-        checkAndStoreCloudcast(response,
+        storeCloudcast(response.xhrResponse.data.cloudcast,
           { username: response.xhrResponse.data.cloudcast.owner.username, slug: response.xhrResponse.data.cloudcast.slug })
       }
     }
   )
 }
 
-function checkAndStoreCloudcast (response, usernameAndSlug) {
-  if (hasTracklistInMixcloudResponse(response)) {
-    storeCloudcast(response, usernameAndSlug)
-  }
+function hasCloudcast (response) {
+  return !!response?.xhrResponse?.data?.cloudcast
 }
 
 function hasDataForPathInMixcloudResponse (response) {
-  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
-    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
-    response.xhrResponse.data.cloudcast && response.xhrResponse.data.cloudcast.hasOwnProperty('owner') &&
-    !!response.xhrResponse.data.cloudcast.owner && response.xhrResponse.data.cloudcast.owner.hasOwnProperty('username') &&
-    !!response.xhrResponse.data.cloudcast.owner.username && response.xhrResponse.data.cloudcast.hasOwnProperty('slug') &&
-    !!response.xhrResponse.data.cloudcast.slug
+  return !!response?.xhrResponse?.data?.cloudcast?.owner?.username &&
+    !!response?.xhrResponse?.data?.cloudcast?.slug
 }
 
-function hasTracklistInMixcloudResponse (response) {
-  return !!response && response.hasOwnProperty('xhrResponse') && !!response.xhrResponse &&
-    response.xhrResponse.hasOwnProperty('data') && response.xhrResponse.data.hasOwnProperty('cloudcast') &&
-    response.xhrResponse.data.cloudcast && response.xhrResponse.data.cloudcast.hasOwnProperty('sections') &&
-    !!response.xhrResponse.data.cloudcast.sections.length
-}
+async function storeCloudcast (cloudcast, usernameAndSlug) {
+  const dataToStore = mixMapper.cloudcastToMixData(cloudcast, usernameAndSlug)
 
-async function storeCloudcast (datas, usernameAndSlug) {
-  const dataToStore = {
-    cloudcastDatas: {
-      id: datas.xhrResponse.data.cloudcast.id,
-      path: '/' + usernameAndSlug.username + '/' + usernameAndSlug.slug + '/',
-      cloudcast: datas.xhrResponse.data.cloudcast
-    }
+  if (!await store.getCloudcastPathFromId(dataToStore.id)) {
+    store.saveIdToPath(dataToStore.id, dataToStore.path)
+    console.log('savecloudCast ' + dataToStore.path)
+    store.setMixData(dataToStore)
   }
-
-  if (!await store.getCloudcastPathFromId(dataToStore.cloudcastDatas.id)) {
-    store.saveIdToPath(dataToStore.cloudcastDatas.id, dataToStore.cloudcastDatas.path)
-    console.log('savecloudCast ' + dataToStore.cloudcastDatas.path)
-    store.setTracklistData(dataToStore)
-  }
-
-  return dataToStore
-}
-
-function onMessageListener (request, send, sendResponse) {
-  if (request.action === 'getTracklist') {
-    chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-      if (tabs.length > 0) {
-        const url = tabs[0].url
-        const regex = /^\D*:\/\/\D+\.mixcloud\.com/
-        const path = decodeURIComponent(url.replace(regex, ''))
-        const tracklist = new Promise((resolve, reject) => {
-          return getTracklist(path, 1, resolve, reject)
-        })
-        tracklist.then((data) => {
-          console.log('data sent to popup')
-          console.log(data)
-          sendResponse(data)
-        }).catch((reason) => {
-          console.error('Error on getTracklist : ' + reason)
-          sendResponse()
-        })
-      } else {
-        sendResponse()
-      }
-    })
-    return true
-  }
-}
-
-/**
- * Recursive function to handle asynchronicity between request's spy & tracklist display
- * @param path : mix path
- * @param counter : attempt counter for tracklist retrieval from store
- * @param resolve
- * @param reject
- * @returns {*} resolve(tracklist or emptry tracklist)
- */
-function getTracklist (path, counter, resolve, reject) {
-  if (counter > 3) {
-    resolve({ tracklist: [] })
-  }
-  store.getCloudcastByPath(path).then((cloudcast) => {
-    if (!cloudcast) {
-      setTimeout(function () {
-        getTracklist(path, counter + 1, resolve, reject)
-      }, 500)
-    } else {
-      store.getTracklist(path).then((tracklist) => resolve({ tracklist: tracklist }))
-    }
-  })
-
 }

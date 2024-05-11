@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Mixcloud (with) Tracklist",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Display tracklists on Mixcloud",
   "icons": {
     "16": "./icons/icon16.png",
@@ -72,10 +72,9 @@
       }]
   },
   "web_accessible_resources": [
-    "onboarding/onboarding.html",
+    "onboarding/onboarding-install.html",
+    "onboarding/onboarding-update.html",
     "onboarding/ext-icon.png",
-    "templates/no-mixcloud.html",
-    "templates/no-tracklist.html",
     "icons/icon48.png"
   ]
 }
