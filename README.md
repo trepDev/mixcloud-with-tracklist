@@ -4,6 +4,10 @@
 - You can play any track directly by clicking on its timestamp.
 - You can copy tracklist to clipboard
 
+If you're glad to discover all these tracklists, feel free to  
+
+[<img style="height: 60px; width: 217px;" src="readme_files/coffee.png">](https://www.buymeacoffee.com/trepDev)
+
 ## Compatibility 
 Extension build with Chrome's WebExtensions API.
 Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit (like Vivaldi, Edge...).
@@ -16,10 +20,7 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
  
 ---
 ## Instructions
-![Screenshot_mwt](readme_files/screenshot_mwt_chrome_3.0.0.png)
-
-
-
+![Screenshot_mwt](readme_files/screenshot_mwt_chrome_5.0.0.png)
 ---
 
 ## Limitations:
@@ -28,7 +29,8 @@ Compatible with Firefox (min v58), Chrome & any others browsers based on Webkit 
 - Don't work on mobile website (m.mixcloud.com). Mixcloud has limited its functionality, encouraging users to migrate to the mobile app.
 Therefore, mobile website version is not scheduled for implementation.
 ### Track Playing Limitations
-- Playing Track in media player works only for tracks with timestamp available.
+- Playing a track in the media player only works for tracks with an available timestamp.
+- You can't launch a new mix from the extension tabs. You must do it through the Mixcloud interface.
 
 ## Privacy Policy
 No personal info is used/collected.
