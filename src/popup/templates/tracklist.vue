@@ -22,9 +22,9 @@
       <tbody>
       <tr v-for="track in tracklist" >
         <td id='trackNumber'
-            v-bind:class="{ 'pointer': hasTimestamp(track.timestamp) }"
+            v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) && isFromPlayer }"
             v-bind:title="getTitleAttribute(track.timestamp)"
-            v-on:click="callContentToPlayTrack(track.timestamp)">
+            v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)">
           {{ track.trackNumber }}
         </td>
         <td id='timestamp'
