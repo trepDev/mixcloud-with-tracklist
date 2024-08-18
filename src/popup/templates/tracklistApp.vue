@@ -42,11 +42,15 @@ function getHeaderItemClass (itemsCount, mixId) {
          v-bind:class="getHeaderItemClass(mixesData.length, mixData.id)"
          v-bind:title="mixData.title"
          v-on:click="onTabClick(mixData)"
+         href="#"
+         v-bind:aria-label=" mixData.title + ' tracklist'"
       >{{ mixData.title }}</a>
     </nav>
+    <section>
     <Tracklist :tracklist="currentMix.tracklist"
                :isFromPlayer="currentMix.isFromPlayer"
                :callContentToPlayTrack="callContentToPlayTrack"/>
+    </section>
     <template v-if="currentMix.tracklist.length > 17">
       <p class="coffee-text">If you're glad to discover all these tracklists, feel free to</p>
       <a href="https://www.buymeacoffee.com/trepDev" target="_blank">

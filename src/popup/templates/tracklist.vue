@@ -3,19 +3,20 @@
     <p style="font-size: 18px; font-weight: 400;">Sorry but the DJ didn't provide any tracklist for this mix.</p>
   </div>
   <div v-else class="mwt-tracklist-container">
+    <div class="visually-hidden">Click on a track number or timestamp to play the track. Mix must be already launched from the player to be able to select a track</div>
     <table class="tracklist-table">
       <thead>
       <tr class="mwt-header">
-        <th scope="col" class="header-number">#</th>
+        <th scope="col" class="header-number" aria-label="track number">#</th>
         <th scope="col" class="header-timestamp">Time</th>
         <th scope="col" class="header-artist">Artist</th>
         <th scope="col" class="header-track">Song</th>
-        <th class="header-copy">
-          <a class="copy-button" v-on:click="copyToClipoard(tracklist)">
+        <th class="header-copy" aria-hidden="true">
+          <button class="copy-button" v-on:click="copyToClipoard(tracklist)" aria-hidden="true">
             <svg height="10pt" viewBox="-40 0 512 512" width="10pt" xmlns="http://www.w3.org/2000/svg">
               <path d="m271 512h-191c-44.113281 0-80-35.886719-80-80v-271c0-44.113281 35.886719-80 80-80h191c44.113281 0 80 35.886719 80 80v271c0 44.113281-35.886719 80-80 80zm-191-391c-22.054688 0-40 17.945312-40 40v271c0 22.054688 17.945312 40 40 40h191c22.054688 0 40-17.945312 40-40v-271c0-22.054688-17.945312-40-40-40zm351 261v-302c0-44.113281-35.886719-80-80-80h-222c-11.046875 0-20 8.953125-20 20s8.953125 20 20 20h222c22.054688 0 40 17.945312 40 40v302c0 11.046875 8.953125 20 20 20s20-8.953125 20-20zm0 0"/>
             </svg>
-          </a>
+          </button>
         </th>
       </tr>
       </thead>
@@ -24,7 +25,8 @@
         <td id='trackNumber'
             v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) && isFromPlayer }"
             v-bind:title="getTitleAttribute(track.timestamp)"
-            v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)">
+            v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)"
+            v-bind:aria-label="'track number ' + track.trackNumber">
           {{ track.trackNumber }}
         </td>
         <td id='timestamp'
@@ -39,6 +41,14 @@
       </tbody>
     </table>
   </div>
+
+  <div class="visually-hidden"
+       v-on:click="copyToClipoard(tracklist)">
+    <button >
+      copy tracklist on clipboard
+    </button>
+  </div><!-- The copy button in the header table is hidden from screen readers, so this one is specifically for them. -->
+
 </template>
 
 <script>
@@ -159,4 +169,11 @@ thead > tr > th {
   cursor: pointer;
   color: #4fa6d3;
 }
+
+.visually-hidden {
+  overflow:hidden;
+  height:0;
+  width:0;
+}
+
 </style>
