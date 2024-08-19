@@ -22,19 +22,14 @@
       </thead>
       <tbody>
       <tr v-for="track in tracklist" >
-        <td id='trackNumber'
-            v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) && isFromPlayer }"
-            v-bind:title="getTitleAttribute(track.timestamp)"
-            v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)"
-            v-bind:aria-label="'track number ' + track.trackNumber">
-          {{ track.trackNumber }}
-        </td>
-        <td id='timestamp'
-            v-bind:class="{ 'activeTimestamp': hasTimestamp(track.timestamp) && isFromPlayer }"
-            v-bind:title="getTitleAttribute(track.timestamp)"
-            v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)">
-          {{ track.time }}
-        </td>
+        <clickable-track :id="'trackNumber'"
+                         :call-content-to-play-track="callContentToPlayTrack"
+                         :is-from-player="isFromPlayer" :track="track"
+                         :text="track.trackNumber"/>
+        <clickable-track :id="'timestamp'"
+                         :call-content-to-play-track="callContentToPlayTrack"
+                         :is-from-player="isFromPlayer" :track="track"
+                         :text="track.time"/>
         <td >{{ track.artistName }}</td>
         <td colspan="2">{{ track.songName }}</td>
       </tr>
@@ -52,19 +47,16 @@
 </template>
 
 <script>
+import ClickableTrack from './clickableTrack.vue'
+
 export default {
+  components: { ClickableTrack },
   props: [
     'tracklist', 'isFromPlayer', 'callContentToPlayTrack'
   ],
   methods: {
-    hasTimestamp: hasTimestamp,
-    copyToClipoard: copyToClipoard,
-    getTitleAttribute: getTitleAttribute,
+    copyToClipoard: copyToClipoard
   }
-}
-
-function hasTimestamp (timestamp) {
-  return timestamp !== null && timestamp !== undefined
 }
 
 function copyToClipoard(tracklist) {
@@ -73,9 +65,6 @@ function copyToClipoard(tracklist) {
   navigator.clipboard.writeText(toCopy);
 }
 
-function getTitleAttribute (timestamp) {
-  return hasTimestamp(timestamp) ? 'play' : 'no play'
-}
 </script>
 
 <style lang="css" scoped>
@@ -163,11 +152,6 @@ tbody > tr > td {
 
 thead > tr > th {
   text-align: left;
-}
-
-.activeTimestamp {
-  cursor: pointer;
-  color: #4fa6d3;
 }
 
 .visually-hidden {
