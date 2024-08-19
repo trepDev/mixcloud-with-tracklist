@@ -18,6 +18,8 @@ export default {
 function onTabClick(selectedMix) {
   if (selectedMix !== this.currentMix) {
     this.currentMix = selectedMix
+    document.getElementById('announce').textContent = "The tracklist has been updated"
+    setTimeout(() => {document.getElementById('announce').textContent = ""}, 500)
   }
 }
 
@@ -47,7 +49,8 @@ function getHeaderItemClass (itemsCount, mixId) {
       >{{ mixData.title }}</a>
     </nav>
     <section>
-    <Tracklist :tracklist="currentMix.tracklist"
+      <div id="announce"  class="visually-hidden" aria-live="polite"></div>
+      <Tracklist :tracklist="currentMix.tracklist"
                :isFromPlayer="currentMix.isFromPlayer"
                :callContentToPlayTrack="callContentToPlayTrack"/>
     </section>
@@ -117,5 +120,11 @@ function getHeaderItemClass (itemsCount, mixId) {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 16px;
+}
+
+.visually-hidden {
+  overflow:hidden;
+  height:0;
+  width:0;
 }
 </style>
