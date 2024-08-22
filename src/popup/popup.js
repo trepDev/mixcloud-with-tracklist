@@ -13,6 +13,7 @@ initializePopup()
 
 window.addEventListener('beforeunload', function (event) {
   if (tracklistVue) {
+    tracklistVue.$el.remove()
     tracklistVue.$destroy()
     tracklistVue = null
   }
@@ -28,7 +29,7 @@ function initializeTracklistVue (mixesData) {
     { mixesData: mixesData, callContentToPlayTrack: callContentToPlayTrack })
   ComponentClassTracklistVue.component('Tracklist', Tracklist)
   ComponentClassTracklistVue.component('NoMix', NoMix)
-  ComponentClassTracklistVue.mount('#mwt-placeholder')
+  tracklistVue = ComponentClassTracklistVue.mount('#mwt-placeholder')
 }
 
 function callContentToPlayTrack (timestamp, isFromPlayer) {
