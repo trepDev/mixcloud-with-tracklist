@@ -40,7 +40,7 @@ function hasTimestamp (timestamp) {
 
 .activeTimestamp {
   cursor: pointer;
-  color: #4fa6d3;
+  color: #5000FF;
 }
 
 </style>

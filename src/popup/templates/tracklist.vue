@@ -1,6 +1,6 @@
 <template>
   <div v-if="tracklist.length === 0" style="min-width: 780px; padding: 24px; text-align: center;">
-    <p style="font-size: 18px; font-weight: 400;">Sorry but the DJ didn't provide any tracklist for this mix.</p>
+    <p>Sorry but the DJ didn't provide any tracklist for this mix.</p>
   </div>
   <div v-else class="mwt-tracklist-container">
     <div class="visually-hidden">Click on a track number or timestamp to play the track. Mix must be already launched from the player to be able to select a track</div>
@@ -69,7 +69,9 @@ function copyToClipoard(tracklist) {
 
 <style lang="css" scoped>
 p {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+  font-weight: 400;
+  color:#171C2B
 }
 
 * {
@@ -90,7 +92,7 @@ p {
   line-height: 30px;
   border-top: 2px solid rgb(235, 240, 242);
   border-bottom: 2px solid rgb(235, 240, 242);
-  color: rgb(105, 127, 149);
+  color: #69788C;
   font-weight: 600;
 }
 
@@ -144,7 +146,7 @@ p {
 }
 
 tbody > tr > td {
-  color: rgb(105, 127, 149);
+  color: #171C2B;
   font-weight: 400;
   line-height: 1.875rem;
   border-bottom: 1px solid rgb(235, 240, 242);
