@@ -108,7 +108,7 @@ function getHeaderItemClass (itemsCount, mixId) {
 }
 
 .coffee-text {
-  color: rgb(105, 127, 149);
+  color: #69788C;
   font-weight: 600;
   text-align: center;
 }
