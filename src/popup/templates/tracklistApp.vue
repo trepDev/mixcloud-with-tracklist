@@ -18,6 +18,8 @@ export default {
 function onTabClick(selectedMix) {
   if (selectedMix !== this.currentMix) {
     this.currentMix = selectedMix
+    document.getElementById('announce').textContent = "The tracklist has been updated"
+    setTimeout(() => {document.getElementById('announce').textContent = ""}, 500)
   }
 }
 
@@ -42,11 +44,16 @@ function getHeaderItemClass (itemsCount, mixId) {
          v-bind:class="getHeaderItemClass(mixesData.length, mixData.id)"
          v-bind:title="mixData.title"
          v-on:click="onTabClick(mixData)"
+         href="#"
+         v-bind:aria-label=" mixData.title + ' tracklist'"
       >{{ mixData.title }}</a>
     </nav>
-    <Tracklist :tracklist="currentMix.tracklist"
+    <section>
+      <div id="announce"  class="visually-hidden" aria-live="polite"></div>
+      <Tracklist :tracklist="currentMix.tracklist"
                :isFromPlayer="currentMix.isFromPlayer"
                :callContentToPlayTrack="callContentToPlayTrack"/>
+    </section>
     <template v-if="currentMix.tracklist.length > 17">
       <p class="coffee-text">If you're glad to discover all these tracklists, feel free to</p>
       <a href="https://www.buymeacoffee.com/trepDev" target="_blank">
@@ -101,7 +108,7 @@ function getHeaderItemClass (itemsCount, mixId) {
 }
 
 .coffee-text {
-  color: rgb(105, 127, 149);
+  color: #69788C;
   font-weight: 600;
   text-align: center;
 }
@@ -113,5 +120,11 @@ function getHeaderItemClass (itemsCount, mixId) {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 16px;
+}
+
+.visually-hidden {
+  overflow:hidden;
+  height:0;
+  width:0;
 }
 </style>
