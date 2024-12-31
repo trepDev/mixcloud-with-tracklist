@@ -19,7 +19,7 @@ function sectionsToTracklist (sections) {
         timestamp: section.startSeconds,
         time: setTime(section.startSeconds, keepHours),
         artistName: section.artistName === undefined ? 'unknow' : section.artistName,
-        songName: section.artistName === undefined ? 'unknow' : section.songName
+        songName: section.songName === undefined ? 'unknow' : section.songName
       }
       return track
     })
