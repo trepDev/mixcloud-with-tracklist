@@ -1,31 +1,41 @@
-function cloudcastToMixData(cloudcast, usernameAndSlug) {
-  const tracklistData = {
-    id: cloudcast.id,
-    path: '/' + usernameAndSlug.username + '/' + usernameAndSlug.slug + '/',
-    tracklist: sectionsToTracklist(cloudcast.sections)
+function cloudcastToMixData (cloudcast, usernameAndSlug) {
+  const isDataInsideChapter = isDataInChapter(cloudcast.sections)
+
+  let tracklist = []
+  if (cloudcast.sections && cloudcast.sections.length > 0) {
+    tracklist = isDataInsideChapter ? sectionsToBasicTracklist(cloudcast.sections)
+      : sectionsToTracklist(cloudcast.sections)
   }
 
-  return tracklistData
+  return {
+    id: cloudcast.id,
+    path: '/' + usernameAndSlug.username + '/' + usernameAndSlug.slug + '/',
+    isSimpleTracklist: isDataInsideChapter,
+    tracklist: tracklist
+  }
+}
+
+function sectionsToBasicTracklist (sections) {
+  return sections.map((section, index) => {
+    return {
+      trackNumber: formatTrackNumber(index),
+      chapter: section.chapter ? section.chapter : 'unknow'
+    }
+  })
 }
 
 function sectionsToTracklist (sections) {
-  let tracklist = []
-  if (sections && sections.length > 0) {
-    // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
-    const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
-    tracklist = sections.map((section, index) => {
-      const track = {
-        trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
-        timestamp: section.startSeconds,
-        time: setTime(section.startSeconds, keepHours),
-        artistName: section.artistName === undefined ? 'unknow' : section.artistName,
-        songName: section.songName === undefined ? 'unknow' : section.songName
-      }
-      return track
-    })
-  }
-
-  return tracklist
+  // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
+  const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
+  return sections.map((section, index) => {
+    return {
+      trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
+      timestamp: section.startSeconds,
+      time: setTime(section.startSeconds, keepHours),
+      artistName: section.artistName === undefined ? 'unknow' : section.artistName,
+      songName: section.songName === undefined ? 'unknow' : section.songName
+    }
+  })
 }
 
 function setTime (seconds, keepHours) {
@@ -49,6 +59,23 @@ function timetoHHMMSS (time, keepHours) {
       return keepHours === true ? true : (v !== '00' || i > 0)
     })
     .join(':')
+}
+
+function formatTrackNumber (trackIndex) {
+  return (trackIndex + 1) < 10 ? '0' + (trackIndex + 1) : '' + (trackIndex + 1)
+}
+
+function isDataInChapter (sections) {
+  let noArtistName = false
+  let noSongName = false
+  let atLeastOneChapter = false
+  sections.forEach(section => {
+    noArtistName = noArtistName || section.artistName === undefined
+    noSongName = noSongName || section.songName === undefined
+    atLeastOneChapter = atLeastOneChapter || section.chapter !== undefined
+  })
+
+  return noArtistName && noSongName && atLeastOneChapter
 }
 
 module.exports = { cloudcastToMixData }
