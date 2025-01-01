@@ -5,6 +5,7 @@ import { createApp } from 'vue'
 import TracklistApp from './templates/tracklistApp.vue'
 import Tracklist from './templates/tracklist.vue'
 import NoMix from './templates/noMix.vue'
+import BasicTracklist from './templates/basicTracklist.vue'
 
 const retrieveMixesData = require('./retrieveMixesData')
 let tracklistVue
@@ -29,6 +30,7 @@ function initializeTracklistVue (mixesData) {
     { mixesData: mixesData, callContentToPlayTrack: callContentToPlayTrack })
   ComponentClassTracklistVue.component('Tracklist', Tracklist)
   ComponentClassTracklistVue.component('NoMix', NoMix)
+  ComponentClassTracklistVue.component('BasicTracklist', BasicTracklist)
   tracklistVue = ComponentClassTracklistVue.mount('#mwt-placeholder')
 }
 

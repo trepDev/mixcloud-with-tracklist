@@ -49,15 +49,18 @@ function getHeaderItemClass (itemsCount, mixId) {
       >{{ mixData.title }}</a>
     </nav>
     <section>
-      <div id="announce"  class="visually-hidden" aria-live="polite"></div>
-      <Tracklist :tracklist="currentMix.tracklist"
-               :isFromPlayer="currentMix.isFromPlayer"
-               :callContentToPlayTrack="callContentToPlayTrack"/>
+      <div id="announce" class="visually-hidden" aria-live="polite"></div>
+      <BasicTracklist v-if="currentMix.isSimpleTracklist"
+                      :tracklist="currentMix.tracklist"></BasicTracklist>
+      <Tracklist v-else
+                 :tracklist="currentMix.tracklist"
+                 :isFromPlayer="currentMix.isFromPlayer"
+                 :callContentToPlayTrack="callContentToPlayTrack"/>
     </section>
-    <template v-if="currentMix.tracklist.length > 17">
+    <template v-if="!currentMix.isSimpleTracklist && currentMix.tracklist.length > 17">
       <p class="coffee-text">If you're glad to discover all these tracklists, feel free to</p>
       <a href="https://www.buymeacoffee.com/trepDev" target="_blank">
-      <img src="/popup/coffee.png" alt="Buy Me A Coffee" class="coffee-img">
+        <img src="/popup/coffee.png" alt="Buy Me A Coffee" class="coffee-img">
       </a>
     </template>
   </template>
