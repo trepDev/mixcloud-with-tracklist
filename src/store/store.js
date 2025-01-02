@@ -3,10 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict'
+/* global chrome */
+/* global browser */
+/* global __BUILD_CONTEXT__ */
 
-// native-store will following build context
-// both used promise api but can't use the same namespace
-// (FF is still in manifest v2 & chrome namespace don't work on promise API in manifest V2)
+// native-store will follow the build context
+// Both use the Promise API but cannot share the same namespace
+// (Firefox is still using Manifest V2, and the Chrome namespace does not support the Promise API in Manifest V2)
 let nativeStore
 if (__BUILD_CONTEXT__ === 'chrome') {
   nativeStore = chrome.storage.local
@@ -34,7 +37,7 @@ function saveIdToPath (id, path) {
   nativeStore.set({ [id]: path }).catch((e) => console.log('error on save id', e))
 }
 
-async function getCloudcastPathFromId (id) {
+async function getMixPathFromId (id) {
   const result = await nativeStore.get(id).catch((e) => undefined)
   if (Object.keys(result).length === 0 && result.constructor === Object) {
     return undefined
@@ -43,7 +46,7 @@ async function getCloudcastPathFromId (id) {
   }
 }
 
-async function getCloudcastByPath (path) {
+async function getMixByPath (path) {
   const result = await nativeStore.get(path).catch((e) => undefined)
   if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
     return undefined
@@ -52,22 +55,22 @@ async function getCloudcastByPath (path) {
   }
 }
 
-async function setMixData (mixesData) {
-  const storageKey = mixesData.path
+async function saveMix (mix) {
+  const storageKey = mix.path
   try {
-    await nativeStore.set({ [storageKey]: mixesData })
+    await nativeStore.set({ [storageKey]: mix })
   } catch (e) {
-    console.error(`Error on save for mixData ${storageKey}`, e)
+    console.error(`Error on save for mix ${storageKey}`, e)
     if (e.name && e.name.toLowerCase().includes('quota')) {
       const settings = await getSettings()
       await clear()
       await setSettings(settings)
-      await nativeStore.set({ [storageKey]: mixesData })
+      await nativeStore.set({ [storageKey]: mix })
     }
   }
 }
 
-async function getMultipleMixData (paths) {
+async function getMultipleMixes (paths) {
   const result = await nativeStore.get(paths).catch((e) => {
     console.error(e)
     return undefined
@@ -75,25 +78,10 @@ async function getMultipleMixData (paths) {
   if (!result) {
     return []
   } else {
-    // Chrome doesn't return result in same order as path is given.
-    // So we have to sort it. Paths which give no result are removed
+    // Chrome does not return results in the same order as the given paths.
+    // Therefore, we need to sort them. Paths that yield no results are removed.
     return paths.filter(path => !!result[path]).map(path => result[path])
   }
-}
-
-async function getMixData (path) {
-  const result = await nativeStore.get('path').catch((e) => {
-    console.error(e)
-    return undefined
-  })
-  let tracklist
-  if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
-    tracklist = undefined
-  } else {
-    tracklist = result[path]
-  }
-
-  return tracklist
 }
 
 module.exports = {
@@ -101,8 +89,8 @@ module.exports = {
   setSettings,
   getSettings,
   saveIdToPath,
-  getCloudcastPathFromId,
-  getCloudcastByPath,
-  setMixData,
-  getMultipleMixData
+  getMixPathFromId,
+  getMixByPath,
+  saveMix,
+  getMultipleMixes
 }

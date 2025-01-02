@@ -82,7 +82,7 @@ function getMixesData (paths, counter, resolve, reject) {
   if (counter > 3) {
     resolve([])
   }
-  store.getMultipleMixData(paths).then((mixesData) => {
+  store.getMultipleMixes(paths).then((mixesData) => {
     if (mixesData.length === 0) {
       setTimeout(function () {
         getMixesData(paths, counter + 1, resolve, reject)
