@@ -1,20 +1,31 @@
-function cloudcastToMixData (cloudcast, usernameAndSlug) {
+/**
+ * @param cloudcast
+ * @param usernameAndSlug
+ * @returns {Mix} - Mix
+ */
+function cloudcastToMix (cloudcast, usernameAndSlug) {
   const isDataInsideChapter = isDataInChapter(cloudcast.sections)
 
+  /** @type TrackInfo[] **/
   let tracklist = []
   if (cloudcast.sections && cloudcast.sections.length > 0) {
     tracklist = isDataInsideChapter ? sectionsToBasicTracklist(cloudcast.sections)
       : sectionsToTracklist(cloudcast.sections)
   }
 
+  /** @type Mix **/
   return {
     id: cloudcast.id,
     path: '/' + usernameAndSlug.username + '/' + usernameAndSlug.slug + '/',
-    isSimpleTracklist: isDataInsideChapter,
+    hasBasicTracklist: isDataInsideChapter,
     tracklist: tracklist
   }
 }
 
+/**
+ * @param sections
+ * @returns {BasicTrackInfo[]}
+ */
 function sectionsToBasicTracklist (sections) {
   return sections.map((section, index) => {
     return {
@@ -24,6 +35,10 @@ function sectionsToBasicTracklist (sections) {
   })
 }
 
+/**
+ * @param sections
+ * @returns {CompleteTrackInfo[]}
+ */
 function sectionsToTracklist (sections) {
   // use to know if formatting time for all track at xx:xx:xx or xx:xx (for templates's homogeneity)
   const keepHours = !isNaN(sections[sections.length - 1].startSeconds) && sections[sections.length - 1].startSeconds > 3600
@@ -78,4 +93,4 @@ function isDataInChapter (sections) {
   return noArtistName && noSongName && atLeastOneChapter
 }
 
-module.exports = { cloudcastToMixData }
+module.exports = { cloudcastToMix }

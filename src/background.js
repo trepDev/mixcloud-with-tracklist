@@ -115,7 +115,7 @@ function hasDataForPathInMixcloudResponse (response) {
 }
 
 async function storeCloudcast (cloudcast, usernameAndSlug) {
-  const dataToStore = mixMapper.cloudcastToMixData(cloudcast, usernameAndSlug)
+  const dataToStore = mixMapper.cloudcastToMix(cloudcast, usernameAndSlug)
 
   if (!await store.getMixPathFromId(dataToStore.id)) {
     store.saveIdToPath(dataToStore.id, dataToStore.path)

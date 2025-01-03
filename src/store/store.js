@@ -33,10 +33,18 @@ async function getSettings () {
   return result && result.settings ? result.settings : { }
 }
 
+/**
+ * @param {string} id
+ * @param {string} path
+ */
 function saveIdToPath (id, path) {
   nativeStore.set({ [id]: path }).catch((e) => console.log('error on save id', e))
 }
 
+/**
+ * @param {string} id
+ * @returns {Promise<undefined|string>}
+ */
 async function getMixPathFromId (id) {
   const result = await nativeStore.get(id).catch((e) => undefined)
   if (Object.keys(result).length === 0 && result.constructor === Object) {
@@ -46,6 +54,10 @@ async function getMixPathFromId (id) {
   }
 }
 
+/**
+ * @param {string} path
+ * @returns {Promise<undefined|Mix>}
+ */
 async function getMixByPath (path) {
   const result = await nativeStore.get(path).catch((e) => undefined)
   if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
@@ -55,6 +67,10 @@ async function getMixByPath (path) {
   }
 }
 
+/**
+ * @param {Mix} mix
+ * @returns {Promise<void>}
+ */
 async function saveMix (mix) {
   const storageKey = mix.path
   try {
@@ -70,6 +86,10 @@ async function saveMix (mix) {
   }
 }
 
+/**
+ * @param {string[]} paths
+ * @returns {Promise<Mix[]|undefined>}
+ */
 async function getMultipleMixes (paths) {
   const result = await nativeStore.get(paths).catch((e) => {
     console.error(e)
