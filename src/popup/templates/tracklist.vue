@@ -1,8 +1,5 @@
 <template>
-  <div v-if="tracklist.length === 0" style="min-width: 780px; padding: 24px; text-align: center;">
-    <p>Sorry but the DJ didn't provide any tracklist for this mix.</p>
-  </div>
-  <div v-else class="mwt-tracklist-container">
+  <div class="mwt-tracklist-container">
     <div class="visually-hidden">Click on a track number or timestamp to play the track. Mix must be already launched from the player to be able to select a track</div>
     <table class="tracklist-table">
       <thead>
@@ -37,12 +34,13 @@
     </table>
   </div>
 
+  <!-- The copy button in the header table is hidden from screen readers, so this one is specifically for them. -->
   <div class="visually-hidden"
        v-on:click="copyToClipoard(tracklist)">
-    <button >
+    <button>
       copy tracklist on clipboard
     </button>
-  </div><!-- The copy button in the header table is hidden from screen readers, so this one is specifically for them. -->
+  </div>
 
 </template>
 

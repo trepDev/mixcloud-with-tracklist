@@ -50,13 +50,17 @@ function getHeaderItemClass (itemsCount, mixId) {
     </nav>
     <section>
       <div id="announce" class="visually-hidden" aria-live="polite"></div>
-      <BasicTracklist v-if="currentMix.hasBasicTracklist"
-                      :tracklist="currentMix.tracklist"></BasicTracklist>
-      <Tracklist v-else
-                 :tracklist="currentMix.tracklist"
-                 :isFromPlayer="currentMix.isFromPlayer"
-                 :callContentToPlayTrack="callContentToPlayTrack"/>
-
+      <div v-if="currentMix.tracklist.length === 0" style="padding: 24px; text-align: center;">
+        <p>Sorry but the DJ didn't provide any tracklist for this mix.</p>
+      </div>
+      <template v-else>
+        <BasicTracklist v-if="currentMix.hasBasicTracklist"
+                        :tracklist="currentMix.tracklist"></BasicTracklist>
+        <Tracklist v-else
+                   :tracklist="currentMix.tracklist"
+                   :isFromPlayer="currentMix.isFromPlayer"
+                   :callContentToPlayTrack="callContentToPlayTrack"/>
+      </template>
     </section>
     <template v-if="!currentMix.hasBasicTracklist && currentMix.tracklist.length > 17">
       <p class="coffee-text">If you're glad to discover all these tracklists, feel free to</p>
