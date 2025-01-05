@@ -21,6 +21,11 @@ function clear () {
   return nativeStore.clear()
 }
 
+/**
+ * @param {Settings} settings
+ * @returns {Promise<void>}
+ * @throws {Error} - Throws an error if saving fails for reasons other than quota limitations
+ */
 async function setSettings (settings) {
   const storeResult = await nativeStore.get('settings')
   const currentSettings = storeResult && storeResult.settings ? storeResult.settings : {}
@@ -28,6 +33,9 @@ async function setSettings (settings) {
   nativeStore.set({ settings: currentSettings })
 }
 
+/**
+ * @returns {Promise<Settings>}
+ */
 async function getSettings () {
   const result = await nativeStore.get('settings')
   return result && result.settings ? result.settings : { }
@@ -70,25 +78,29 @@ async function getMixByPath (path) {
 /**
  * @param {Mix} mix
  * @returns {Promise<void>}
+ * @throws {Error} - Throws an error if saving fails for reasons other than quota limitations
+ *                   (quota limitation is handle inside this method)
  */
 async function saveMix (mix) {
   const storageKey = mix.path
   try {
     await nativeStore.set({ [storageKey]: mix })
   } catch (e) {
-    console.error(`Error on save for mix ${storageKey}`, e)
     if (e.name && e.name.toLowerCase().includes('quota')) {
+      console.error(`Quota Error on save for mix ${storageKey}`)
       const settings = await getSettings()
       await clear()
       await setSettings(settings)
       await nativeStore.set({ [storageKey]: mix })
+    } else {
+      throw e
     }
   }
 }
 
 /**
  * @param {string[]} paths
- * @returns {Promise<Mix[]|undefined>}
+ * @returns {Promise<Mix[]>}
  */
 async function getMultipleMixes (paths) {
   const result = await nativeStore.get(paths).catch((e) => {
