@@ -115,11 +115,15 @@ function hasDataForPathInMixcloudResponse (response) {
 }
 
 async function storeCloudcast (cloudcast, usernameAndSlug) {
-  const dataToStore = mixMapper.cloudcastToMix(cloudcast, usernameAndSlug)
+  const mix = mixMapper.cloudcastToMix(cloudcast, usernameAndSlug)
 
-  if (!await store.getMixPathFromId(dataToStore.id)) {
-    store.saveIdToPath(dataToStore.id, dataToStore.path)
-    console.log('savecloudCast ' + dataToStore.path)
-    store.saveMix(dataToStore)
+  if (!await store.getMixPathFromId(mix.id)) {
+    try {
+      await store.saveMix(mix)
+      await store.saveIdToPath(mix.id, mix.path)
+      console.log('saveMix ' + mix.path)
+    } catch (e) {
+      console.error(`Error on save for mix ${mix.path}`, e)
+    }
   }
 }

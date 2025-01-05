@@ -1,4 +1,12 @@
 /**
+ * Application Settings
+ *
+ * @typedef {Object} Settings
+ * @property {boolean} [onboardingInstall] - Indicates whether the onboarding popup should be displayed after installation.
+ * @property {boolean} [onboardingUpdate] - Indicates whether the onboarding popup should be displayed after an update.
+ */
+
+/**
  * Represents all the information needed and stored about a mix.
  *
  * @typedef {Object} Mix
