@@ -6,6 +6,7 @@
 
 'use strict'
 /* global chrome */
+/* global __BUILD_CONTEXT__ */
 
 const graphQLFetcher = require('./utils/graphqlFetcher')
 const store = require('./store/store')
@@ -51,14 +52,15 @@ function displayOnboarding (isInstall) {
     })
 }
 
-// Listen Background asking to make request retrieving tracklist. Result (cloudcast) is send to background (which extract tracklist & some others information to store)
+// Listen Background asking to make request retrieving tracklist.
+// Result (cloudcast) is sent to background (which extract tracklist & some others information to store)
 chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
     if (message.action === 'requestTracklist') {
       return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
     } else if (message.action === 'playTrack') {
       handlePlayTrack(message.timestamp, sendResponse)
-    } else if (message.action === 'requestMixPathFromPlayer') {
+    } else if (message.action === 'requestPathAndTitleFromMixPlayer') {
       handleMixPathFromPlayer(sendResponse)
     }
   }
@@ -77,7 +79,7 @@ function handleRequestTracklist (variables, query, sender, sendResponse) {
 function handlePlayTrack (timestamp, sendResponse) {
   let playTimeout = 200
 
-  // Click on play button doesn't seems fully stable on Firefox, so we only do it for Chrome
+  // Click on play button doesn't seem fully stable on Firefox, so we only do it for Chrome
   if (__BUILD_CONTEXT__ === 'chrome') {
     const playButtonPlayer = document.getElementsByClassName('PlayButton__PlayerControl-css-in-js__sc-v1elkk-1')
     if (playButtonPlayer.length === 1 && playButtonPlayer[0].getAttribute('aria-label') === 'Play') {
@@ -101,7 +103,7 @@ function handleMixPathFromPlayer (sendResponse) {
   // I have to retrieve only these(s) with 3 split part (the third one is empty)
   // ex : https://www.mixcloud.com/david-patterson/cosmic-echoes-with-david-patterson-3rd-december-2023-sundays-10pm-on-jfsrco/
   // split to ["david-patterson", "cosmic-echoes-with-david-patterson-3rd-december-2023-sundays-10pm-on-jfsrco", ""]
-  // The mix title is in 2 childnotes after
+  // The mix title is in 2 childnodes after
   const textAndHrefPartList = Array.from(document.getElementsByClassName('styles__PlainLink-css-in-js__sc-1fruqy3-2'))
     .map(
       element => {
@@ -114,9 +116,10 @@ function handleMixPathFromPlayer (sendResponse) {
     .filter(textAndHrefPart => textAndHrefPart.hrefParts.length === 3)
   if (textAndHrefPartList && textAndHrefPartList.length > 0) {
     sendResponse(
+      /** @type PathAndTitle */
       {
-        mixTitle: textAndHrefPartList[0].text,
-        mixPath: '/' + textAndHrefPartList[0].hrefParts[0] + '/' + textAndHrefPartList[0].hrefParts[1] + '/'
+        path: '/' + textAndHrefPartList[0].hrefParts[0] + '/' + textAndHrefPartList[0].hrefParts[1] + '/',
+        title: textAndHrefPartList[0].text
       }
     )
   } else {

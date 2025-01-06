@@ -1,8 +1,9 @@
 /**
- * @param cloudcast
- * @param usernameAndSlug
- * @returns {Mix} - Mix
+ * @param {Object} cloudcast - Cloudcast data retrieved from Mixcloud, containing detailed information about a mix.
+ * @param {Object} usernameAndSlug - Information required to reconstruct the mix path.
+ * @returns {Mix}
  */
+
 function cloudcastToMix (cloudcast, usernameAndSlug) {
   const isDataInsideChapter = isDataInChapter(cloudcast.sections)
 
@@ -23,9 +24,10 @@ function cloudcastToMix (cloudcast, usernameAndSlug) {
 }
 
 /**
- * @param sections
+ * @param {Object[]} sections - A subpart of the cloudcast data that contains the tracklist.
  * @returns {BasicTrackInfo[]}
  */
+
 function sectionsToBasicTracklist (sections) {
   return sections.map((section, index) => {
     return {
@@ -36,7 +38,7 @@ function sectionsToBasicTracklist (sections) {
 }
 
 /**
- * @param sections
+ * @param {Object[]} sections - A subpart of the cloudcast data that contains the tracklist.
  * @returns {CompleteTrackInfo[]}
  */
 function sectionsToTracklist (sections) {
@@ -46,14 +48,14 @@ function sectionsToTracklist (sections) {
     return {
       trackNumber: (index + 1) < 10 ? '0' + (index + 1) : '' + (index + 1),
       timestamp: section.startSeconds,
-      time: setTime(section.startSeconds, keepHours),
+      time: getTime(section.startSeconds, keepHours),
       artistName: section.artistName === undefined ? 'unknow' : section.artistName,
       songName: section.songName === undefined ? 'unknow' : section.songName
     }
   })
 }
 
-function setTime (seconds, keepHours) {
+function getTime (seconds, keepHours) {
   let time
   if (seconds === null || seconds === undefined) {
     time = 'not provided'

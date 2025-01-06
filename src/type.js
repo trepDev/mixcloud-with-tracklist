@@ -7,6 +7,27 @@
  */
 
 /**
+ * Represents the path and title of either a mix tab or the mix in the player.
+ *
+ * @typedef {Object} PathAndTitle
+ * @property {string} path - The path to the mix or mix tab.
+ * @property {string} title - The title of the mix or mix tab.
+ */
+
+/**
+ * Mix Model used by the view.
+ *
+ * Basically, this is a {@link Mix} extended with two extra properties:
+ * - `title` — the mix title
+ * - `isFromPlayer` — indicates if this mix is currently played by the player
+ *
+ * @typedef {Mix & {
+ *   title: string,
+ *   isFromPlayer: boolean
+ * }} MixViewModel
+ */
+
+/**
  * Represents all the information needed and stored about a mix.
  *
  * @typedef {Object} Mix
