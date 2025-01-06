@@ -54,7 +54,7 @@ function saveIdToPath (id, path) {
  * @returns {Promise<undefined|string>}
  */
 async function getMixPathFromId (id) {
-  const result = await nativeStore.get(id).catch((e) => undefined)
+  const result = await nativeStore.get(id).catch(() => undefined)
   if (Object.keys(result).length === 0 && result.constructor === Object) {
     return undefined
   } else {
@@ -67,7 +67,7 @@ async function getMixPathFromId (id) {
  * @returns {Promise<undefined|Mix>}
  */
 async function getMixByPath (path) {
-  const result = await nativeStore.get(path).catch((e) => undefined)
+  const result = await nativeStore.get(path).catch(() => undefined)
   if (result === undefined || (Object.keys(result).length === 0 && result.constructor === Object)) {
     return undefined
   } else {
@@ -99,8 +99,11 @@ async function saveMix (mix) {
 }
 
 /**
- * @param {string[]} paths
- * @returns {Promise<Mix[]>}
+ * Returns all the mixes in the same order as the specified paths.
+ *
+ * @param {string[]} paths - An array of mix paths.
+ * @returns {Promise<Mix[]>} A promise that resolves to an array of Mix objects.
+ *                           Resolves with an empty array if an error occurs or if nothing is found.
  */
 async function getMultipleMixes (paths) {
   const result = await nativeStore.get(paths).catch((e) => {

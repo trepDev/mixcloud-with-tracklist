@@ -1,11 +1,20 @@
 /* global chrome */
 const store = require('../store/store')
 
-async function retrieveMixesData () {
+/**
+ * Retrieves the Mixcloud tab and player, along with the corresponding mixes (in store),
+ * in order to create the {@link MixViewModel} used by the view.
+ *
+ * @returns {Promise<MixViewModel|undefined>}
+ */
+async function getMixViewModels () {
   return new Promise((resolve) => {
     chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, async (tabs) => {
-      if (tabs.length > 0) {
-        const pathsAndTitleFromTab = tabs.map((tab) => {
+      if (tabs.length === 0) {
+        resolve()
+      } else {
+        /** @type PathAndTitle[] */
+        const pathsAndTitlesFromTabs = tabs.map((tab) => {
           const url = tab.url
           // We keep only the mix title. All text after by is not the title
           const title = tab.title.split('by')[0]
@@ -16,52 +25,57 @@ async function retrieveMixesData () {
           }
         })
 
-        const mixPathAndTitleFromPlayer = await getRequestMixPathFromPlayer(tabs)
+        const pathAndTitleFromMixPlayer = await getPathAndTitleFromMixPlayer(tabs)
         let allPathsAndTitle
-        if (mixPathAndTitleFromPlayer) {
-          allPathsAndTitle = mergeAndSortFromTabAndFromPlayer(pathsAndTitleFromTab, mixPathAndTitleFromPlayer)
+        if (pathAndTitleFromMixPlayer) {
+          allPathsAndTitle = mergeAndSortFromTabAndFromPlayer(pathsAndTitlesFromTabs, pathAndTitleFromMixPlayer)
         } else {
-          allPathsAndTitle = pathsAndTitleFromTab
+          allPathsAndTitle = pathsAndTitlesFromTabs
         }
 
-        const mixesDataFromStore = new Promise((resolve, reject) => {
-          return getMixesData(allPathsAndTitle.map(pathAndtitle => pathAndtitle.path), 1, resolve, reject)
+        const mixesFromStore = new Promise((resolve) => {
+          getMixesFromStore(allPathsAndTitle.map(pathAndTitle => pathAndTitle.path), 1, resolve)
         })
 
         try {
-          const mixesData = await mixesDataFromStore
-          addTitleAndIsFromPlayerInMixesData(mixesData, allPathsAndTitle)
+          const mixes = await mixesFromStore
+          const mixViewModels = createMixViewModel(mixes, allPathsAndTitle)
 
-          console.log('data sent to popup')
-          console.log(mixesData)
-          resolve(mixesData)
+          console.log('data sent to popup', mixViewModels)
+          resolve(mixViewModels)
         } catch (e) {
-          console.error('Error on getTracklist : ' + e)
+          console.error('Error on getTracklist', e)
           resolve()
         }
-      } else {
-        resolve()
       }
     })
   })
 }
 
-async function getRequestMixPathFromPlayer (tabs) {
+/**
+ * @param tabs
+ * @returns {Promise<PathAndTitle | undefined>}
+ */
+async function getPathAndTitleFromMixPlayer (tabs) {
   let isMixPathFromPlayerFound = false
-  let mixPathFromPlayer
+  let pathAndTitleFromMixPlayer
   for (let i = 0; i < tabs.length && !isMixPathFromPlayerFound; i++) {
-    mixPathFromPlayer = await requestMixPathFromPlayer(tabs[i])
-    isMixPathFromPlayerFound = !!mixPathFromPlayer
+    pathAndTitleFromMixPlayer = await callContentForPathAndTitleFromMixPlayer(tabs[i])
+    isMixPathFromPlayerFound = !!pathAndTitleFromMixPlayer
   }
-  return mixPathFromPlayer
+  return pathAndTitleFromMixPlayer
 }
 
-async function requestMixPathFromPlayer (tab) {
+/**
+ * @param tab
+ * @returns {Promise<PathAndTitle | null>}
+ */
+async function callContentForPathAndTitleFromMixPlayer (tab) {
   return new Promise((resolve) => {
     chrome.tabs.sendMessage(
       tab.id,
       {
-        action: 'requestMixPathFromPlayer'
+        action: 'requestPathAndTitleFromMixPlayer'
       },
       (response) => {
         resolve(response)
@@ -71,70 +85,86 @@ async function requestMixPathFromPlayer (tab) {
 }
 
 /**
- * Recursive function to handle asynchronicity between request's spy & tracklists display
- * @param path : mix path
- * @param counter : attempt counter for tracklist retrieval from store
- * @param resolve
- * @param reject
- * @returns {*} resolve(an array of mixesData or empty array)
+ * A recursive function that handles asynchronicity between a request's spy mechanism and tracklist display.
+ * It uses {@link resolve} to return the retrieved mixes.
+ *
+ * @param {string[]} paths - The paths corresponding to each mix.
+ * @param {number} counter - The attempt counter for retrieving tracklists from the store.
+ * @param {Function} resolve - Resolves with an array of {@link Mix} when the mixes are successfully retrieved.
+ *                             Otherwise, after 3 failed attempts, it resolves with an empty array.
  */
-function getMixesData (paths, counter, resolve, reject) {
+
+function getMixesFromStore (paths, counter, resolve) {
   if (counter > 3) {
     resolve([])
   }
-  store.getMultipleMixes(paths).then((mixesData) => {
-    if (mixesData.length === 0) {
+  store.getMultipleMixes(paths).then((mixes) => {
+    if (mixes.length === 0) {
       setTimeout(function () {
-        getMixesData(paths, counter + 1, resolve, reject)
+        getMixesFromStore(paths, counter + 1, resolve)
       }, 500)
     } else {
-      resolve(mixesData)
+      resolve(mixes)
     }
   })
 }
 
 /**
  *  If mix from player is not in mixes list from tab, we add it in first position
- *  else we move the played mix in first position
+ *  else we just move the played mix in first position
  *
- * @param pathsAndTitleFromTab
- * @param mixPathAndTitleFromPlayer
+ * @param {PathAndTitle[]} pathsAndTitleFromTab
+ * @param {PathAndTitle} pathAndTitleFromMixPlayer
  * @returns {PathAndTitle[]} All PathAndTitle with PathAndTitleFrom player at first position
  */
-function mergeAndSortFromTabAndFromPlayer (pathsAndTitleFromTab, mixPathAndTitleFromPlayer) {
-  const pathPlayerInPathFromTabIndex = pathsAndTitleFromTab.findIndex(pathAndtitle => pathAndtitle.path === mixPathAndTitleFromPlayer.mixPath)
-  let allpathsAndTitle
+function mergeAndSortFromTabAndFromPlayer (pathsAndTitleFromTab, pathAndTitleFromMixPlayer) {
+  const pathPlayerInPathFromTabIndex = pathsAndTitleFromTab.findIndex(pathAndtitle => pathAndtitle.path === pathAndTitleFromMixPlayer.path)
+  let allpathsAndTitles
   if (pathPlayerInPathFromTabIndex === -1) {
-    allpathsAndTitle = [{
-      path: mixPathAndTitleFromPlayer.mixPath,
-      title: mixPathAndTitleFromPlayer.mixTitle
-    }].concat(pathsAndTitleFromTab)
+    allpathsAndTitles = [pathAndTitleFromMixPlayer].concat(pathsAndTitleFromTab)
   } else {
     const mixPathAndTitleCurrentlyPlayed = pathsAndTitleFromTab[pathPlayerInPathFromTabIndex]
-    allpathsAndTitle = [mixPathAndTitleCurrentlyPlayed].concat(
+    allpathsAndTitles = [mixPathAndTitleCurrentlyPlayed].concat(
       pathsAndTitleFromTab.filter(pathAndtitle => pathAndtitle !== mixPathAndTitleCurrentlyPlayed)
     )
   }
-  console.log('allpathsAndTitle', allpathsAndTitle)
+  console.log('allpathsAndTitles', allpathsAndTitles)
 
-  return allpathsAndTitle
+  return allpathsAndTitles
 }
 
-function addTitleAndIsFromPlayerInMixesData (mixesData, allpathsAndTitle) {
-  if (mixesData.length === allpathsAndTitle.length) {
-    mixesData.forEach((data, index) => {
-      data.title = allpathsAndTitle[index].title
-      data.isFromPlayer = index === 0
+/**
+ * Create (and return) an array of MixViewModel.
+ * Each MixViewModel contains the data for a tab in the popup view
+ *
+ * @param {Mix[]} mixes
+ * @param {PathAndTitle[]} allpathsAndTitles
+ * @returns {MixViewModel[]}
+ */
+function createMixViewModel (mixes, allpathsAndTitles) {
+  let mixViewModels
+  if (mixes.length === allpathsAndTitles.length) {
+    mixViewModels = mixes.map((mix, index) => {
+      return /** @type MixViewModel */ {
+        title: allpathsAndTitles[index].title,
+        isFromPlayer: index === 0,
+        ...mix
+      }
     })
   } else {
-    mixesData.forEach((data, index) => {
-      const pathAndTitleFound = allpathsAndTitle.find(pathAndTitle => pathAndTitle.path === data.path)
+    mixViewModels = mixes.map((mix) => {
+      const pathAndTitleFound = allpathsAndTitles.find(pathAndTitle => pathAndTitle.path === mix.path)
+      /** @type MixViewModel */
+      const mixViewModel = { title: '', isFromPlayer: false, ...mix }
       if (pathAndTitleFound) {
-        data.title = pathAndTitleFound.title
-        data.isFromPlayer = data.path === pathAndTitleFound.path && pathAndTitleFound === allpathsAndTitle[0]
+        mixViewModel.title = pathAndTitleFound.title
+        mixViewModel.isFromPlayer = mix.path === pathAndTitleFound.path && pathAndTitleFound === allpathsAndTitles[0]
+        return mixViewModel
       }
     })
   }
+
+  return mixViewModels
 }
 
-module.exports = retrieveMixesData
+module.exports = getMixViewModels
