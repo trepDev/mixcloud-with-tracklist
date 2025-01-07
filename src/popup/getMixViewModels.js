@@ -5,7 +5,7 @@ const store = require('../store/store')
  * Retrieves the Mixcloud tab and player, along with the corresponding mixes (in store),
  * in order to create the {@link MixViewModel} used by the view.
  *
- * @returns {Promise<MixViewModel|undefined>}
+ * @returns {Promise<MixViewModel[]|undefined>}
  */
 async function getMixViewModels () {
   return new Promise((resolve) => {

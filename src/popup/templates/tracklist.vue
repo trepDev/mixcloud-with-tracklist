@@ -19,13 +19,15 @@
       </thead>
       <tbody>
       <tr v-for="track in tracklist" >
-        <clickable-track :id="'trackNumber'"
+        <clickable-track :info-type="'trackNumber'"
                          :call-content-to-play-track="callContentToPlayTrack"
-                         :is-from-player="isFromPlayer" :track="track"
+                         :is-from-player="isFromPlayer"
+                         :track="track"
                          :text="track.trackNumber"/>
-        <clickable-track :id="'timestamp'"
+        <clickable-track :info-type="'timestamp'"
                          :call-content-to-play-track="callContentToPlayTrack"
-                         :is-from-player="isFromPlayer" :track="track"
+                         :is-from-player="isFromPlayer"
+                         :track="track"
                          :text="track.time"/>
         <td >{{ track.artistName }}</td>
         <td colspan="2">{{ track.songName }}</td>
@@ -49,14 +51,22 @@ import ClickableTrack from './clickableTrack.vue'
 
 export default {
   components: { ClickableTrack },
-  props: [
-    'tracklist', 'isFromPlayer', 'callContentToPlayTrack'
-  ],
+  props:{
+    /** @type TrackInfo[] */
+    tracklist: Array,
+    isFromPlayer: Boolean,
+    /** @type CallContentToPlayTrack */
+    callContentToPlayTrack: Function,
+  },
   methods: {
     copyToClipoard: copyToClipoard
   }
 }
 
+/**
+ *
+ * @param {TrackInfo[]} tracklist
+ */
 function copyToClipoard(tracklist) {
   let toCopy = '';
   tracklist.forEach((track) => toCopy = toCopy + track.trackNumber + ' - ' + track.time + ' - ' + track.songName + ' - ' + track.artistName + '\n');

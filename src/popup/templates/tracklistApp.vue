@@ -1,8 +1,13 @@
 <script>
 export default {
-  props: ['mixesData', 'callContentToPlayTrack'],
+  props: {
+    /** @type MixViewModel[] */
+    mixesData: Array,
+    /** @type CallContentToPlayTrack */
+    callContentToPlayTrack: Function,
+  },
   data() {
-    return {currentMix : null}
+    return { /** @type {MixViewModel|null} */ currentMix : null}
   },
   created() {
     if (this.mixesData) {
@@ -15,6 +20,9 @@ export default {
   }
 }
 
+/**
+ * @param {MixViewModel} selectedMix
+ */
 function onTabClick(selectedMix) {
   if (selectedMix !== this.currentMix) {
     this.currentMix = selectedMix
@@ -23,6 +31,11 @@ function onTabClick(selectedMix) {
   }
 }
 
+/**
+ * @param {number} itemsCount - The number of items.
+ * @param {string} mixId - The ID of the mix.
+ * @returns The CSS classes to apply to the header.
+ */
 function getHeaderItemClass (itemsCount, mixId) {
   const isCurrentMix = this.currentMix.id === mixId
   if (itemsCount === 1) {
