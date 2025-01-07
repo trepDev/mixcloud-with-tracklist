@@ -7,12 +7,12 @@ import Tracklist from './templates/tracklist.vue'
 import NoMix from './templates/noMix.vue'
 import BasicTracklist from './templates/basicTracklist.vue'
 
-const retrieveMixesData = require('./retrieveMixesData')
+const getMixViewModels = require('./getMixViewModels')
 let tracklistVue
 
 initializePopup()
 
-window.addEventListener('beforeunload', function (event) {
+window.addEventListener('beforeunload', function () {
   if (tracklistVue) {
     tracklistVue.$el.remove()
     tracklistVue.$destroy()
@@ -21,10 +21,13 @@ window.addEventListener('beforeunload', function (event) {
 })
 
 async function initializePopup () {
-  const mixesDataforPopUp = await retrieveMixesData()
+  const mixesDataforPopUp = await getMixViewModels()
   await initializeTracklistVue(mixesDataforPopUp)
 }
 
+/**
+ * @param {MixViewModel[]} mixesData
+ */
 function initializeTracklistVue (mixesData) {
   const ComponentClassTracklistVue = createApp(TracklistApp,
     { mixesData: mixesData, callContentToPlayTrack: callContentToPlayTrack })

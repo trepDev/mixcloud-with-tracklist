@@ -65,3 +65,10 @@
  * @property {string} artistName - The name of the artist, defaults to 'unknown' if undefined.
  * @property {string} songName - The name of the song, defaults to 'unknown' if undefined.
  */
+
+/**
+ * A callback function to play a track.
+ * @callback CallContentToPlayTrack
+ * @param {number} trackNumber - The track's number in the playlist.
+ * @param {string} trackId - The ID of the track to play.
+ */

@@ -1,34 +1,50 @@
 <template>
   <td v-if="trackClickable"
-      v-bind:id="id"
       v-bind:class="'activeTimestamp'"
       v-bind:title="'play'"
       v-on:click="callContentToPlayTrack(track.timestamp, isFromPlayer)"
-      v-bind:aria-label="'track number ' + track.trackNumber">
+      v-bind:aria-label="getAriaLabel(infoType, track)">
      {{ text }}
   </td>
   <td v-else
-      v-bind:id="id"
-      v-bind:aria-label="'track number ' + track.trackNumber">
+      v-bind:aria-label="getAriaLabel(infoType, track)">
     {{ text }}
   </td>
 </template>
 
 <script>
+/** @typedef {'trackNumber' | 'timestamp'} InfoType */
+
 export default {
   name: 'clickable-track',
   props: {
-    id: "",
-    callContentToPlayTrack: {},
-    isFromPlayer: {},
-    track: {},
-    text: ""
+    /** @type InfoType */
+    infoType: String,
+    callContentToPlayTrack: Function,
+    isFromPlayer: Boolean,
+    /**@type TrackInfo */
+    track: Object,
+    text: String
   },
   methods: {
-    hasTimestamp: hasTimestamp
+    getAriaLabel : getAriaLabel
   },
   computed: {
     trackClickable: (vm) =>  hasTimestamp(vm.track.timestamp) && vm.isFromPlayer
+  }
+}
+
+/**
+ *
+ * @param {InfoType} type
+ * @param {TrackInfo} trackInfo
+ * @returns {string}
+ */
+function getAriaLabel(type, trackInfo) {
+  if(type === 'trackNumber') {
+    return 'track number ' + trackInfo.trackNumber
+  } else if(type === 'timestamp') {
+    return 'track time ' + trackInfo.time
   }
 }
 
