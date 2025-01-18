@@ -1,4 +1,5 @@
 <script>
+/* global __BUILD_CONTEXT__ */
 export default {
   props: {
     /** @type MixViewModel[] */
@@ -10,13 +11,18 @@ export default {
     return { /** @type {MixViewModel|null} */ currentMix : null}
   },
   created() {
-    if (this.mixesData) {
+    if (this.mixesData.length > 0) {
+      // For the template with a tracklist in Firefox, we need to set this minWidth.
+      // Otherwise, a horizontal scrollbar appears at the bottom of the popup when the tracklist is long
+      // (i.e., with a vertical scrollbar).
+      if (__BUILD_CONTEXT__ === 'ff') document.body.style.minWidth = '780px'
       this.currentMix = this.mixesData[0]
     }
   },
   methods: {
-    onTabClick: onTabClick,
-    getHeaderItemClass: getHeaderItemClass
+    onTabClick,
+    getHeaderItemClasses,
+    getScrollableHeaderClasses
   }
 }
 
@@ -36,7 +42,7 @@ function onTabClick(selectedMix) {
  * @param {string} mixId - The ID of the mix.
  * @returns The CSS classes to apply to the header.
  */
-function getHeaderItemClass (itemsCount, mixId) {
+function getHeaderItemClasses (itemsCount, mixId) {
   const isCurrentMix = this.currentMix.id === mixId
   if (itemsCount === 1) {
     return { 'common-mix-title-header': true, 'mix-title-header': true, 'selected-title-header': false}
@@ -46,15 +52,20 @@ function getHeaderItemClass (itemsCount, mixId) {
     return { 'common-mix-title-header': true, 'mix-title-header-multi': true, 'selected-title-header': isCurrentMix }
   }
 }
+
+function getScrollableHeaderClasses() {
+  const isChrome = __BUILD_CONTEXT__ === 'chrome';
+  return {'scrollable-header': true, 'scrollable-header-width-for-chrome' :isChrome}
+}
 </script>
 
 <template>
   <NoMix v-if="!mixesData || mixesData.length === 0"/>
   <template v-if="mixesData && mixesData.length > 0">
-    <nav class="scrollable-header">
+    <nav v-bind:class="getScrollableHeaderClasses()">
       <a v-for="mixData in mixesData"
          v-bind:id="mixData.id"
-         v-bind:class="getHeaderItemClass(mixesData.length, mixData.id)"
+         v-bind:class="getHeaderItemClasses(mixesData.length, mixData.id)"
          v-bind:title="mixData.title"
          v-on:click="onTabClick(mixData)"
          href="#"
@@ -88,12 +99,17 @@ function getHeaderItemClass (itemsCount, mixId) {
 .scrollable-header {
   background-color: #171C2B;
   display: flex;
-  width: 780px;
   overflow-x: auto;
 
   a:last-child {
     border-width: 0;
   }
+}
+
+/* A scrollable header in Chrome needs this width;
+otherwise, a horizontal scrollbar appears at the bottom of the popup. */
+.scrollable-header-width-for-chrome {
+  width: 780px;
 }
 
 .common-mix-title-header {
