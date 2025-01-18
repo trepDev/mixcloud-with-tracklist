@@ -1,8 +1,5 @@
 <template>
-  <div v-if="tracklist.length === 0" style="min-width: 780px; padding: 24px; text-align: center;">
-    <p>Sorry but the DJ didn't provide any tracklist for this mix.</p>
-  </div>
-  <div v-else class="mwt-tracklist-container">
+  <div class="mwt-tracklist-container">
     <div class="visually-hidden">Click on a track number or timestamp to play the track. Mix must be already launched from the player to be able to select a track</div>
     <table class="tracklist-table">
       <thead>
@@ -22,13 +19,15 @@
       </thead>
       <tbody>
       <tr v-for="track in tracklist" >
-        <clickable-track :id="'trackNumber'"
+        <clickable-track :info-type="'trackNumber'"
                          :call-content-to-play-track="callContentToPlayTrack"
-                         :is-from-player="isFromPlayer" :track="track"
+                         :is-from-player="isFromPlayer"
+                         :track="track"
                          :text="track.trackNumber"/>
-        <clickable-track :id="'timestamp'"
+        <clickable-track :info-type="'timestamp'"
                          :call-content-to-play-track="callContentToPlayTrack"
-                         :is-from-player="isFromPlayer" :track="track"
+                         :is-from-player="isFromPlayer"
+                         :track="track"
                          :text="track.time"/>
         <td >{{ track.artistName }}</td>
         <td colspan="2">{{ track.songName }}</td>
@@ -37,12 +36,13 @@
     </table>
   </div>
 
+  <!-- The copy button in the header table is hidden from screen readers, so this one is specifically for them. -->
   <div class="visually-hidden"
        v-on:click="copyToClipoard(tracklist)">
-    <button >
+    <button>
       copy tracklist on clipboard
     </button>
-  </div><!-- The copy button in the header table is hidden from screen readers, so this one is specifically for them. -->
+  </div>
 
 </template>
 
@@ -51,14 +51,22 @@ import ClickableTrack from './clickableTrack.vue'
 
 export default {
   components: { ClickableTrack },
-  props: [
-    'tracklist', 'isFromPlayer', 'callContentToPlayTrack'
-  ],
+  props:{
+    /** @type TrackInfo[] */
+    tracklist: Array,
+    isFromPlayer: Boolean,
+    /** @type CallContentToPlayTrack */
+    callContentToPlayTrack: Function,
+  },
   methods: {
     copyToClipoard: copyToClipoard
   }
 }
 
+/**
+ *
+ * @param {TrackInfo[]} tracklist
+ */
 function copyToClipoard(tracklist) {
   let toCopy = '';
   tracklist.forEach((track) => toCopy = toCopy + track.trackNumber + ' - ' + track.time + ' - ' + track.songName + ' - ' + track.artistName + '\n');
@@ -79,7 +87,6 @@ p {
 }
 
 .mwt-tracklist-container {
-  width: 780px;
   padding: 0px 10px 0px 10px;
 }
 

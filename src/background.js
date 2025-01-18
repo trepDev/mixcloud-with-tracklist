@@ -32,14 +32,14 @@ async function graphQLListener (spiedRequest) {
 
     // Not my own request & Request for tracklist & tracklist not already store >> call content script to request cloudcast
     if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
-      !await store.getCloudcastByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
+      !await store.getMixByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-        if (tabs[0]) requestCloudcast(tabs[0], payload.variables)
+        if (tabs[0]) callContentForTracklistAudioPageQuery(tabs[0], payload.variables)
       })
-      // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script for request cloudcast
-    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !await store.getCloudcastPathFromId(payload.variables.cloudcastId)) {
+      // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script to request cloudcast
+    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !await store.getMixPathFromId(payload.variables.cloudcastId)) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-        if (tabs[0]) requestPlayerControlsQuery(tabs[0], payload.variables, payload.query)
+        if (tabs[0]) callContentForPlayerControlsQuery(tabs[0], payload.variables, payload.query)
       })
     }
   }
@@ -51,7 +51,7 @@ async function graphQLListener (spiedRequest) {
  * @param tabs
  * @param requestVariables
  */
-function requestCloudcast (tab, requestVariables) {
+function callContentForTracklistAudioPageQuery (tab, requestVariables) {
   chrome.tabs.sendMessage(
     tab.id,
     {
@@ -89,7 +89,7 @@ function requestCloudcast (tab, requestVariables) {
   )
 }
 
-function requestPlayerControlsQuery (tab, requestVariables, query) {
+function callContentForPlayerControlsQuery (tab, requestVariables, query) {
   chrome.tabs.sendMessage(tab.id,
     {
       action: 'requestTracklist',
@@ -115,11 +115,12 @@ function hasDataForPathInMixcloudResponse (response) {
 }
 
 async function storeCloudcast (cloudcast, usernameAndSlug) {
-  const dataToStore = mixMapper.cloudcastToMixData(cloudcast, usernameAndSlug)
-
-  if (!await store.getCloudcastPathFromId(dataToStore.id)) {
-    store.saveIdToPath(dataToStore.id, dataToStore.path)
-    console.log('savecloudCast ' + dataToStore.path)
-    store.setMixData(dataToStore)
+  const mix = mixMapper.cloudcastToMix(cloudcast, usernameAndSlug)
+  try {
+    await store.saveMix(mix)
+    await store.saveIdToPath(mix.id, mix.path)
+    console.log('saveMix ' + mix.path)
+  } catch (e) {
+    console.error(`Error on save for mix ${mix.path}`, e)
   }
 }
