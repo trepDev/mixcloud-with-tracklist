@@ -1,20 +1,34 @@
 <script>
+/* global __BUILD_CONTEXT__ */
 export default {
-  props: ['mixesData', 'callContentToPlayTrack'],
+  props: {
+    /** @type MixViewModel[] */
+    mixesData: Array,
+    /** @type CallContentToPlayTrack */
+    callContentToPlayTrack: Function,
+  },
   data() {
-    return {currentMix : null}
+    return { /** @type {MixViewModel|null} */ currentMix : null}
   },
   created() {
-    if (this.mixesData) {
+    if (this.mixesData.length > 0) {
+      // For the template with a tracklist in Firefox, we need to set this minWidth.
+      // Otherwise, a horizontal scrollbar appears at the bottom of the popup when the tracklist is long
+      // (i.e., with a vertical scrollbar).
+      if (__BUILD_CONTEXT__ === 'ff') document.body.style.minWidth = '780px'
       this.currentMix = this.mixesData[0]
     }
   },
   methods: {
-    onTabClick: onTabClick,
-    getHeaderItemClass: getHeaderItemClass
+    onTabClick,
+    getHeaderItemClasses,
+    getScrollableHeaderClasses
   }
 }
 
+/**
+ * @param {MixViewModel} selectedMix
+ */
 function onTabClick(selectedMix) {
   if (selectedMix !== this.currentMix) {
     this.currentMix = selectedMix
@@ -23,7 +37,12 @@ function onTabClick(selectedMix) {
   }
 }
 
-function getHeaderItemClass (itemsCount, mixId) {
+/**
+ * @param {number} itemsCount - The number of items.
+ * @param {string} mixId - The ID of the mix.
+ * @returns The CSS classes to apply to the header.
+ */
+function getHeaderItemClasses (itemsCount, mixId) {
   const isCurrentMix = this.currentMix.id === mixId
   if (itemsCount === 1) {
     return { 'common-mix-title-header': true, 'mix-title-header': true, 'selected-title-header': false}
@@ -33,15 +52,20 @@ function getHeaderItemClass (itemsCount, mixId) {
     return { 'common-mix-title-header': true, 'mix-title-header-multi': true, 'selected-title-header': isCurrentMix }
   }
 }
+
+function getScrollableHeaderClasses() {
+  const isChrome = __BUILD_CONTEXT__ === 'chrome';
+  return {'scrollable-header': true, 'scrollable-header-width-for-chrome' :isChrome}
+}
 </script>
 
 <template>
   <NoMix v-if="!mixesData || mixesData.length === 0"/>
   <template v-if="mixesData && mixesData.length > 0">
-    <nav class="scrollable-header">
+    <nav v-bind:class="getScrollableHeaderClasses()">
       <a v-for="mixData in mixesData"
          v-bind:id="mixData.id"
-         v-bind:class="getHeaderItemClass(mixesData.length, mixData.id)"
+         v-bind:class="getHeaderItemClasses(mixesData.length, mixData.id)"
          v-bind:title="mixData.title"
          v-on:click="onTabClick(mixData)"
          href="#"
@@ -49,15 +73,23 @@ function getHeaderItemClass (itemsCount, mixId) {
       >{{ mixData.title }}</a>
     </nav>
     <section>
-      <div id="announce"  class="visually-hidden" aria-live="polite"></div>
-      <Tracklist :tracklist="currentMix.tracklist"
-               :isFromPlayer="currentMix.isFromPlayer"
-               :callContentToPlayTrack="callContentToPlayTrack"/>
+      <div id="announce" class="visually-hidden" aria-live="polite"></div>
+      <div v-if="currentMix.tracklist.length === 0" style="padding: 24px; text-align: center;">
+        <p>Sorry but the DJ didn't provide any tracklist for this mix.</p>
+      </div>
+      <template v-else>
+        <BasicTracklist v-if="currentMix.hasBasicTracklist"
+                        :tracklist="currentMix.tracklist"></BasicTracklist>
+        <Tracklist v-else
+                   :tracklist="currentMix.tracklist"
+                   :isFromPlayer="currentMix.isFromPlayer"
+                   :callContentToPlayTrack="callContentToPlayTrack"/>
+      </template>
     </section>
-    <template v-if="currentMix.tracklist.length > 17">
+    <template v-if="!currentMix.hasBasicTracklist && currentMix.tracklist.length > 17">
       <p class="coffee-text">If you're glad to discover all these tracklists, feel free to</p>
       <a href="https://www.buymeacoffee.com/trepDev" target="_blank">
-      <img src="/popup/coffee.png" alt="Buy Me A Coffee" class="coffee-img">
+        <img src="/popup/coffee.png" alt="Buy Me A Coffee" class="coffee-img">
       </a>
     </template>
   </template>
@@ -67,12 +99,17 @@ function getHeaderItemClass (itemsCount, mixId) {
 .scrollable-header {
   background-color: #171C2B;
   display: flex;
-  width: 780px;
   overflow-x: auto;
 
   a:last-child {
     border-width: 0;
   }
+}
+
+/* A scrollable header in Chrome needs this width;
+otherwise, a horizontal scrollbar appears at the bottom of the popup. */
+.scrollable-header-width-for-chrome {
+  width: 780px;
 }
 
 .common-mix-title-header {

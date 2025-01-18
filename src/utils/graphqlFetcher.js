@@ -5,10 +5,13 @@
 'use strict'
 /* global content */
 /* global XMLHttpRequest */
+/* global __BUILD_CONTEXT__ */
+
 // Firefox with manifest V2 needs 'content' namespace to have Origin & Referer.
 // see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#xhr_and_fetch
 if (__BUILD_CONTEXT__ === 'ff') {
-  XMLHttpRequest = content.XMLHttpRequest // eslint-disable-line no-global assign
+  // eslint-disable-next-line no-global-assign
+  XMLHttpRequest = content.XMLHttpRequest
 }
 
 function fetch (variables, query) {
@@ -21,7 +24,7 @@ function fetch (variables, query) {
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'))
     xhr.withCredentials = true
 
-    xhr.onreadystatechange = function (event) {
+    xhr.onreadystatechange = function () {
       if (this.readyState === XMLHttpRequest.DONE) {
         if (this.status !== 200) {
           reject(new Error('response status:' + xhr.status + ' (' + xhr.statusText + ')'))
