@@ -26,7 +26,8 @@ store.getSettings().then(settings => {
 function displayOnboarding (isInstall) {
   const urlIcon = chrome.runtime.getURL('icons/icon48.png')
   const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')
-  const url = isInstall ? chrome.runtime.getURL('onboarding/onboarding-install.html')
+  const url = isInstall
+    ? chrome.runtime.getURL('onboarding/onboarding-install.html')
     : chrome.runtime.getURL('onboarding/onboarding-update.html')
   fetch(url)
     .then(response => response.text())
