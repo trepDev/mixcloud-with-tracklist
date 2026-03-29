@@ -26,7 +26,8 @@ store.getSettings().then(settings => {
 function displayOnboarding (isInstall) {
   const urlIcon = chrome.runtime.getURL('icons/icon48.png')
   const urlExtIcon = chrome.runtime.getURL('onboarding/ext-icon.png')
-  const url = isInstall ? chrome.runtime.getURL('onboarding/onboarding-install.html')
+  const url = isInstall
+    ? chrome.runtime.getURL('onboarding/onboarding-install.html')
     : chrome.runtime.getURL('onboarding/onboarding-update.html')
   fetch(url)
     .then(response => response.text())
@@ -81,9 +82,9 @@ function handlePlayTrack (timestamp, sendResponse) {
 
   // Click on play button doesn't seem fully stable on Firefox, so we only do it for Chrome
   if (__BUILD_CONTEXT__ === 'chrome') {
-    const playButtonPlayer = document.getElementsByClassName('styles__PlayerControl-css-in-js__sc-1o9kadp-1')
-    if (playButtonPlayer.length === 1 && playButtonPlayer[0].getAttribute('aria-label') === 'Play') {
-      playButtonPlayer[0].click()
+    const playButtonPlayer = document.querySelector('[data-testid="player-play-button-Play"]')
+    if (playButtonPlayer) {
+      playButtonPlayer.click()
       playTimeout = 500
     }
   }
@@ -98,19 +99,13 @@ function handlePlayTrack (timestamp, sendResponse) {
 }
 
 function handleMixPathFromPlayer (sendResponse) {
-  const mixAnchorElement = document.getElementsByClassName(
-    'styles__PlainLink-css-in-js__sc-1fruqy3-2 PlayerControlsDetails__ShowTitle-css-in-js__sc-1h3465k-4')[0]
-
-  const textAndHrefPart = {
-    text: mixAnchorElement.firstChild.nodeValue,
-    hrefParts: mixAnchorElement.href.replace('https://www.mixcloud.com/', '').split('/')
-  }
+  const mixAnchorElement = document.querySelector('[data-testid="player-show-title"]')
 
   sendResponse(
     /** @type PathAndTitle */
     {
-      path: '/' + textAndHrefPart.hrefParts[0] + '/' + textAndHrefPart.hrefParts[1] + '/',
-      title: textAndHrefPart.text
+      path: mixAnchorElement.href.replace('https://www.mixcloud.com', ''),
+      title: mixAnchorElement.firstChild.nodeValue
     }
   )
   return true
