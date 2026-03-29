@@ -37,7 +37,7 @@ async function graphQLListener (spiedRequest) {
         if (tabs[0]) callContentForTracklistAudioPageQuery(tabs[0], payload.variables)
       })
       // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script to request cloudcast
-    } else if (payload.id !== 'MwT' && payload.query.includes('PlayerControlsQuery') && !await store.getMixPathFromId(payload.variables.cloudcastId)) {
+    } else if (payload.id !== 'MwT' && payload.query.includes('localPlayerQueue__currentItem__cloudcast') && !await store.getMixPathFromId(payload.variables.cloudcastId)) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
         if (tabs[0]) callContentForPlayerControlsQuery(tabs[0], payload.variables, payload.query)
       })
@@ -98,8 +98,8 @@ function callContentForPlayerControlsQuery (tab, requestVariables, query) {
     },
     (response) => {
       if (hasDataForPathInMixcloudResponse(response)) {
-        storeCloudcast(response.xhrResponse.data.cloudcast,
-          { username: response.xhrResponse.data.cloudcast.owner.username, slug: response.xhrResponse.data.cloudcast.slug })
+        storeCloudcast(response.xhrResponse.data.node,
+          { username: response.xhrResponse.data.node.owner.username, slug: response.xhrResponse.data.node.slug })
       }
     }
   )
@@ -110,8 +110,8 @@ function hasCloudcast (response) {
 }
 
 function hasDataForPathInMixcloudResponse (response) {
-  return !!response?.xhrResponse?.data?.cloudcast?.owner?.username &&
-    !!response?.xhrResponse?.data?.cloudcast?.slug
+  return !!response?.xhrResponse?.data?.node?.owner?.username &&
+    !!response?.xhrResponse?.data?.node?.slug
 }
 
 async function storeCloudcast (cloudcast, usernameAndSlug) {
