@@ -48,7 +48,7 @@ async function graphQLListener (spiedRequest) {
 /**
  * Send message to content script in order to retrieve tracklist.
  * Store tracklist if available in response.
- * @param tabs
+ * @param tab
  * @param requestVariables
  */
 function callContentForTracklistAudioPageQuery (tab, requestVariables) {
