@@ -21,7 +21,7 @@ chrome.runtime.onInstalled.addListener(details => {
  * So, I have to spy graphQL request to get variables/query and make my own request.
  */
 chrome.webRequest.onBeforeRequest.addListener(graphQLListener,
-  { urls: ['https://app.mixcloud.com/graphql'] }, ['requestBody']
+  { urls: ['https://app.mixcloud.com/graphql*'] }, ['requestBody']
 )
 
 async function graphQLListener (spiedRequest) {
