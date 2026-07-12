@@ -31,7 +31,7 @@ async function graphQLListener (spiedRequest) {
     const payload = JSON.parse(decoder.decode(byteArray))
 
     // Not my own request & Request for tracklist & tracklist not already store >> call content script to request cloudcast
-    if (payload.id !== 'MwT' && payload.query.includes('TracklistAudioPageQuery') &&
+    if (payload.id !== 'MwT' && payload.query.includes('cloudcastQuery') &&
       !await store.getMixByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
         if (tabs[0]) callContentForTracklistAudioPageQuery(tabs[0], payload.variables)
@@ -59,25 +59,74 @@ function callContentForTracklistAudioPageQuery (tab, requestVariables) {
       variables: requestVariables,
       // query made by mixcloud, but I add startSeconds to retrieve timestamp
       query: `
-    query TracklistAudioPageQuery($lookup: CloudcastLookup!) {
-        cloudcast: cloudcastLookup(lookup: $lookup) {
-            canShowTracklist
-            featuringArtistList
-            moreFeaturingArtists
-            sections {
-                ... on TrackSection {
-                    __typename
-                    artistName
-                    songName
-                    startSeconds
-                }
-                ... on ChapterSection {
-                    chapter
-                }
-            }
-            id
-        }
+    query cloudcastQuery(
+  $lookup: CloudcastLookup!
+) {
+  cloudcast: cloudcastLookup(lookup: $lookup) {
+    isDraft
+    owner {
+      username
+      id
     }
+    slug
+    tags {
+      tag {
+        slug
+        id
+      }
+    }
+    ...CloudcastBody_cloudcast
+    id
+  }
+}
+
+fragment AudioTracklist_cloudcast on Cloudcast {
+  canShowTracklist
+  featuringArtistList
+  moreFeaturingArtists
+  sections {
+    __typename
+    ... on TrackSection {
+      __typename
+      artistName
+      songName
+      startSeconds
+    }
+    ... on ChapterSection {
+      chapter
+    }
+    ... on Node {
+      __isNode: __typename
+      id
+    }
+  }
+}
+
+fragment ChartPosition_cloudcast on Cloudcast {
+  tags {
+    tag {
+      name
+      slug
+      id
+    }
+    bestPosition
+  }
+}
+
+fragment CloudcastBody_cloudcast on Cloudcast {
+  audioType
+  description
+  tags {
+    tag {
+      name
+      slug
+      id
+    }
+    position
+  }
+  ...ChartPosition_cloudcast
+  ...AudioTracklist_cloudcast
+  }
 `
     },
     (response) => {
