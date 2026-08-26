@@ -14,11 +14,11 @@ if (__BUILD_CONTEXT__ === 'ff') {
   XMLHttpRequest = content.XMLHttpRequest
 }
 
-function fetch (variables, query) {
+function fetch (urlRequest, payload) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
     xhr.responseType = 'json'
-    xhr.open('POST', 'https://app.mixcloud.com/graphql')
+    xhr.open('POST', urlRequest)
     xhr.setRequestHeader('Content-Type', 'application/json')
     xhr.setRequestHeader('Accept', 'application/json')
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'))
@@ -38,11 +38,7 @@ function fetch (variables, query) {
       })
     }
 
-    xhr.send(JSON.stringify({
-      id: 'MwT',
-      query: query,
-      variables: variables
-    }))
+    xhr.send(JSON.stringify(payload))
   })
 }
 

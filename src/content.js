@@ -58,7 +58,7 @@ function displayOnboarding (isInstall) {
 chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
     if (message.action === 'requestTracklist') {
-      return handleRequestTracklist(message.variables, message.query, sender, sendResponse)
+      return handleRequestTracklist(message.urlRequest, message.payload, sender, sendResponse)
     } else if (message.action === 'playTrack') {
       handlePlayTrack(message.timestamp, sendResponse)
     } else if (message.action === 'requestPathAndTitleFromMixPlayer') {
@@ -67,8 +67,8 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-function handleRequestTracklist (variables, query, sender, sendResponse) {
-  graphQLFetcher.fetch(variables, query).then(result => {
+function handleRequestTracklist (urlRequest, payload, sender, sendResponse) {
+  graphQLFetcher.fetch(urlRequest, payload).then(result => {
     sendResponse(result)
   }).catch((reason) => {
     console.error('Error on graphQLFetcher.fetch : ' + reason)
