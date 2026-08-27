@@ -12,6 +12,8 @@ const mixMapper = require('./utils/mixMapper')
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
     store.setSettings({ onboardingInstall: true })
+  } else if (details.reason === 'update') {
+    store.clear().then(() => store.setSettings({ onboardingUpdate: true }))
   }
 })
 
@@ -30,120 +32,21 @@ async function graphQLListener (spiedRequest) {
     const decoder = new TextDecoder('utf-8')
     const payload = JSON.parse(decoder.decode(byteArray))
 
-    // Not my own request & Request for tracklist & tracklist not already store >> call content script to request cloudcast
-    if (payload.id !== 'MwT' && payload.query.includes('cloudcastQuery') &&
-      !await store.getMixByPath('/' + payload.variables.lookup.username + '/' + payload.variables.lookup.slug + '/')) {
+    // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script to request cloudcast
+    if (payload.id !== 'MwT' && spiedRequest.url.includes('localPlayerQueue__currentItem__cloudcast') && !await store.getMixPathFromId(payload.variables.id)) {
       chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-        if (tabs[0]) callContentForTracklistAudioPageQuery(tabs[0], payload.variables)
-      })
-      // Not my own request  & Request for tracklist (with timestamp) & tracklist not already in store >> call content script to request cloudcast
-    } else if (payload.id !== 'MwT' && payload.query.includes('localPlayerQueue__currentItem__cloudcast') && !await store.getMixPathFromId(payload.variables.cloudcastId)) {
-      chrome.tabs.query({ url: '*://*.mixcloud.com/*' }, (tabs) => {
-        if (tabs[0]) callContentForPlayerControlsQuery(tabs[0], payload.variables, payload.query)
+        if (tabs[0]) callContentForPlayerControlsQuery(tabs[0], spiedRequest.url, payload)
       })
     }
   }
 }
 
-/**
- * Send message to content script in order to retrieve tracklist.
- * Store tracklist if available in response.
- * @param tab
- * @param requestVariables
- */
-function callContentForTracklistAudioPageQuery (tab, requestVariables) {
-  chrome.tabs.sendMessage(
-    tab.id,
-    {
-      action: 'requestTracklist',
-      variables: requestVariables,
-      // query made by mixcloud, but I add startSeconds to retrieve timestamp
-      query: `
-    query cloudcastQuery(
-  $lookup: CloudcastLookup!
-) {
-  cloudcast: cloudcastLookup(lookup: $lookup) {
-    isDraft
-    owner {
-      username
-      id
-    }
-    slug
-    tags {
-      tag {
-        slug
-        id
-      }
-    }
-    ...CloudcastBody_cloudcast
-    id
-  }
-}
-
-fragment AudioTracklist_cloudcast on Cloudcast {
-  canShowTracklist
-  featuringArtistList
-  moreFeaturingArtists
-  sections {
-    __typename
-    ... on TrackSection {
-      __typename
-      artistName
-      songName
-      startSeconds
-    }
-    ... on ChapterSection {
-      chapter
-    }
-    ... on Node {
-      __isNode: __typename
-      id
-    }
-  }
-}
-
-fragment ChartPosition_cloudcast on Cloudcast {
-  tags {
-    tag {
-      name
-      slug
-      id
-    }
-    bestPosition
-  }
-}
-
-fragment CloudcastBody_cloudcast on Cloudcast {
-  audioType
-  description
-  tags {
-    tag {
-      name
-      slug
-      id
-    }
-    position
-  }
-  ...ChartPosition_cloudcast
-  ...AudioTracklist_cloudcast
-  }
-`
-    },
-    (response) => {
-      if (hasCloudcast(response)) {
-        storeCloudcast(response.xhrResponse.data.cloudcast,
-          { username: requestVariables.lookup.username, slug: requestVariables.lookup.slug })
-      }
-    }
-  )
-}
-
-function callContentForPlayerControlsQuery (tab, requestVariables, query) {
+function callContentForPlayerControlsQuery (tab, urlRequest, payload) {
   chrome.tabs.sendMessage(tab.id,
     {
       action: 'requestTracklist',
-      variables: requestVariables,
-      query: query
+      urlRequest: urlRequest,
+      payload: payload
     },
     (response) => {
       if (hasDataForPathInMixcloudResponse(response)) {
@@ -152,10 +55,6 @@ function callContentForPlayerControlsQuery (tab, requestVariables, query) {
       }
     }
   )
-}
-
-function hasCloudcast (response) {
-  return !!response?.xhrResponse?.data?.cloudcast
 }
 
 function hasDataForPathInMixcloudResponse (response) {
